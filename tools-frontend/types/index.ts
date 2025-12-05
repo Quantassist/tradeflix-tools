@@ -298,3 +298,532 @@ export type COTAnalysisResponse = {
   avg_commercial_net: number
   avg_non_commercial_net: number
 }
+
+// ============================================================================
+// Disaggregated COT Types
+// ============================================================================
+
+export type SentimentLevel = "extreme_bear" | "bearish" | "neutral" | "bullish" | "extreme_bull"
+
+export type DisaggregatedPositionData = {
+  report_date: string
+  market_name: string | null
+  commodity_name: string | null
+  commodity_group: string | null
+  open_interest: number
+  // Producer/Merchant (Commercials)
+  producer_merchant_long: number
+  producer_merchant_short: number
+  producer_merchant_net: number
+  producer_merchant_pct_long: number | null
+  producer_merchant_pct_short: number | null
+  // Swap Dealers
+  swap_dealer_long: number
+  swap_dealer_short: number
+  swap_dealer_spread: number
+  swap_dealer_net: number
+  swap_dealer_pct_long: number | null
+  swap_dealer_pct_short: number | null
+  // Managed Money
+  managed_money_long: number
+  managed_money_short: number
+  managed_money_spread: number
+  managed_money_net: number
+  managed_money_pct_long: number | null
+  managed_money_pct_short: number | null
+  // Other Reportables
+  other_reportables_long: number
+  other_reportables_short: number
+  other_reportables_spread: number
+  other_reportables_net: number
+  other_reportables_pct_long: number | null
+  other_reportables_pct_short: number | null
+  // Non-Reportables (Small Traders)
+  non_reportables_long: number
+  non_reportables_short: number
+  non_reportables_net: number
+  non_reportables_pct_long: number | null
+  non_reportables_pct_short: number | null
+}
+
+export type WeeklyChange = {
+  change_open_interest: number
+  change_prod_merc_long: number
+  change_prod_merc_short: number
+  change_swap_long: number
+  change_swap_short: number
+  change_m_money_long: number
+  change_m_money_short: number
+  change_other_rept_long: number
+  change_other_rept_short: number
+  change_nonrept_long: number
+  change_nonrept_short: number
+  change_prod_merc_net: number
+  change_swap_net: number
+  change_m_money_net: number
+  change_other_rept_net: number
+  change_nonrept_net: number
+}
+
+export type CategoryPercentile = {
+  category: string
+  current_net: number
+  percentile_1y: number
+  percentile_3y: number | null
+  cot_index: number
+  is_extreme: boolean
+  extreme_type: string | null
+  sentiment: SentimentLevel
+}
+
+export type SentimentGauge = {
+  category: string
+  sentiment: SentimentLevel
+  percentile: number
+  net_position: number
+  four_week_change: number
+  consecutive_weeks_direction: number
+  description: string
+}
+
+export type DisaggCOTAnalysisResponse = {
+  commodity: string
+  market_name: string | null
+  latest_report_date: string
+  data_as_of_date: string
+  weeks_analyzed: number
+  current_positions: DisaggregatedPositionData
+  weekly_changes: WeeklyChange
+  producer_merchant_percentile: CategoryPercentile
+  swap_dealer_percentile: CategoryPercentile
+  managed_money_percentile: CategoryPercentile
+  other_reportables_percentile: CategoryPercentile
+  non_reportables_percentile: CategoryPercentile
+  managed_money_sentiment: SentimentGauge
+  producer_merchant_sentiment: SentimentGauge
+  signal: COTSignal
+  avg_managed_money_net: number
+  avg_producer_merchant_net: number
+}
+
+export type DisaggCOTHistoricalResponse = {
+  commodity: string
+  market_name: string | null
+  start_date: string
+  end_date: string
+  data_points: DisaggregatedPositionData[]
+  total_weeks: number
+}
+
+export type NetPositionTimeSeries = {
+  dates: string[]
+  producer_merchant_net: number[]
+  swap_dealer_net: number[]
+  managed_money_net: number[]
+  other_reportables_net: number[]
+  non_reportables_net: number[]
+  open_interest: number[]
+}
+
+export type LongShortTimeSeries = {
+  dates: string[]
+  producer_merchant_long: number[]
+  producer_merchant_short: number[]
+  swap_dealer_long: number[]
+  swap_dealer_short: number[]
+  managed_money_long: number[]
+  managed_money_short: number[]
+  other_reportables_long: number[]
+  other_reportables_short: number[]
+  non_reportables_long: number[]
+  non_reportables_short: number[]
+}
+
+export type COTChartDataResponse = {
+  commodity: string
+  market_name: string | null
+  net_positions: NetPositionTimeSeries
+  long_short_positions: LongShortTimeSeries
+}
+
+export type ExtremePositioningAlert = {
+  commodity: string
+  report_date: string
+  category: string
+  net_position: number
+  percentile: number
+  extreme_type: string
+  deviation_from_avg: number
+  deviation_pct: number
+  historical_context: string
+  potential_reversal: boolean
+  suggested_action: string
+}
+
+export type COTTradingSignal = {
+  signal_type: string
+  signal: string
+  confidence: string
+  managed_money_percentile: number
+  producer_merchant_percentile: number
+  managed_money_4wk_change: number
+  reasoning: string
+  historical_accuracy: string | null
+}
+
+export type AvailableCommodity = {
+  commodity_name: string
+  market_name: string
+  commodity_group: string | null
+  commodity_subgroup: string | null
+  latest_report_date: string
+  total_reports: number
+}
+
+// ============================================================================
+// Advanced COT Analytics Types
+// ============================================================================
+
+export type FlowComponent = {
+  new_longs: number
+  long_liquidation: number
+  new_shorts: number
+  short_covering: number
+  net_flow: number
+  dominant_flow: string
+  interpretation: string
+}
+
+export type FlowDecompositionData = {
+  report_date: string
+  producer_merchant: FlowComponent
+  swap_dealer: FlowComponent
+  managed_money: FlowComponent
+  other_reportables: FlowComponent
+}
+
+export type FlowDecompositionResponse = {
+  commodity: string
+  weeks_analyzed: number
+  current_week: FlowDecompositionData
+  historical_data: FlowDecompositionData[]
+  summary: string
+}
+
+export type ParticipationMetrics = {
+  category: string
+  total_long_positions: number
+  total_short_positions: number
+  traders_long: number
+  traders_short: number
+  avg_contracts_per_trader_long: number
+  avg_contracts_per_trader_short: number
+  trader_count_change: number
+  is_whale_driven: boolean
+  participation_trend: string
+  interpretation: string
+}
+
+export type ParticipationResponse = {
+  commodity: string
+  report_date: string
+  metrics: ParticipationMetrics[]
+  overall_participation: string
+  whale_alert: string | null
+}
+
+export type ConcentrationMetrics = {
+  side: string
+  top_4_gross: number
+  top_8_gross: number
+  top_4_net: number
+  top_8_net: number
+  concentration_ratio: number
+  is_concentrated: boolean
+  percentile_vs_history: number
+}
+
+export type ConcentrationResponse = {
+  commodity: string
+  report_date: string
+  long_concentration: ConcentrationMetrics
+  short_concentration: ConcentrationMetrics
+  crowding_score: number
+  crowding_level: string
+  interpretation: string
+  historical_context: string
+}
+
+export type SqueezeRiskMetrics = {
+  squeeze_type: string
+  risk_score: number
+  risk_level: string
+  spec_positioning_factor: number
+  concentration_factor: number
+  commercial_positioning_factor: number
+  retail_factor: number
+  managed_money_percentile: number
+  concentration_top_4: number
+  commercial_net_direction: string
+  non_reportable_bias: string
+  interpretation: string
+  historical_precedent: string | null
+}
+
+export type SqueezeRiskResponse = {
+  commodity: string
+  report_date: string
+  long_squeeze_risk: SqueezeRiskMetrics
+  short_squeeze_risk: SqueezeRiskMetrics
+  dominant_risk: string
+  overall_vulnerability: string
+  suggested_action: string
+}
+
+export type AdvancedCOTSummary = {
+  commodity: string
+  report_date: string
+  crowding_score: number
+  squeeze_risk_score: number
+  flow_momentum_score: number
+  concentration_score: number
+  alerts: string[]
+  current_regime: string
+  regime_confidence: number
+  primary_insight: string
+  suggested_action: string
+}
+
+// ============================================================================
+// Priority 2: Curve, Spread, and Herding Types
+// ============================================================================
+
+export type CurveBucketPositioning = {
+  category: string
+  front_long: number
+  front_short: number
+  front_net: number
+  front_spread: number
+  back_long: number
+  back_short: number
+  back_net: number
+  back_spread: number
+  front_pct_of_total: number
+  curve_bias: string
+  curve_bias_score: number
+  interpretation: string
+}
+
+export type CurveAnalysisResponse = {
+  commodity: string
+  report_date: string
+  total_oi: number
+  front_oi: number
+  back_oi: number
+  front_oi_pct: number
+  positioning: CurveBucketPositioning[]
+  roll_stress_score: number
+  roll_stress_level: string
+  curve_summary: string
+  roll_warning: string | null
+}
+
+export type SpreadDirectionalBreakdown = {
+  category: string
+  directional_long: number
+  directional_short: number
+  directional_net: number
+  spread_positions: number
+  spread_pct_of_total: number
+  directional_pct_of_total: number
+  exposure_type: string
+  interpretation: string
+}
+
+export type SpreadAnalysisResponse = {
+  commodity: string
+  report_date: string
+  breakdown: SpreadDirectionalBreakdown[]
+  total_spread_positions: number
+  total_directional_positions: number
+  market_spread_ratio: number
+  market_mode: string
+  mode_strength: string
+  spread_change_wow: number
+  directional_change_wow: number
+  interpretation: string
+}
+
+export type HerdingType = 
+  | "broad_herding"
+  | "oligopoly"
+  | "dispersed"
+  | "capitulation"
+  | "normal"
+
+export type HerdingMetrics = {
+  category: string
+  traders_long: number
+  traders_short: number
+  total_traders: number
+  trader_count_change: number
+  net_position: number
+  avg_position_size: number
+  long_short_trader_ratio: number
+  position_per_trader_percentile: number
+  herding_type: HerdingType
+  herding_intensity: number
+  interpretation: string
+}
+
+export type HerdingAnalysisResponse = {
+  commodity: string
+  report_date: string
+  categories: HerdingMetrics[]
+  overall_herding_score: number
+  overall_herding_type: HerdingType
+  smart_money_direction: string
+  crowd_direction: string
+  divergence_detected: boolean
+  herding_alert: string | null
+  interpretation: string
+}
+
+// ============================================================================
+// Priority 3: Cross-Market, Volatility, and ML Regime Types
+// ============================================================================
+
+export type SpeculativePressureItem = {
+  commodity: string
+  commodity_group: string | null
+  report_date: string
+  managed_money_net: number
+  commercial_net: number
+  open_interest: number
+  spec_pressure: number
+  spec_pressure_percentile: number
+  mm_percentile: number
+  commercial_percentile: number
+  crowding_level: string
+  pressure_change: number
+  pressure_direction: string
+}
+
+export type SectorPressure = {
+  sector: string
+  avg_pressure: number
+  commodities_count: number
+}
+
+export type CrossMarketPressureResponse = {
+  report_date: string
+  commodities_analyzed: number
+  most_crowded_long: SpeculativePressureItem[]
+  most_crowded_short: SpeculativePressureItem[]
+  sector_pressure: SectorPressure[]
+  rotation_into: string[]
+  rotation_out_of: string[]
+  avg_spec_pressure: number
+  market_sentiment: string
+  interpretation: string
+}
+
+export type VolatilityRegimeMetrics = {
+  commodity: string
+  report_date: string
+  gross_positions: number
+  gross_positions_percentile: number
+  gross_positions_change_4wk: number
+  spread_ratio: number
+  spread_ratio_percentile: number
+  concentration_score: number
+  implied_vol_regime: string
+  vol_regime_score: number
+  vol_skew: string
+  interpretation: string
+}
+
+export type VolRegimeHistoryItem = {
+  date: string
+  regime: string
+  score: number
+}
+
+export type VolatilityAnalysisResponse = {
+  commodity: string
+  report_date: string
+  current_metrics: VolatilityRegimeMetrics
+  vol_regime_history: VolRegimeHistoryItem[]
+  vol_alert: string | null
+  interpretation: string
+}
+
+export type MLRegimeFeatures = {
+  mm_net_percentile: number
+  commercial_net_percentile: number
+  nonrept_net_percentile: number
+  mm_4wk_flow: number
+  commercial_4wk_flow: number
+  concentration_score: number
+  spread_ratio: number
+  herding_score: number
+  front_back_ratio: number
+  gross_positions_percentile: number
+}
+
+export type MLRegimeType =
+  | "trend_following"
+  | "mean_reversion"
+  | "accumulation"
+  | "distribution"
+  | "capitulation"
+  | "consolidation"
+  | "breakout_setup"
+
+export type FeatureImportance = {
+  feature: string
+  importance: number
+  value: number
+}
+
+export type RegimeTransition = {
+  regime: string
+  probability: number
+}
+
+export type MLRegimeClassification = {
+  commodity: string
+  report_date: string
+  primary_regime: MLRegimeType
+  primary_confidence: number
+  secondary_regime: MLRegimeType | null
+  secondary_confidence: number | null
+  top_features: FeatureImportance[]
+  regime_description: string
+  typical_duration_weeks: number
+  typical_outcome: string
+  historical_win_rate: number | null
+  avg_move_after_4wk: number | null
+  likely_next_regimes: RegimeTransition[]
+  suggested_strategy: string
+  risk_level: string
+}
+
+export type MLRegimeHistoryItem = {
+  report_date: string
+  regime: MLRegimeType
+  confidence: number
+  mm_percentile: number
+  commercial_percentile: number
+}
+
+export type MLRegimeAnalysisResponse = {
+  commodity: string
+  report_date: string
+  current_regime: MLRegimeClassification
+  features: MLRegimeFeatures
+  regime_history: MLRegimeHistoryItem[]
+  regime_duration_current: number
+  regime_distribution: Record<string, number>
+  interpretation: string
+}

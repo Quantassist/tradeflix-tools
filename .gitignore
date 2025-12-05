@@ -1,0 +1,87 @@
+# ---- Global OS / IDE ----
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ---- Python backend (tools-backend) ----
+tools-backend/__pycache__/
+tools-backend/*.py[cod]
+tools-backend/*$py.class
+tools-backend/.Python
+tools-backend/build/
+tools-backend/develop-eggs/
+tools-backend/dist/
+tools-backend/downloads/
+tools-backend/eggs/
+tools-backend/.eggs/
+tools-backend/lib/
+tools-backend/lib64/
+tools-backend/parts/
+tools-backend/sdist/
+tools-backend/var/
+tools-backend/wheels/
+tools-backend/*.egg-info/
+tools-backend/.installed.cfg
+tools-backend/*.egg
+
+# Virtual envs
+tools-backend/.venv/
+tools-backend/venv/
+tools-backend/ENV/
+tools-backend/env/
+
+# Backend env files
+tools-backend/.env
+tools-backend/.env.local
+tools-backend/.env.*.local
+
+# Backend testing
+tools-backend/.pytest_cache/
+tools-backend/.coverage
+tools-backend/htmlcov/
+tools-backend/.tox/
+
+# Backend DB and logs
+tools-backend/*.db
+tools-backend/*.sqlite3
+tools-backend/*.log
+tools-backend/logs/
+
+# Alembic compiled files
+tools-backend/alembic/versions/*.pyc
+
+# ---- Next.js frontend (tools-frontend) ----
+tools-frontend/node_modules/
+tools-frontend/.pnp
+tools-frontend/.pnp.*
+tools-frontend/.yarn/*
+!tools-frontend/.yarn/patches
+!tools-frontend/.yarn/plugins
+!tools-frontend/.yarn/releases
+!tools-frontend/.yarn/versions
+
+# Frontend testing
+tools-frontend/coverage/
+
+# Next.js build artifacts
+tools-frontend/.next/
+tools-frontend/out/
+tools-frontend/build/
+
+# Frontend env files
+tools-frontend/.env*
+
+# Misc frontend
+tools-frontend/.vercel
+tools-frontend/.DS_Store
+tools-frontend/*.pem
+tools-frontend/npm-debug.log*
+tools-frontend/yarn-debug.log*
+tools-frontend/yarn-error.log*
+tools-frontend/.pnpm-debug.log*
+tools-frontend/*.tsbuildinfo
+tools-frontend/next-env.d.ts

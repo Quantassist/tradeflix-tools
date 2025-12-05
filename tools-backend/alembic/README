@@ -1,0 +1,32 @@
+Generic single-database configuration for Bullion Brain API.
+
+## Creating Migrations
+
+Generate a new migration:
+```bash
+uv run alembic revision --autogenerate -m "description of changes"
+```
+
+## Running Migrations
+
+Apply all pending migrations:
+```bash
+uv run alembic upgrade head
+```
+
+Rollback one migration:
+```bash
+uv run alembic downgrade -1
+```
+
+## Viewing Migration History
+
+Show current revision:
+```bash
+uv run alembic current
+```
+
+Show migration history:
+```bash
+uv run alembic history
+```

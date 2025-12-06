@@ -1,6 +1,141 @@
 // Common types
 export type TimeFrame = "1D" | "1W" | "1M" | "3M" | "6M" | "1Y"
 
+// ============================================================================
+// Visual Strategy Builder Types (Recursive Tree Structure)
+// ============================================================================
+
+export type StrategyAsset = "GOLD" | "SILVER" | "PLATINUM" | "PALLADIUM"
+
+export enum StrategyIndicatorType {
+  // Moving Averages
+  SMA = "SMA",
+  EMA = "EMA",
+  // Momentum Indicators
+  RSI = "RSI",
+  MACD = "MACD",
+  MACD_SIGNAL = "MACD_SIGNAL",
+  MACD_HIST = "MACD_HIST",
+  STOCH_K = "STOCH_K",
+  STOCH_D = "STOCH_D",
+  // Volatility Indicators
+  ATR = "ATR",
+  BB_UPPER = "BB_UPPER",
+  BB_MIDDLE = "BB_MIDDLE",
+  BB_LOWER = "BB_LOWER",
+  // Price Data
+  PRICE = "PRICE",
+  OPEN = "OPEN",
+  HIGH = "HIGH",
+  LOW = "LOW",
+  VOLUME = "VOLUME",
+  PREV_HIGH = "PREV_HIGH",
+  PREV_LOW = "PREV_LOW",
+  // External Data
+  USDINR = "USDINR",
+  // Pivot Points
+  CPR_PIVOT = "CPR_PIVOT",
+  CPR_TC = "CPR_TC",
+  CPR_BC = "CPR_BC",
+}
+
+export enum StrategyComparator {
+  GREATER_THAN = ">",
+  LESS_THAN = "<",
+  EQUALS = "==",
+  CROSSES_ABOVE = "CROSS_ABOVE",
+  CROSSES_BELOW = "CROSS_BELOW",
+}
+
+export type IndicatorConfig = {
+  type: StrategyIndicatorType
+  period: number
+  source?: "close" | "open" | "high" | "low"
+}
+
+export type StrategyCondition = {
+  id: string
+  type: "CONDITION"
+  left: IndicatorConfig
+  comparator: StrategyComparator
+  right: IndicatorConfig
+  value?: number // Static value override (when comparing to a fixed number)
+}
+
+export type LogicGroup = {
+  id: string
+  type: "GROUP"
+  operator: "AND" | "OR"
+  children: StrategyNode[]
+}
+
+export type StrategyNode = StrategyCondition | LogicGroup
+
+export type VisualStrategy = {
+  id: string
+  name: string
+  asset: StrategyAsset
+  entryLogic: LogicGroup
+  exitLogic: LogicGroup
+  stopLossPct: number
+  takeProfitPct: number
+}
+
+// Candle data with dynamic indicator values
+export type Candle = {
+  date: string
+  open: number
+  high: number
+  low: number
+  close: number
+  volume: number
+  usdinr?: number
+  [key: string]: string | number | undefined
+}
+
+// Visual backtest trade
+export type VisualBacktestTrade = {
+  entryDate: string
+  entryPrice: number
+  exitDate?: string
+  exitPrice?: number
+  profit?: number
+  profitPct?: number
+  type: "LONG" | "SHORT"
+  status: "OPEN" | "CLOSED"
+}
+
+// Visual backtest metrics
+export type VisualBacktestMetrics = {
+  totalReturn: number
+  winRate: number
+  maxDrawdown: number
+  sharpeRatio: number
+  tradesCount: number
+}
+
+// Visual backtest result
+export type VisualBacktestResult = {
+  trades: VisualBacktestTrade[]
+  finalEquity: number
+  initialEquity: number
+  metrics: VisualBacktestMetrics
+  equityCurve: { date: string; equity: number }[]
+  priceData: Candle[]
+}
+
+// Visual backtest request
+export type VisualBacktestRequest = {
+  strategy: VisualStrategy
+  startDate?: string
+  endDate?: string
+  initialCapital?: number
+}
+
+// ============================================================================
+// Legacy Backtesting Types (kept for backward compatibility)
+// ============================================================================
+
 // Backtesting Types
 export type IndicatorType = "RSI" | "MACD" | "SMA" | "EMA" | "BOLLINGER" | "ATR" | "VWAP" | "PIVOT"
 

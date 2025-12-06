@@ -1,14 +1,31 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import List, Optional
 import pandas as pd
 import math
 import logging
+from datetime import date, timedelta
 from backtesting import Backtest, Strategy
+from sqlalchemy.orm import Session
 
 from services.data_providers import YahooFinanceProvider, ProviderError
+from database import get_db
+from models.metals import MetalsPriceSpot
+from schemas.visual_backtest import (
+    VisualBacktestRequest,
+    VisualBacktestResponse,
+    VisualBacktestTrade,
+    VisualBacktestMetrics,
+    EquityCurvePoint,
+    CandleData,
+)
+from services.strategy_engine import run_visual_backtest
+from services.backtest_engine import run_backtest_with_lib
 
 logger = logging.getLogger(__name__)
+
+# Engine selection: "legacy" uses custom engine, "backtesting" uses backtesting.py
+DEFAULT_ENGINE = "legacy"  # Change to "backtesting" to use backtesting.py by default
 
 router = APIRouter()
 
@@ -548,3 +565,197 @@ async def get_strategy_templates():
         },
     ]
     return templates
+
+
+# ============================================================================
+# Visual Strategy Builder Backtest Endpoints
+# ============================================================================
+
+# Asset column mappings for metals_prices_spot table
+ASSET_COLUMN_MAP = {
+    "GOLD": ("gold_inr", "gold_usd"),
+    "SILVER": ("silver_inr", "silver_usd"),
+    "PLATINUM": ("platinum_inr", "platinum_usd"),
+    "PALLADIUM": ("palladium_inr", "palladium_usd"),
+}
+
+
+async def fetch_metals_data(
+    db: Session,
+    asset: str,
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None,
+) -> List[dict]:
+    """
+    Fetch historical metals price data from database
+
+    Args:
+        db: Database session
+        asset: Asset name (GOLD, SILVER, PLATINUM, PALLADIUM)
+        start_date: Start date for data (default: 10 years ago)
+        end_date: End date for data (default: today)
+
+    Returns:
+        List of candle dictionaries
+    """
+    if end_date is None:
+        end_date = date.today()
+    if start_date is None:
+        start_date = end_date - timedelta(days=3650)  # ~10 years
+
+    # Get column names for asset
+    inr_col, usd_col = ASSET_COLUMN_MAP.get(asset.upper(), ("gold_inr", "gold_usd"))
+
+    # Query database
+    query = (
+        db.query(MetalsPriceSpot)
+        .filter(MetalsPriceSpot.date >= start_date)
+        .filter(MetalsPriceSpot.date <= end_date)
+        .order_by(MetalsPriceSpot.date)
+    )
+
+    results = query.all()
+
+    if not results:
+        raise ValueError(f"No historical data found for {asset}")
+
+    # Convert to candle format
+    candles = []
+    for row in results:
+        price_inr = getattr(row, inr_col)
+        if price_inr is None:
+            continue
+
+        # For spot prices, we use close price for all OHLC
+        # In real implementation, you'd have actual OHLC data
+        candles.append(
+            {
+                "date": row.date.isoformat(),
+                "open": float(price_inr),
+                "high": float(price_inr) * 1.002,  # Simulate slight variation
+                "low": float(price_inr) * 0.998,
+                "close": float(price_inr),
+                "volume": 0,
+                "usdinr": float(row.usd_inr_rate) if row.usd_inr_rate else None,
+            }
+        )
+
+    if len(candles) < 30:
+        raise ValueError(
+            f"Insufficient data for {asset}: only {len(candles)} data points"
+        )
+
+    return candles
+
+
+@router.post("/run-visual", response_model=VisualBacktestResponse)
+async def run_visual_backtest_endpoint(
+    request: VisualBacktestRequest,
+    db: Session = Depends(get_db),
+    engine: str = DEFAULT_ENGINE,
+):
+    """
+    Run a backtest with the visual strategy builder format.
+
+    Uses historical data from the metals_prices_spot table.
+    Supports recursive AND/OR logic groups for entry/exit conditions.
+
+    Query Parameters:
+        engine: "legacy" (default) or "backtesting" (uses backtesting.py library)
+    """
+    try:
+        strategy = request.strategy
+
+        # Parse dates
+        start_date_obj = None
+        end_date_obj = None
+        if request.startDate:
+            start_date_obj = date.fromisoformat(request.startDate)
+        if request.endDate:
+            end_date_obj = date.fromisoformat(request.endDate)
+
+        # Fetch historical data from database
+        candle_data = await fetch_metals_data(
+            db, strategy.asset.value, start_date_obj, end_date_obj
+        )
+
+        # Convert strategy to dict for engine
+        strategy_dict = {
+            "id": strategy.id,
+            "name": strategy.name,
+            "asset": strategy.asset.value,
+            "entryLogic": strategy.entryLogic.model_dump(),
+            "exitLogic": strategy.exitLogic.model_dump(),
+            "stopLossPct": strategy.stopLossPct,
+            "takeProfitPct": strategy.takeProfitPct,
+        }
+
+        # Run backtest with selected engine
+        if engine == "backtesting":
+            # Use backtesting.py library (faster, more features)
+            logger.info("Using backtesting.py engine")
+            result = run_backtest_with_lib(
+                strategy_dict, candle_data, request.initialCapital
+            )
+        else:
+            # Use legacy custom engine
+            logger.info("Using legacy backtest engine")
+            result = run_visual_backtest(
+                strategy_dict, candle_data, request.initialCapital
+            )
+
+        # Convert to response model
+        trades = [
+            VisualBacktestTrade(
+                entryDate=t["entryDate"],
+                entryPrice=t["entryPrice"],
+                exitDate=t.get("exitDate"),
+                exitPrice=t.get("exitPrice"),
+                profit=t.get("profit"),
+                profitPct=t.get("profitPct"),
+                type=t.get("type", "LONG"),
+                status=t.get("status", "CLOSED"),
+            )
+            for t in result["trades"]
+        ]
+
+        metrics = VisualBacktestMetrics(
+            totalReturn=result["metrics"]["totalReturn"],
+            winRate=result["metrics"]["winRate"],
+            maxDrawdown=result["metrics"]["maxDrawdown"],
+            sharpeRatio=result["metrics"]["sharpeRatio"],
+            tradesCount=result["metrics"]["tradesCount"],
+        )
+
+        equity_curve = [
+            EquityCurvePoint(date=p["date"], equity=p["equity"])
+            for p in result["equityCurve"]
+        ]
+
+        price_data = [
+            CandleData(
+                date=c["date"],
+                open=c["open"],
+                high=c["high"],
+                low=c["low"],
+                close=c["close"],
+                volume=c.get("volume", 0),
+                usdinr=c.get("usdinr"),
+            )
+            for c in result["priceData"]
+        ]
+
+        return VisualBacktestResponse(
+            trades=trades,
+            finalEquity=result["finalEquity"],
+            initialEquity=result["initialEquity"],
+            metrics=metrics,
+            equityCurve=equity_curve,
+            priceData=price_data,
+        )
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Visual backtest failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Backtest failed: {str(e)}")

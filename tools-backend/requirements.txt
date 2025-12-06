@@ -26,6 +26,9 @@ scipy==1.11.4
 ta-lib==0.4.28
 pandas-ta==0.3.14b0
 
+# Backtesting
+backtesting==0.3.3
+
 # Redis for caching
 redis==5.0.1
 hiredis==2.3.2

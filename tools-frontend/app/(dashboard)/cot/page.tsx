@@ -3000,6 +3000,6 @@ export default function COTReportPage() {
           </div>
         </CardContent>
       </Card>
-    </div >
+    </div>
   )
 }

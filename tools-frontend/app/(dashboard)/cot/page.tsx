@@ -416,6 +416,491 @@ const helpContent: Record<string, { title: string; description: string; items: {
   },
 }
 
+// Tab Interpretation Guides - Comprehensive reference for each tab
+const tabInterpretationGuides: Record<string, {
+  title: string;
+  subtitle: string;
+  sections: {
+    title: string;
+    icon: string;
+    color: string;
+    items: { term: string; meaning: string; signal?: string }[];
+  }[];
+  quickReference: { condition: string; interpretation: string; action: string }[];
+  proTips: string[];
+}> = {
+  positions: {
+    title: "Positions Tab Interpretation Guide",
+    subtitle: "Understanding trader category positions and what they mean for market direction",
+    sections: [
+      {
+        title: "Producer/Merchant (Commercials)",
+        icon: "🏭",
+        color: "blue",
+        items: [
+          { term: "Net Long", meaning: "Commercials buying to hedge future purchases", signal: "Bullish - they expect higher prices" },
+          { term: "Net Short", meaning: "Commercials selling to hedge inventory/production", signal: "Bearish - they expect lower prices" },
+          { term: "Extreme Short (>90th %ile)", meaning: "Maximum hedging activity", signal: "Often marks price TOPS - contrarian sell" },
+          { term: "Extreme Long (<10th %ile)", meaning: "Unusual bullish hedging", signal: "Often marks price BOTTOMS - contrarian buy" },
+        ]
+      },
+      {
+        title: "Managed Money (Speculators)",
+        icon: "💼",
+        color: "orange",
+        items: [
+          { term: "Net Long", meaning: "Hedge funds/CTAs betting on higher prices", signal: "Trend is up, but watch for crowding" },
+          { term: "Net Short", meaning: "Speculators betting on lower prices", signal: "Trend is down, but watch for squeeze" },
+          { term: "Extreme Long (>90th %ile)", meaning: "Everyone is bullish", signal: "CONTRARIAN SELL - who's left to buy?" },
+          { term: "Extreme Short (<10th %ile)", meaning: "Everyone is bearish", signal: "CONTRARIAN BUY - capitulation signal" },
+        ]
+      },
+      {
+        title: "Swap Dealers",
+        icon: "🏦",
+        color: "purple",
+        items: [
+          { term: "Net Position", meaning: "Reflects aggregate client hedging needs", signal: "Less predictive than Commercials" },
+          { term: "Large Changes", meaning: "Institutional flow shifting", signal: "Monitor for trend confirmation" },
+        ]
+      },
+      {
+        title: "Open Interest",
+        icon: "📊",
+        color: "green",
+        items: [
+          { term: "Rising OI + Rising Price", meaning: "New longs entering", signal: "BULLISH - trend is strong" },
+          { term: "Rising OI + Falling Price", meaning: "New shorts entering", signal: "BEARISH - trend is strong" },
+          { term: "Falling OI + Rising Price", meaning: "Shorts covering", signal: "WEAK RALLY - may not sustain" },
+          { term: "Falling OI + Falling Price", meaning: "Longs liquidating", signal: "EXHAUSTION - bottom may be near" },
+        ]
+      },
+    ],
+    quickReference: [
+      { condition: "MM >90% + Comm <10%", interpretation: "Classic top formation", action: "Prepare to sell/short" },
+      { condition: "MM <10% + Comm >90%", interpretation: "Classic bottom formation", action: "Prepare to buy/long" },
+      { condition: "All categories aligned", interpretation: "Strong trend in progress", action: "Trade with trend" },
+      { condition: "Weekly change >2 std dev", interpretation: "Significant repositioning", action: "Watch for reversal" },
+    ],
+    proTips: [
+      "Commercials are the 'smart money' - they know their industry",
+      "Managed Money extremes are contrarian signals",
+      "Weekly changes matter as much as absolute levels",
+      "Combine with price action for timing",
+    ]
+  },
+  sentiment: {
+    title: "Sentiment Tab Interpretation Guide",
+    subtitle: "Reading market sentiment through positioning percentiles and gauges",
+    sections: [
+      {
+        title: "Percentile Rankings",
+        icon: "📈",
+        color: "blue",
+        items: [
+          { term: "0-10th Percentile", meaning: "Extreme bearish positioning", signal: "CONTRARIAN BUY zone" },
+          { term: "10-25th Percentile", meaning: "Bearish positioning", signal: "Cautiously bullish" },
+          { term: "25-75th Percentile", meaning: "Neutral positioning", signal: "No strong signal" },
+          { term: "75-90th Percentile", meaning: "Bullish positioning", signal: "Cautiously bearish" },
+          { term: "90-100th Percentile", meaning: "Extreme bullish positioning", signal: "CONTRARIAN SELL zone" },
+        ]
+      },
+      {
+        title: "Sentiment Gauge Reading",
+        icon: "🎯",
+        color: "orange",
+        items: [
+          { term: "Gauge in Green Zone", meaning: "Bearish extreme (0-20%)", signal: "Potential buying opportunity" },
+          { term: "Gauge in Yellow Zone", meaning: "Neutral (20-80%)", signal: "Wait for extremes" },
+          { term: "Gauge in Red Zone", meaning: "Bullish extreme (80-100%)", signal: "Potential selling opportunity" },
+        ]
+      },
+      {
+        title: "Category Divergences",
+        icon: "⚡",
+        color: "amber",
+        items: [
+          { term: "MM vs Comm Divergence", meaning: "Speculators and hedgers disagree", signal: "HIGH PROBABILITY reversal setup" },
+          { term: "All Categories Same Direction", meaning: "Market consensus", signal: "Trend likely to continue" },
+          { term: "Rapid Percentile Change", meaning: "Fast repositioning", signal: "Momentum shift underway" },
+        ]
+      },
+    ],
+    quickReference: [
+      { condition: "MM Gauge in Red + Comm Gauge in Green", interpretation: "Maximum divergence", action: "Strong contrarian sell" },
+      { condition: "MM Gauge in Green + Comm Gauge in Red", interpretation: "Maximum divergence", action: "Strong contrarian buy" },
+      { condition: "All gauges near 50%", interpretation: "Balanced market", action: "Wait for extremes" },
+      { condition: "Gauge moved 30%+ in one week", interpretation: "Rapid sentiment shift", action: "Watch for continuation" },
+    ],
+    proTips: [
+      "Best signals come at 90th/10th percentile extremes",
+      "Divergence between categories is more powerful than absolute levels",
+      "Historical percentiles are based on 52-week lookback",
+      "Sentiment extremes can persist - wait for price confirmation",
+    ]
+  },
+  charts: {
+    title: "Charts Tab Interpretation Guide",
+    subtitle: "Visual analysis of historical positioning patterns and trends",
+    sections: [
+      {
+        title: "Net Position Chart Patterns",
+        icon: "📉",
+        color: "blue",
+        items: [
+          { term: "Divergence Pattern", meaning: "Commercials and MM moving opposite directions", signal: "REVERSAL likely within 2-4 weeks" },
+          { term: "Convergence Pattern", meaning: "All categories moving same direction", signal: "Strong trend - trade with it" },
+          { term: "Crossover", meaning: "MM crosses above/below Commercial line", signal: "Trend change signal" },
+          { term: "Extreme Spread", meaning: "Maximum gap between MM and Comm", signal: "Peak divergence - reversal imminent" },
+        ]
+      },
+      {
+        title: "Long vs Short Analysis",
+        icon: "📊",
+        color: "green",
+        items: [
+          { term: "Gross Long Increasing", meaning: "New buying pressure", signal: "Bullish momentum" },
+          { term: "Gross Short Increasing", meaning: "New selling pressure", signal: "Bearish momentum" },
+          { term: "Both Increasing", meaning: "Active two-way market", signal: "High conviction on both sides" },
+          { term: "Both Decreasing", meaning: "Positions being closed", signal: "Trend exhaustion" },
+        ]
+      },
+      {
+        title: "Open Interest Trends",
+        icon: "📈",
+        color: "purple",
+        items: [
+          { term: "OI Uptrend", meaning: "New money entering market", signal: "Trend has conviction" },
+          { term: "OI Downtrend", meaning: "Money leaving market", signal: "Trend losing steam" },
+          { term: "OI Spike", meaning: "Sudden large positioning", signal: "Major move may follow" },
+          { term: "OI at Extremes", meaning: "Historical high/low participation", signal: "Watch for reversal" },
+        ]
+      },
+    ],
+    quickReference: [
+      { condition: "MM peaks while Comm troughs", interpretation: "Classic reversal setup", action: "Prepare for trend change" },
+      { condition: "OI rising with price", interpretation: "Healthy uptrend", action: "Stay long, trail stops" },
+      { condition: "OI falling with price rising", interpretation: "Short covering rally", action: "Don't chase - weak rally" },
+      { condition: "Sharp OI drop after extreme", interpretation: "Capitulation", action: "Look for reversal entry" },
+    ],
+    proTips: [
+      "Look for divergences at price extremes",
+      "OI confirms trend strength - always check it",
+      "Weekly chart patterns are more reliable than daily",
+      "Combine chart patterns with percentile readings",
+    ]
+  },
+  analysis: {
+    title: "Analysis Tab Interpretation Guide",
+    subtitle: "Deep dive into COT Index, OI analysis, and historical patterns",
+    sections: [
+      {
+        title: "COT Index Reading",
+        icon: "🎯",
+        color: "purple",
+        items: [
+          { term: "COT Index 0-20", meaning: "Current position near 52-week low", signal: "BEARISH EXTREME - contrarian buy" },
+          { term: "COT Index 20-40", meaning: "Below average positioning", signal: "Mildly bearish" },
+          { term: "COT Index 40-60", meaning: "Average positioning", signal: "Neutral - no signal" },
+          { term: "COT Index 60-80", meaning: "Above average positioning", signal: "Mildly bullish" },
+          { term: "COT Index 80-100", meaning: "Current position near 52-week high", signal: "BULLISH EXTREME - contrarian sell" },
+        ]
+      },
+      {
+        title: "OI Trend Signals",
+        icon: "📊",
+        color: "green",
+        items: [
+          { term: "Bullish Trend Strong", meaning: "Rising OI + Rising MM net", signal: "New longs driving market up" },
+          { term: "Bearish Trend Strong", meaning: "Rising OI + Falling MM net", signal: "New shorts driving market down" },
+          { term: "Short Covering Rally", meaning: "Falling OI + Rising MM net", signal: "Rally may not sustain" },
+          { term: "Long Liquidation", meaning: "Falling OI + Falling MM net", signal: "Decline may be exhausting" },
+        ]
+      },
+      {
+        title: "Case Study Patterns",
+        icon: "📚",
+        color: "amber",
+        items: [
+          { term: "Classic Top", meaning: "MM >90%, Comm <10%, price at highs", signal: "High probability reversal down" },
+          { term: "Classic Bottom", meaning: "MM <10%, Comm >90%, price at lows", signal: "High probability reversal up" },
+          { term: "Smart Money Alignment", meaning: "Comm covering + MM adding same direction", signal: "Rare but powerful signal" },
+          { term: "Overcrowding", meaning: "MM + Small traders both extreme", signal: "Maximum contrarian opportunity" },
+        ]
+      },
+    ],
+    quickReference: [
+      { condition: "COT Index >80 for MM", interpretation: "Speculators extremely bullish", action: "Look for sell signals" },
+      { condition: "COT Index <20 for Comm", interpretation: "Commercials extremely bearish", action: "Confirms sell signal" },
+      { condition: "OI Signal = Long Liquidation", interpretation: "Selling pressure exhausting", action: "Watch for bottom" },
+      { condition: "All COT Indices near 50", interpretation: "Balanced market", action: "Wait for extremes" },
+    ],
+    proTips: [
+      "COT Index normalizes data for easy comparison",
+      "Color coding: Green = buy zone, Red = sell zone",
+      "Historical case studies show typical outcomes",
+      "Combine COT Index with OI signals for confirmation",
+    ]
+  },
+  advanced: {
+    title: "Advanced Analytics Interpretation Guide",
+    subtitle: "Professional-grade metrics for sophisticated COT analysis",
+    sections: [
+      {
+        title: "Summary Scores",
+        icon: "📊",
+        color: "blue",
+        items: [
+          { term: "Crowding Score 0-30", meaning: "Balanced positioning", signal: "Normal market conditions" },
+          { term: "Crowding Score 30-60", meaning: "Some concentration", signal: "Monitor for reversals" },
+          { term: "Crowding Score 60+", meaning: "Highly crowded trade", signal: "HIGH REVERSAL RISK" },
+          { term: "Squeeze Risk 60+", meaning: "Vulnerable to forced liquidation", signal: "Expect volatile moves" },
+          { term: "Flow Momentum High", meaning: "Strong consistent flows", signal: "Trend likely to continue" },
+        ]
+      },
+      {
+        title: "Market Regimes",
+        icon: "🎭",
+        color: "purple",
+        items: [
+          { term: "Trend Following", meaning: "Specs aligned with trend", signal: "Use momentum strategies" },
+          { term: "Mean Reversion", meaning: "Extreme positioning", signal: "Use contrarian strategies" },
+          { term: "Accumulation", meaning: "Smart money building quietly", signal: "Early trend - position early" },
+          { term: "Distribution", meaning: "Smart money selling to specs", signal: "Late trend - prepare to exit" },
+        ]
+      },
+      {
+        title: "Flow Decomposition",
+        icon: "🔄",
+        color: "green",
+        items: [
+          { term: "New Longs Dominant", meaning: "Fresh buying pressure", signal: "Bullish conviction" },
+          { term: "Long Liquidation Dominant", meaning: "Longs exiting", signal: "Profit taking or stops hit" },
+          { term: "New Shorts Dominant", meaning: "Fresh selling pressure", signal: "Bearish conviction" },
+          { term: "Short Covering Dominant", meaning: "Shorts exiting", signal: "Can fuel sharp rallies" },
+        ]
+      },
+      {
+        title: "Squeeze & Concentration",
+        icon: "⚠️",
+        color: "red",
+        items: [
+          { term: "Long Squeeze Risk High", meaning: "Longs vulnerable", signal: "Sharp decline possible" },
+          { term: "Short Squeeze Risk High", meaning: "Shorts vulnerable", signal: "Sharp rally possible" },
+          { term: "Top 4 Concentration >50%", meaning: "Few traders hold most positions", signal: "Their exit = big move" },
+          { term: "Herding Score >70", meaning: "Everyone betting same way", signal: "Reversal risk elevated" },
+        ]
+      },
+    ],
+    quickReference: [
+      { condition: "Crowding >60 + Squeeze >60", interpretation: "Extreme risk", action: "Reduce position size" },
+      { condition: "Regime = Mean Reversion", interpretation: "Contrarian opportunity", action: "Fade the crowd" },
+      { condition: "Flow = New Longs + OI Rising", interpretation: "Strong bullish conviction", action: "Stay with trend" },
+      { condition: "Herding >70 + MM Extreme", interpretation: "Maximum crowding", action: "Prepare for reversal" },
+    ],
+    proTips: [
+      "Advanced metrics are most useful at extremes",
+      "Regime classification helps choose strategy type",
+      "Flow decomposition shows what's driving the market NOW",
+      "Combine multiple metrics for higher confidence",
+    ]
+  },
+  alerts: {
+    title: "Alerts Tab Interpretation Guide",
+    subtitle: "Understanding and acting on COT positioning alerts",
+    sections: [
+      {
+        title: "Extreme Positioning Alerts",
+        icon: "🚨",
+        color: "red",
+        items: [
+          { term: "Extreme Long Alert", meaning: "Category >90th percentile net long", signal: "Potential top forming" },
+          { term: "Extreme Short Alert", meaning: "Category <10th percentile net short", signal: "Potential bottom forming" },
+          { term: "Percentile Value", meaning: "How extreme the positioning is", signal: "Higher = more extreme" },
+          { term: "Deviation %", meaning: "How far from average", signal: "Larger = stronger signal" },
+        ]
+      },
+      {
+        title: "Alert Categories",
+        icon: "📋",
+        color: "amber",
+        items: [
+          { term: "Managed Money Alert", meaning: "Speculator positioning extreme", signal: "CONTRARIAN signal" },
+          { term: "Commercial Alert", meaning: "Hedger positioning extreme", signal: "SMART MONEY signal" },
+          { term: "Divergence Alert", meaning: "Categories at opposite extremes", signal: "HIGH PROBABILITY reversal" },
+          { term: "Squeeze Risk Alert", meaning: "Forced liquidation likely", signal: "Expect volatility" },
+        ]
+      },
+      {
+        title: "Acting on Alerts",
+        icon: "✅",
+        color: "green",
+        items: [
+          { term: "Don't Trade Immediately", meaning: "Alerts are early warnings", signal: "Wait for price confirmation" },
+          { term: "Check Multiple Alerts", meaning: "More alerts = stronger signal", signal: "Confluence is key" },
+          { term: "Review Historical Context", meaning: "See what happened before", signal: "Learn from patterns" },
+          { term: "Set Price Alerts", meaning: "Combine with technical levels", signal: "Better timing" },
+        ]
+      },
+    ],
+    quickReference: [
+      { condition: "MM Extreme Long + Comm Extreme Short", interpretation: "Classic top setup", action: "Prepare short positions" },
+      { condition: "MM Extreme Short + Comm Extreme Long", interpretation: "Classic bottom setup", action: "Prepare long positions" },
+      { condition: "Multiple categories alerting", interpretation: "Strong signal", action: "Higher conviction trade" },
+      { condition: "Alert + Price at key level", interpretation: "Confluence", action: "Consider entry" },
+    ],
+    proTips: [
+      "Alerts are early warnings, not immediate trade signals",
+      "Best alerts combine positioning + price extremes",
+      "Check suggested action for each alert",
+      "Track alert accuracy over time to calibrate",
+    ]
+  },
+}
+
+// Interpretation Guide Button Component
+function InterpretationGuideButton({ tabKey }: { tabKey: keyof typeof tabInterpretationGuides }) {
+  const guide = tabInterpretationGuides[tabKey]
+  if (!guide) return null
+
+  const colorMap: Record<string, string> = {
+    blue: 'from-blue-500 to-blue-600',
+    orange: 'from-orange-500 to-orange-600',
+    purple: 'from-purple-500 to-purple-600',
+    green: 'from-green-500 to-green-600',
+    amber: 'from-amber-500 to-amber-600',
+    red: 'from-red-500 to-red-600',
+  }
+
+  const bgColorMap: Record<string, string> = {
+    blue: 'bg-blue-50 border-blue-200',
+    orange: 'bg-orange-50 border-orange-200',
+    purple: 'bg-purple-50 border-purple-200',
+    green: 'bg-green-50 border-green-200',
+    amber: 'bg-amber-50 border-amber-200',
+    red: 'bg-red-50 border-red-200',
+  }
+
+  const textColorMap: Record<string, string> = {
+    blue: 'text-blue-700',
+    orange: 'text-orange-700',
+    purple: 'text-purple-700',
+    green: 'text-green-700',
+    amber: 'text-amber-700',
+    red: 'text-red-700',
+  }
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2 bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-200 hover:from-indigo-100 hover:to-purple-100 text-indigo-700 font-medium"
+        >
+          <BookOpen className="h-4 w-4" />
+          Interpretation Guide
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden p-0">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-6 py-5 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-white flex items-center gap-3">
+              <div className="p-2 bg-white/20 rounded-lg">
+                <BookOpen className="h-6 w-6" />
+              </div>
+              {guide.title}
+            </DialogTitle>
+            <DialogDescription className="text-indigo-100 text-base mt-2">
+              {guide.subtitle}
+            </DialogDescription>
+          </DialogHeader>
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="overflow-y-auto max-h-[calc(85vh-180px)] px-6 py-5">
+          {/* Sections */}
+          <div className="space-y-6">
+            {guide.sections.map((section, sIdx) => (
+              <div key={sIdx} className={`rounded-xl border-2 ${bgColorMap[section.color]} overflow-hidden`}>
+                <div className={`px-4 py-3 bg-gradient-to-r ${colorMap[section.color]} text-white font-semibold flex items-center gap-2`}>
+                  <span className="text-xl">{section.icon}</span>
+                  {section.title}
+                </div>
+                <div className="p-4">
+                  <div className="grid gap-2">
+                    {section.items.map((item, iIdx) => (
+                      <div key={iIdx} className="grid grid-cols-12 gap-3 items-start py-2 border-b border-gray-200 last:border-0">
+                        <div className={`col-span-3 font-semibold text-sm ${textColorMap[section.color]}`}>
+                          {item.term}
+                        </div>
+                        <div className="col-span-5 text-sm text-gray-600">
+                          {item.meaning}
+                        </div>
+                        {item.signal && (
+                          <div className="col-span-4 text-sm font-medium text-gray-800 bg-white px-2 py-1 rounded">
+                            → {item.signal}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Quick Reference Table */}
+          <div className="mt-6 rounded-xl border-2 border-slate-200 overflow-hidden">
+            <div className="px-4 py-3 bg-slate-800 text-white font-semibold flex items-center gap-2">
+              <Zap className="h-5 w-5" />
+              Quick Reference Table
+            </div>
+            <div className="divide-y">
+              <div className="grid grid-cols-3 gap-4 px-4 py-2 bg-slate-100 text-sm font-semibold text-slate-700">
+                <div>Condition</div>
+                <div>Interpretation</div>
+                <div>Action</div>
+              </div>
+              {guide.quickReference.map((ref, rIdx) => (
+                <div key={rIdx} className="grid grid-cols-3 gap-4 px-4 py-3 text-sm hover:bg-slate-50">
+                  <div className="font-mono text-xs bg-slate-100 px-2 py-1 rounded">{ref.condition}</div>
+                  <div className="text-gray-700">{ref.interpretation}</div>
+                  <div className="font-medium text-indigo-700">{ref.action}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Pro Tips */}
+          <div className="mt-6 rounded-xl border-2 border-amber-200 bg-amber-50 overflow-hidden">
+            <div className="px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold flex items-center gap-2">
+              <Sparkles className="h-5 w-5" />
+              Pro Tips
+            </div>
+            <div className="p-4 grid gap-2 md:grid-cols-2">
+              {guide.proTips.map((tip, tIdx) => (
+                <div key={tIdx} className="flex items-start gap-2 text-sm">
+                  <span className="text-amber-500 font-bold">💡</span>
+                  <span className="text-amber-800">{tip}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 bg-slate-50 border-t text-center">
+          <p className="text-xs text-slate-500">
+            COT data is released weekly (Friday 3:30 PM ET). Best used for swing trading and medium-term positioning.
+          </p>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 // Reusable Help Button Component with Modern UI
 function HelpButton({ helpKey }: { helpKey: keyof typeof helpContent }) {
   const content = helpContent[helpKey]
@@ -846,6 +1331,9 @@ export default function COTReportPage() {
 
           {/* Positions Tab */}
           <TabsContent value="positions" className="space-y-4">
+            <div className="flex justify-end mb-2">
+              <InterpretationGuideButton tabKey="positions" />
+            </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {/* Producer/Merchant */}
               <Card>
@@ -1069,6 +1557,9 @@ export default function COTReportPage() {
 
           {/* Percentiles Tab */}
           <TabsContent value="percentiles" className="space-y-4">
+            <div className="flex justify-end mb-2">
+              <InterpretationGuideButton tabKey="sentiment" />
+            </div>
             {/* Visual Sentiment Gauges */}
             <div className="grid gap-4 md:grid-cols-2">
               {/* Managed Money Sentiment Gauge */}
@@ -1226,6 +1717,9 @@ export default function COTReportPage() {
 
           {/* Charts Tab */}
           <TabsContent value="charts" className="space-y-4">
+            <div className="flex justify-end mb-2">
+              <InterpretationGuideButton tabKey="charts" />
+            </div>
             {chartData && (
               <>
                 {/* Net Position Comparison Chart */}
@@ -1255,9 +1749,32 @@ export default function COTReportPage() {
                         <Legend />
                         <Line type="monotone" dataKey="Producer/Merchant" stroke="#3b82f6" strokeWidth={2} dot={false} name="Commercials" />
                         <Line type="monotone" dataKey="Managed Money" stroke="#f97316" strokeWidth={2} dot={false} name="Managed Money" />
+                        <Line type="monotone" dataKey="Swap Dealer" stroke="#8b5cf6" strokeWidth={2} dot={false} name="Swap Dealers" />
                         <Line type="monotone" dataKey="Other Reportables" stroke="#6b7280" strokeWidth={1} dot={false} strokeDasharray="5 5" />
                       </LineChart>
                     </ResponsiveContainer>
+
+                    {/* Key Patterns to Watch */}
+                    <div className="mt-4 grid gap-2 md:grid-cols-3">
+                      <div className="p-3 rounded-lg bg-amber-50 border border-amber-200">
+                        <div className="font-medium text-amber-800 text-sm flex items-center gap-1">
+                          <AlertTriangle className="h-3.5 w-3.5" /> Divergence
+                        </div>
+                        <p className="text-xs text-amber-700 mt-1">Commercials and Specs moving opposite → Potential reversal</p>
+                      </div>
+                      <div className="p-3 rounded-lg bg-green-50 border border-green-200">
+                        <div className="font-medium text-green-800 text-sm flex items-center gap-1">
+                          <TrendingUp className="h-3.5 w-3.5" /> Convergence
+                        </div>
+                        <p className="text-xs text-green-700 mt-1">All categories aligning → Strong trend confirmation</p>
+                      </div>
+                      <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
+                        <div className="font-medium text-blue-800 text-sm flex items-center gap-1">
+                          <Activity className="h-3.5 w-3.5" /> Crossover
+                        </div>
+                        <p className="text-xs text-blue-700 mt-1">Managed Money crosses Commercial → Trend change signal</p>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -1327,6 +1844,9 @@ export default function COTReportPage() {
 
           {/* Analysis Tab - COT Index, Report Calendar, Case Studies */}
           <TabsContent value="analysis" className="space-y-4">
+            <div className="flex justify-end mb-2">
+              <InterpretationGuideButton tabKey="analysis" />
+            </div>
             <div className="grid gap-4 md:grid-cols-2">
               {/* COT Index */}
               <Card>
@@ -1346,45 +1866,69 @@ export default function COTReportPage() {
                   {chartData && (
                     <>
                       <div className="space-y-3">
-                        <div>
-                          <div className="flex justify-between text-sm mb-1">
-                            <span>Managed Money</span>
-                            <span className="font-mono">{calculateCOTIndex(
-                              result.current_positions.managed_money_net,
-                              chartData.net_positions.managed_money_net
-                            ).toFixed(1)}%</span>
-                          </div>
-                          <Progress value={calculateCOTIndex(
-                            result.current_positions.managed_money_net,
-                            chartData.net_positions.managed_money_net
-                          )} className="h-3" />
-                        </div>
-                        <div>
-                          <div className="flex justify-between text-sm mb-1">
-                            <span>Commercials</span>
-                            <span className="font-mono">{calculateCOTIndex(
-                              result.current_positions.producer_merchant_net,
-                              chartData.net_positions.producer_merchant_net
-                            ).toFixed(1)}%</span>
-                          </div>
-                          <Progress value={calculateCOTIndex(
-                            result.current_positions.producer_merchant_net,
-                            chartData.net_positions.producer_merchant_net
-                          )} className="h-3" />
-                        </div>
-                        <div>
-                          <div className="flex justify-between text-sm mb-1">
-                            <span>Swap Dealers</span>
-                            <span className="font-mono">{calculateCOTIndex(
-                              result.current_positions.swap_dealer_net,
-                              chartData.net_positions.swap_dealer_net
-                            ).toFixed(1)}%</span>
-                          </div>
-                          <Progress value={calculateCOTIndex(
-                            result.current_positions.swap_dealer_net,
-                            chartData.net_positions.swap_dealer_net
-                          )} className="h-3" />
-                        </div>
+                        {(() => {
+                          const mmIndex = calculateCOTIndex(result.current_positions.managed_money_net, chartData.net_positions.managed_money_net);
+                          const mmColor = mmIndex <= 20 ? 'bg-green-500' : mmIndex >= 80 ? 'bg-red-500' : 'bg-yellow-500';
+                          const mmZone = mmIndex <= 20 ? 'Bearish Extreme' : mmIndex >= 80 ? 'Bullish Extreme' : 'Neutral';
+                          return (
+                            <div>
+                              <div className="flex justify-between text-sm mb-1">
+                                <span>Managed Money</span>
+                                <div className="flex items-center gap-2">
+                                  <span className={`text-xs px-1.5 py-0.5 rounded ${mmIndex <= 20 ? 'bg-green-100 text-green-700' : mmIndex >= 80 ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                    {mmZone}
+                                  </span>
+                                  <span className="font-mono">{mmIndex.toFixed(1)}%</span>
+                                </div>
+                              </div>
+                              <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
+                                <div className={`h-full ${mmColor} transition-all`} style={{ width: `${mmIndex}%` }} />
+                              </div>
+                            </div>
+                          );
+                        })()}
+                        {(() => {
+                          const commIndex = calculateCOTIndex(result.current_positions.producer_merchant_net, chartData.net_positions.producer_merchant_net);
+                          const commColor = commIndex <= 20 ? 'bg-green-500' : commIndex >= 80 ? 'bg-red-500' : 'bg-yellow-500';
+                          const commZone = commIndex <= 20 ? 'Bearish Extreme' : commIndex >= 80 ? 'Bullish Extreme' : 'Neutral';
+                          return (
+                            <div>
+                              <div className="flex justify-between text-sm mb-1">
+                                <span>Commercials</span>
+                                <div className="flex items-center gap-2">
+                                  <span className={`text-xs px-1.5 py-0.5 rounded ${commIndex <= 20 ? 'bg-green-100 text-green-700' : commIndex >= 80 ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                    {commZone}
+                                  </span>
+                                  <span className="font-mono">{commIndex.toFixed(1)}%</span>
+                                </div>
+                              </div>
+                              <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
+                                <div className={`h-full ${commColor} transition-all`} style={{ width: `${commIndex}%` }} />
+                              </div>
+                            </div>
+                          );
+                        })()}
+                        {(() => {
+                          const swapIndex = calculateCOTIndex(result.current_positions.swap_dealer_net, chartData.net_positions.swap_dealer_net);
+                          const swapColor = swapIndex <= 20 ? 'bg-green-500' : swapIndex >= 80 ? 'bg-red-500' : 'bg-yellow-500';
+                          const swapZone = swapIndex <= 20 ? 'Bearish Extreme' : swapIndex >= 80 ? 'Bullish Extreme' : 'Neutral';
+                          return (
+                            <div>
+                              <div className="flex justify-between text-sm mb-1">
+                                <span>Swap Dealers</span>
+                                <div className="flex items-center gap-2">
+                                  <span className={`text-xs px-1.5 py-0.5 rounded ${swapIndex <= 20 ? 'bg-green-100 text-green-700' : swapIndex >= 80 ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                    {swapZone}
+                                  </span>
+                                  <span className="font-mono">{swapIndex.toFixed(1)}%</span>
+                                </div>
+                              </div>
+                              <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
+                                <div className={`h-full ${swapColor} transition-all`} style={{ width: `${swapIndex}%` }} />
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
                       <div className="text-xs text-muted-foreground mt-4 p-3 bg-muted rounded-lg">
                         <strong>Interpretation:</strong> COT Index &gt;80 = extremely bullish positioning (contrarian bearish).
@@ -1395,7 +1939,96 @@ export default function COTReportPage() {
                 </CardContent>
               </Card>
 
-              {/* Report Calendar */}
+              {/* Open Interest Analysis */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Activity className="h-5 w-5 text-green-600" />
+                      Open Interest Analysis
+                    </div>
+                    <HelpButton helpKey="openInterest" />
+                  </CardTitle>
+                  <CardDescription>
+                    Interpret OI changes with price movement for trend confirmation
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div className="p-4 rounded-lg bg-slate-50 border">
+                      <div className="text-sm text-muted-foreground">Current Open Interest</div>
+                      <div className="text-2xl font-bold">{formatNumber(result.current_positions.open_interest, 0)}</div>
+                      <div className={`text-sm ${result.weekly_changes.change_open_interest >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {result.weekly_changes.change_open_interest >= 0 ? '↑' : '↓'} {formatNumber(Math.abs(result.weekly_changes.change_open_interest), 0)} this week
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-lg bg-slate-50 border">
+                      <div className="text-sm text-muted-foreground">OI Trend Signal</div>
+                      {(() => {
+                        const oiChange = result.weekly_changes.change_open_interest;
+                        const mmChange = result.weekly_changes.change_mm_net;
+                        let signal = '';
+                        let color = '';
+                        let desc = '';
+                        if (oiChange > 0 && mmChange > 0) {
+                          signal = 'Bullish Trend Strong';
+                          color = 'text-green-700 bg-green-100';
+                          desc = 'New longs entering - bullish conviction';
+                        } else if (oiChange > 0 && mmChange < 0) {
+                          signal = 'Bearish Trend Strong';
+                          color = 'text-red-700 bg-red-100';
+                          desc = 'New shorts entering - bearish conviction';
+                        } else if (oiChange < 0 && mmChange > 0) {
+                          signal = 'Short Covering Rally';
+                          color = 'text-amber-700 bg-amber-100';
+                          desc = 'Shorts exiting - rally may not sustain';
+                        } else if (oiChange < 0 && mmChange < 0) {
+                          signal = 'Long Liquidation';
+                          color = 'text-orange-700 bg-orange-100';
+                          desc = 'Longs exiting - bearish but exhausting';
+                        } else {
+                          signal = 'Neutral';
+                          color = 'text-gray-700 bg-gray-100';
+                          desc = 'No clear signal';
+                        }
+                        return (
+                          <>
+                            <div className={`text-lg font-bold px-2 py-1 rounded inline-block ${color}`}>{signal}</div>
+                            <div className="text-xs text-muted-foreground mt-1">{desc}</div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+
+                  {/* OI Interpretation Table */}
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="bg-muted px-3 py-2 text-sm font-medium">Key Relationships</div>
+                    <div className="divide-y">
+                      <div className="grid grid-cols-3 gap-2 px-3 py-2 text-sm">
+                        <span className="text-green-600 font-medium">↑ OI + ↑ Price</span>
+                        <span className="col-span-2">New longs entering - bullish trend strong</span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 px-3 py-2 text-sm">
+                        <span className="text-red-600 font-medium">↑ OI + ↓ Price</span>
+                        <span className="col-span-2">New shorts entering - bearish trend strong</span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 px-3 py-2 text-sm">
+                        <span className="text-amber-600 font-medium">↓ OI + ↑ Price</span>
+                        <span className="col-span-2">Short covering rally - may not sustain</span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 px-3 py-2 text-sm">
+                        <span className="text-orange-600 font-medium">↓ OI + ↓ Price</span>
+                        <span className="col-span-2">Long liquidation - bearish but exhausting</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Report Calendar */}
+            <div className="grid gap-4 md:grid-cols-2">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -1503,6 +2136,9 @@ export default function COTReportPage() {
 
           {/* Advanced Analytics Tab */}
           <TabsContent value="advanced" className="space-y-4">
+            <div className="flex justify-end mb-2">
+              <InterpretationGuideButton tabKey="advanced" />
+            </div>
             {loadingAdvanced ? (
               <div className="flex items-center justify-center py-12">
                 <RefreshCw className="h-8 w-8 animate-spin text-orange-600" />
@@ -2225,7 +2861,8 @@ export default function COTReportPage() {
 
           {/* Alerts Tab */}
           <TabsContent value="alerts" className="space-y-4">
-            <div className="flex justify-end mb-2">
+            <div className="flex justify-end gap-2 mb-2">
+              <InterpretationGuideButton tabKey="alerts" />
               <HelpButton helpKey="extremeAlerts" />
             </div>
             {alerts.length > 0 ? (
@@ -2256,15 +2893,71 @@ export default function COTReportPage() {
                 ))}
               </div>
             ) : (
-              <Card>
-                <CardContent className="py-8">
-                  <div className="text-center text-muted-foreground">
-                    <Sparkles className="h-10 w-10 mx-auto mb-2 opacity-50" />
-                    <p>No extreme positioning alerts at this time</p>
-                    <p className="text-sm">All trader categories are within normal ranges</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="space-y-4">
+                <Card>
+                  <CardContent className="py-6">
+                    <div className="text-center text-muted-foreground mb-6">
+                      <Sparkles className="h-10 w-10 mx-auto mb-2 opacity-50" />
+                      <p className="font-medium">No extreme positioning alerts at this time</p>
+                      <p className="text-sm">All trader categories are within normal ranges</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Configured Alert Types */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Configured Alert Types</CardTitle>
+                    <CardDescription>These alerts will trigger when conditions are met</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <div className="p-3 rounded-lg border bg-slate-50">
+                        <div className="flex items-center gap-2 font-medium text-sm">
+                          <div className="w-2 h-2 rounded-full bg-red-500" />
+                          Extreme Long Positioning
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">Triggers when any category exceeds 90th percentile net long</p>
+                      </div>
+                      <div className="p-3 rounded-lg border bg-slate-50">
+                        <div className="flex items-center gap-2 font-medium text-sm">
+                          <div className="w-2 h-2 rounded-full bg-green-500" />
+                          Extreme Short Positioning
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">Triggers when any category falls below 10th percentile</p>
+                      </div>
+                      <div className="p-3 rounded-lg border bg-slate-50">
+                        <div className="flex items-center gap-2 font-medium text-sm">
+                          <div className="w-2 h-2 rounded-full bg-amber-500" />
+                          Squeeze Risk Alert
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">Triggers when squeeze risk score exceeds 70</p>
+                      </div>
+                      <div className="p-3 rounded-lg border bg-slate-50">
+                        <div className="flex items-center gap-2 font-medium text-sm">
+                          <div className="w-2 h-2 rounded-full bg-purple-500" />
+                          Smart Money Divergence
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">Triggers when Commercials and Managed Money show extreme divergence</p>
+                      </div>
+                      <div className="p-3 rounded-lg border bg-slate-50">
+                        <div className="flex items-center gap-2 font-medium text-sm">
+                          <div className="w-2 h-2 rounded-full bg-orange-500" />
+                          Overcrowding Warning
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">Triggers when Managed Money + Small Traders both at extremes</p>
+                      </div>
+                      <div className="p-3 rounded-lg border bg-slate-50">
+                        <div className="flex items-center gap-2 font-medium text-sm">
+                          <div className="w-2 h-2 rounded-full bg-blue-500" />
+                          Significant Weekly Change
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">Triggers when weekly change exceeds 2 standard deviations</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             )}
           </TabsContent>
         </Tabs>
@@ -2307,6 +3000,6 @@ export default function COTReportPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </div >
   )
 }

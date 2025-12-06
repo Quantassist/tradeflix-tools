@@ -112,6 +112,8 @@ Net Position = Long Contracts - Short Contracts
 
 ### 3.2 Open Interest Analysis
 
+**Location**: Positions Tab (summary card) + Analysis Tab (detailed analysis) + Charts Tab (historical chart)
+
 **What It Shows**: Total number of outstanding contracts in the market.
 
 **Key Relationships**:
@@ -122,6 +124,11 @@ Net Position = Long Contracts - Short Contracts
 | ↑ Rising | ↓ Falling | New shorts entering - bearish trend strong |
 | ↓ Falling | ↑ Rising | Short covering rally - may not sustain |
 | ↓ Falling | ↓ Falling | Long liquidation - bearish but exhausting |
+
+**UI Implementation**:
+- **Positions Tab**: Summary card showing current OI and weekly change
+- **Analysis Tab**: Detailed OI analysis with current value, weekly change, OI Trend Signal (auto-calculated based on OI and MM changes), and Key Relationships reference table
+- **Charts Tab**: Historical OI chart with Managed Money Net overlay
 
 **Trading Application**: Use OI to confirm trend strength. Rising OI with price confirms conviction; falling OI suggests trend exhaustion.
 

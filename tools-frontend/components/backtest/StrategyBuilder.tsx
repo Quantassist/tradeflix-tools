@@ -261,7 +261,7 @@ const LogicNodeBuilder: React.FC<LogicNodeProps> = ({
                     {hasPeriod(condition.left.type) && (
                         <Input
                             type="number"
-                            value={condition.left.period}
+                            value={condition.left.period ?? 14}
                             onChange={(e) => updateCond("left", { period: parseInt(e.target.value) || 14 })}
                             className="h-8 w-14 text-xs text-center bg-white border-slate-300 focus:ring-indigo-500"
                         />
@@ -319,7 +319,7 @@ const LogicNodeBuilder: React.FC<LogicNodeProps> = ({
                     {isStaticValue ? (
                         <Input
                             type="number"
-                            value={condition.value}
+                            value={condition.value ?? 0}
                             onChange={(e) => updateCond("value", parseFloat(e.target.value) || 0)}
                             className="h-8 w-20 text-xs bg-white border-slate-300 font-mono text-indigo-700 focus:ring-indigo-500"
                             placeholder="0"
@@ -328,7 +328,7 @@ const LogicNodeBuilder: React.FC<LogicNodeProps> = ({
                         hasPeriod(condition.right.type) && (
                             <Input
                                 type="number"
-                                value={condition.right.period}
+                                value={condition.right.period ?? 14}
                                 onChange={(e) =>
                                     updateCond("right", { period: parseInt(e.target.value) || 14 })
                                 }

@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query, Header
 from pydantic import BaseModel
 from typing import List, Optional
+from uuid import UUID
 import pandas as pd
 import math
 import logging
@@ -11,6 +12,7 @@ from sqlalchemy.orm import Session
 from services.data_providers import YahooFinanceProvider, ProviderError
 from database import get_db
 from models.metals import MetalsPriceSpot
+from models.strategy import Strategy as StrategyModel, Backtest as BacktestModel
 from schemas.visual_backtest import (
     VisualBacktestRequest,
     VisualBacktestResponse,
@@ -18,6 +20,13 @@ from schemas.visual_backtest import (
     VisualBacktestMetrics,
     EquityCurvePoint,
     CandleData,
+    StrategySaveRequest,
+    StrategyUpdateRequest,
+    StrategyResponse,
+    StrategyListResponse,
+    BacktestSaveRequest,
+    BacktestResponse,
+    BacktestListResponse,
 )
 from services.strategy_engine import run_visual_backtest
 from services.backtest_engine import run_backtest_with_lib
@@ -138,7 +147,9 @@ class MonthlyReturn(BaseModel):
     trades: int
 
 
-class BacktestResponse(BaseModel):
+class LegacyBacktestResponse(BaseModel):
+    """Legacy backtest response model (for old endpoints)"""
+
     strategy_name: str
     symbol: str
     timeframe: str
@@ -513,7 +524,7 @@ async def run_backtest_with_library(request: BacktestRequest) -> BacktestRespons
     )
 
 
-@router.post("/run", response_model=BacktestResponse)
+@router.post("/run", response_model=LegacyBacktestResponse)
 async def run_backtest(request: BacktestRequest):
     """
     Run a backtest with the given strategy using real market data.
@@ -578,6 +589,67 @@ ASSET_COLUMN_MAP = {
     "PLATINUM": ("platinum_inr", "platinum_usd"),
     "PALLADIUM": ("palladium_inr", "palladium_usd"),
 }
+
+
+class DateRangeResponse(BaseModel):
+    """Response model for available date range"""
+
+    minDate: str
+    maxDate: str
+    asset: str
+
+
+@router.get("/date-range/{asset}", response_model=DateRangeResponse)
+async def get_available_date_range(
+    asset: str,
+    db: Session = Depends(get_db),
+):
+    """
+    Get the available date range for backtesting data for a specific asset.
+
+    Returns the minimum and maximum dates available in the database.
+    """
+    try:
+        asset_upper = asset.upper()
+        if asset_upper not in ASSET_COLUMN_MAP:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid asset: {asset}. Valid options: {list(ASSET_COLUMN_MAP.keys())}",
+            )
+
+        inr_col, _ = ASSET_COLUMN_MAP[asset_upper]
+        price_column = getattr(MetalsPriceSpot, inr_col)
+
+        # Get min and max dates where the asset has data
+        from sqlalchemy import func
+
+        result = (
+            db.query(
+                func.min(MetalsPriceSpot.date).label("min_date"),
+                func.max(MetalsPriceSpot.date).label("max_date"),
+            )
+            .filter(price_column.isnot(None))
+            .first()
+        )
+
+        if not result or not result.min_date or not result.max_date:
+            raise HTTPException(
+                status_code=404, detail=f"No data available for {asset}"
+            )
+
+        return DateRangeResponse(
+            minDate=result.min_date.isoformat(),
+            maxDate=result.max_date.isoformat(),
+            asset=asset_upper,
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get date range for {asset}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get date range: {str(e)}"
+        )
 
 
 async def fetch_metals_data(
@@ -759,3 +831,450 @@ async def run_visual_backtest_endpoint(
     except Exception as e:
         logger.error(f"Visual backtest failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Backtest failed: {str(e)}")
+
+
+# ============================================
+# Strategy CRUD Endpoints
+# ============================================
+
+
+def get_user_id_from_header(x_user_id: str = Header(..., alias="X-User-Id")) -> UUID:
+    """Extract and validate user ID from header."""
+    try:
+        return UUID(x_user_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid user ID format")
+
+
+@router.post("/strategies", response_model=StrategyResponse, tags=["strategies"])
+async def save_strategy(
+    request: StrategySaveRequest,
+    db: Session = Depends(get_db),
+    user_id: UUID = Depends(get_user_id_from_header),
+):
+    """
+    Save a new strategy.
+
+    Requires X-User-Id header with the user's UUID.
+    """
+    try:
+        strategy = StrategyModel(
+            user_id=user_id,
+            name=request.name,
+            description=request.description,
+            asset=request.asset.value,
+            entry_logic=request.entryLogic.model_dump(),
+            exit_logic=request.exitLogic.model_dump(),
+            stop_loss_pct=request.stopLossPct,
+            take_profit_pct=request.takeProfitPct,
+            is_public=request.isPublic,
+            is_favorite=request.isFavorite,
+            tags=request.tags,
+        )
+
+        db.add(strategy)
+        db.commit()
+        db.refresh(strategy)
+
+        return StrategyResponse(**strategy.to_dict())
+
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to save strategy: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to save strategy: {str(e)}"
+        )
+
+
+@router.get("/strategies", response_model=StrategyListResponse, tags=["strategies"])
+async def list_strategies(
+    db: Session = Depends(get_db),
+    user_id: UUID = Depends(get_user_id_from_header),
+    asset: Optional[str] = Query(None, description="Filter by asset"),
+    is_favorite: Optional[bool] = Query(None, description="Filter favorites only"),
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+):
+    """
+    List user's strategies.
+
+    Requires X-User-Id header with the user's UUID.
+    """
+    try:
+        query = db.query(StrategyModel).filter(StrategyModel.user_id == user_id)
+
+        if asset:
+            query = query.filter(StrategyModel.asset == asset)
+        if is_favorite is not None:
+            query = query.filter(StrategyModel.is_favorite == is_favorite)
+
+        total = query.count()
+        strategies = (
+            query.order_by(
+                StrategyModel.updated_at.desc().nullsfirst(),
+                StrategyModel.created_at.desc(),
+            )
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
+
+        return StrategyListResponse(
+            strategies=[StrategyResponse(**s.to_dict()) for s in strategies],
+            total=total,
+        )
+
+    except Exception as e:
+        logger.error(f"Failed to list strategies: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to list strategies: {str(e)}"
+        )
+
+
+@router.get(
+    "/strategies/{strategy_id}", response_model=StrategyResponse, tags=["strategies"]
+)
+async def get_strategy(
+    strategy_id: int,
+    db: Session = Depends(get_db),
+    user_id: UUID = Depends(get_user_id_from_header),
+):
+    """
+    Get a specific strategy by ID.
+
+    Requires X-User-Id header with the user's UUID.
+    """
+    strategy = (
+        db.query(StrategyModel)
+        .filter(
+            StrategyModel.id == strategy_id,
+            StrategyModel.user_id == user_id,
+        )
+        .first()
+    )
+
+    if not strategy:
+        raise HTTPException(status_code=404, detail="Strategy not found")
+
+    return StrategyResponse(**strategy.to_dict())
+
+
+@router.put(
+    "/strategies/{strategy_id}", response_model=StrategyResponse, tags=["strategies"]
+)
+async def update_strategy(
+    strategy_id: int,
+    request: StrategyUpdateRequest,
+    db: Session = Depends(get_db),
+    user_id: UUID = Depends(get_user_id_from_header),
+):
+    """
+    Update an existing strategy.
+
+    Requires X-User-Id header with the user's UUID.
+    """
+    strategy = (
+        db.query(StrategyModel)
+        .filter(
+            StrategyModel.id == strategy_id,
+            StrategyModel.user_id == user_id,
+        )
+        .first()
+    )
+
+    if not strategy:
+        raise HTTPException(status_code=404, detail="Strategy not found")
+
+    try:
+        # Update only provided fields
+        if request.name is not None:
+            strategy.name = request.name
+        if request.description is not None:
+            strategy.description = request.description
+        if request.asset is not None:
+            strategy.asset = request.asset.value
+        if request.entryLogic is not None:
+            strategy.entry_logic = request.entryLogic.model_dump()
+        if request.exitLogic is not None:
+            strategy.exit_logic = request.exitLogic.model_dump()
+        if request.stopLossPct is not None:
+            strategy.stop_loss_pct = request.stopLossPct
+        if request.takeProfitPct is not None:
+            strategy.take_profit_pct = request.takeProfitPct
+        if request.isPublic is not None:
+            strategy.is_public = request.isPublic
+        if request.isFavorite is not None:
+            strategy.is_favorite = request.isFavorite
+        if request.tags is not None:
+            strategy.tags = request.tags
+
+        db.commit()
+        db.refresh(strategy)
+
+        return StrategyResponse(**strategy.to_dict())
+
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to update strategy: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to update strategy: {str(e)}"
+        )
+
+
+@router.delete("/strategies/{strategy_id}", tags=["strategies"])
+async def delete_strategy(
+    strategy_id: int,
+    db: Session = Depends(get_db),
+    user_id: UUID = Depends(get_user_id_from_header),
+):
+    """
+    Delete a strategy.
+
+    Requires X-User-Id header with the user's UUID.
+    """
+    strategy = (
+        db.query(StrategyModel)
+        .filter(
+            StrategyModel.id == strategy_id,
+            StrategyModel.user_id == user_id,
+        )
+        .first()
+    )
+
+    if not strategy:
+        raise HTTPException(status_code=404, detail="Strategy not found")
+
+    try:
+        db.delete(strategy)
+        db.commit()
+        return {"message": "Strategy deleted successfully"}
+
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to delete strategy: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to delete strategy: {str(e)}"
+        )
+
+
+# ============================================
+# Backtest Results CRUD Endpoints
+# ============================================
+
+
+@router.post("/backtests/save", response_model=BacktestResponse, tags=["backtests"])
+async def save_backtest(
+    request: BacktestSaveRequest,
+    db: Session = Depends(get_db),
+    user_id: UUID = Depends(get_user_id_from_header),
+):
+    """
+    Save a backtest result.
+
+    Requires X-User-Id header with the user's UUID.
+    """
+    try:
+        backtest = BacktestModel(
+            user_id=user_id,
+            strategy_id=request.strategyId,
+            asset=request.asset.value,
+            initial_capital=request.initialCapital,
+            final_equity=request.finalEquity,
+            total_trades=request.totalTrades,
+            win_rate=request.winRate,
+            total_return=request.totalReturn,
+            max_drawdown=request.maxDrawdown,
+            sharpe_ratio=request.sharpeRatio,
+            trades=request.trades,
+            equity_curve=request.equityCurve,
+            execution_time_ms=request.executionTimeMs,
+            status="completed",
+        )
+
+        db.add(backtest)
+        db.commit()
+        db.refresh(backtest)
+
+        return BacktestResponse(
+            id=backtest.id,
+            strategyId=backtest.strategy_id,
+            userId=str(backtest.user_id),
+            asset=backtest.asset,
+            initialCapital=float(backtest.initial_capital),
+            finalEquity=float(backtest.final_equity) if backtest.final_equity else 0,
+            metrics=VisualBacktestMetrics(
+                totalReturn=float(backtest.total_return)
+                if backtest.total_return
+                else 0,
+                winRate=float(backtest.win_rate) if backtest.win_rate else 0,
+                maxDrawdown=float(backtest.max_drawdown)
+                if backtest.max_drawdown
+                else 0,
+                sharpeRatio=float(backtest.sharpe_ratio)
+                if backtest.sharpe_ratio
+                else 0,
+                tradesCount=backtest.total_trades or 0,
+            ),
+            trades=backtest.trades or [],
+            equityCurve=backtest.equity_curve or [],
+            executionTimeMs=backtest.execution_time_ms,
+            status=backtest.status,
+            errorMessage=backtest.error_message,
+            createdAt=backtest.created_at.isoformat() if backtest.created_at else None,
+        )
+
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to save backtest: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to save backtest: {str(e)}"
+        )
+
+
+@router.get("/backtests", response_model=BacktestListResponse, tags=["backtests"])
+async def list_backtests(
+    db: Session = Depends(get_db),
+    user_id: UUID = Depends(get_user_id_from_header),
+    strategy_id: Optional[int] = Query(None, description="Filter by strategy ID"),
+    asset: Optional[str] = Query(None, description="Filter by asset"),
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+):
+    """
+    List user's backtest results.
+
+    Requires X-User-Id header with the user's UUID.
+    """
+    try:
+        query = db.query(BacktestModel).filter(BacktestModel.user_id == user_id)
+
+        if strategy_id:
+            query = query.filter(BacktestModel.strategy_id == strategy_id)
+        if asset:
+            query = query.filter(BacktestModel.asset == asset)
+
+        total = query.count()
+        backtests = (
+            query.order_by(BacktestModel.created_at.desc())
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
+
+        results = []
+        for bt in backtests:
+            results.append(
+                BacktestResponse(
+                    id=bt.id,
+                    strategyId=bt.strategy_id,
+                    userId=str(bt.user_id),
+                    asset=bt.asset,
+                    initialCapital=float(bt.initial_capital),
+                    finalEquity=float(bt.final_equity) if bt.final_equity else 0,
+                    metrics=VisualBacktestMetrics(
+                        totalReturn=float(bt.total_return) if bt.total_return else 0,
+                        winRate=float(bt.win_rate) if bt.win_rate else 0,
+                        maxDrawdown=float(bt.max_drawdown) if bt.max_drawdown else 0,
+                        sharpeRatio=float(bt.sharpe_ratio) if bt.sharpe_ratio else 0,
+                        tradesCount=bt.total_trades or 0,
+                    ),
+                    trades=bt.trades or [],
+                    equityCurve=bt.equity_curve or [],
+                    executionTimeMs=bt.execution_time_ms,
+                    status=bt.status,
+                    errorMessage=bt.error_message,
+                    createdAt=bt.created_at.isoformat() if bt.created_at else None,
+                )
+            )
+
+        return BacktestListResponse(backtests=results, total=total)
+
+    except Exception as e:
+        logger.error(f"Failed to list backtests: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to list backtests: {str(e)}"
+        )
+
+
+@router.get(
+    "/backtests/{backtest_id}", response_model=BacktestResponse, tags=["backtests"]
+)
+async def get_backtest(
+    backtest_id: int,
+    db: Session = Depends(get_db),
+    user_id: UUID = Depends(get_user_id_from_header),
+):
+    """
+    Get a specific backtest result by ID.
+
+    Requires X-User-Id header with the user's UUID.
+    """
+    bt = (
+        db.query(BacktestModel)
+        .filter(
+            BacktestModel.id == backtest_id,
+            BacktestModel.user_id == user_id,
+        )
+        .first()
+    )
+
+    if not bt:
+        raise HTTPException(status_code=404, detail="Backtest not found")
+
+    return BacktestResponse(
+        id=bt.id,
+        strategyId=bt.strategy_id,
+        userId=str(bt.user_id),
+        asset=bt.asset,
+        initialCapital=float(bt.initial_capital),
+        finalEquity=float(bt.final_equity) if bt.final_equity else 0,
+        metrics=VisualBacktestMetrics(
+            totalReturn=float(bt.total_return) if bt.total_return else 0,
+            winRate=float(bt.win_rate) if bt.win_rate else 0,
+            maxDrawdown=float(bt.max_drawdown) if bt.max_drawdown else 0,
+            sharpeRatio=float(bt.sharpe_ratio) if bt.sharpe_ratio else 0,
+            tradesCount=bt.total_trades or 0,
+        ),
+        trades=bt.trades or [],
+        equityCurve=bt.equity_curve or [],
+        executionTimeMs=bt.execution_time_ms,
+        status=bt.status,
+        errorMessage=bt.error_message,
+        createdAt=bt.created_at.isoformat() if bt.created_at else None,
+    )
+
+
+@router.delete("/backtests/{backtest_id}", tags=["backtests"])
+async def delete_backtest(
+    backtest_id: int,
+    db: Session = Depends(get_db),
+    user_id: UUID = Depends(get_user_id_from_header),
+):
+    """
+    Delete a backtest result.
+
+    Requires X-User-Id header with the user's UUID.
+    """
+    backtest = (
+        db.query(BacktestModel)
+        .filter(
+            BacktestModel.id == backtest_id,
+            BacktestModel.user_id == user_id,
+        )
+        .first()
+    )
+
+    if not backtest:
+        raise HTTPException(status_code=404, detail="Backtest not found")
+
+    try:
+        db.delete(backtest)
+        db.commit()
+        return {"message": "Backtest deleted successfully"}
+
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to delete backtest: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to delete backtest: {str(e)}"
+        )

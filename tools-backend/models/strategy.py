@@ -1,127 +1,205 @@
+"""
+Strategy and Backtest models for the visual strategy builder.
+
+These models store user-created trading strategies and their backtest results.
+Strategies use a recursive tree structure (LogicGroup/Condition) for entry/exit logic.
+"""
+
 from sqlalchemy import (
     Column,
     Integer,
     String,
     Text,
-    JSON,
     DateTime,
     ForeignKey,
     Numeric,
     Boolean,
 )
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from datetime import datetime
 
 from database import Base
 
 
 class Strategy(Base):
-    """User-created trading strategies"""
+    """
+    User-created trading strategies using the visual strategy builder.
+
+    The entry_logic and exit_logic fields store recursive tree structures:
+    {
+        "id": "uuid",
+        "type": "GROUP",
+        "operator": "AND" | "OR",
+        "children": [
+            {
+                "id": "uuid",
+                "type": "CONDITION",
+                "left": {"type": "RSI", "period": 14},
+                "comparator": "<",
+                "right": {"type": "PRICE", "period": 0},
+                "value": 30
+            },
+            // ... more conditions or nested groups
+        ]
+    }
+    """
 
     __tablename__ = "strategies"
     __table_args__ = {"schema": "tradeflix_tools"}
 
     id = Column(Integer, primary_key=True, index=True)
+
+    # Link to public."User" table (UUID)
+    # Note: Foreign key constraint exists in DB, but we don't validate at model level
+    # because the User table is managed by a different system (Clerk/external auth)
     user_id = Column(
-        Integer, ForeignKey("tradeflix_tools.users.id"), nullable=False, index=True
+        UUID(as_uuid=True),
+        nullable=False,
+        index=True,
     )
 
     # Strategy details
     name = Column(String(200), nullable=False)
     description = Column(Text)
-    symbol = Column(String(20), nullable=False)
-    timeframe = Column(String(10), nullable=False)
 
-    # Strategy rules (JSON format)
-    entry_rules = Column(JSON, nullable=False)
-    exit_rules = Column(JSON, nullable=False)
-    filters = Column(JSON)  # Additional filters (time-based, volume, etc.)
+    # Asset type (metals only: GOLD, SILVER, PLATINUM, PALLADIUM)
+    asset = Column(String(20), nullable=False, default="GOLD")
 
-    # Risk management
-    stop_loss = Column(JSON)  # {"type": "percentage", "value": 2}
-    take_profit = Column(JSON)  # {"type": "risk_reward", "value": 3}
-    position_size = Column(JSON)  # {"type": "fixed", "value": 1}
+    # Strategy logic (recursive tree structure stored as JSONB)
+    entry_logic = Column(JSONB, nullable=False)
+    exit_logic = Column(JSONB, nullable=False)
+
+    # Risk management (simple percentages)
+    stop_loss_pct = Column(Numeric(5, 2), default=2.0)  # e.g., 2.0 = 2%
+    take_profit_pct = Column(Numeric(5, 2), default=5.0)  # e.g., 5.0 = 5%
 
     # Metadata
     is_public = Column(Boolean, default=False)
     is_favorite = Column(Boolean, default=False)
-    tags = Column(JSON)  # ["breakout", "rsi", "intraday"]
+    tags = Column(JSONB)  # ["momentum", "mean-reversion", "rsi"]
 
+    # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
     backtests = relationship(
-        "Backtest", back_populates="strategy", cascade="all, delete-orphan"
+        "Backtest",
+        back_populates="strategy",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
     def __repr__(self):
-        return f"<Strategy(id={self.id}, name={self.name}, symbol={self.symbol})>"
+        return f"<Strategy(id={self.id}, name={self.name}, asset={self.asset})>"
+
+    def to_dict(self):
+        """Convert to dictionary for API responses."""
+        return {
+            "id": self.id,
+            "userId": str(self.user_id),
+            "name": self.name,
+            "description": self.description,
+            "asset": self.asset,
+            "entryLogic": self.entry_logic,
+            "exitLogic": self.exit_logic,
+            "stopLossPct": float(self.stop_loss_pct) if self.stop_loss_pct else 2.0,
+            "takeProfitPct": float(self.take_profit_pct)
+            if self.take_profit_pct
+            else 5.0,
+            "isPublic": self.is_public,
+            "isFavorite": self.is_favorite,
+            "tags": self.tags,
+            "createdAt": self.created_at.isoformat() if self.created_at else None,
+            "updatedAt": self.updated_at.isoformat() if self.updated_at else None,
+        }
 
 
 class Backtest(Base):
-    """Backtest results for strategies"""
+    """
+    Backtest results for strategies.
+
+    Stores the results of running a strategy against historical price data,
+    including performance metrics, trade history, and equity curve.
+    """
 
     __tablename__ = "backtests"
     __table_args__ = {"schema": "tradeflix_tools"}
 
     id = Column(Integer, primary_key=True, index=True)
+
+    # Link to strategy (nullable - strategy can be deleted but keep backtest)
     strategy_id = Column(
-        Integer, ForeignKey("tradeflix_tools.strategies.id"), nullable=False, index=True
+        Integer,
+        ForeignKey("tradeflix_tools.strategies.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
     )
+
+    # Link to public."User" table (UUID)
+    # Note: Foreign key constraint exists in DB, but we don't validate at model level
+    # because the User table is managed by a different system (Clerk/external auth)
     user_id = Column(
-        Integer, ForeignKey("tradeflix_tools.users.id"), nullable=False, index=True
+        UUID(as_uuid=True),
+        nullable=False,
+        index=True,
     )
 
     # Backtest parameters
-    start_date = Column(DateTime(timezone=True), nullable=False)
-    end_date = Column(DateTime(timezone=True), nullable=False)
-    initial_capital = Column(Numeric(12, 2), nullable=False)
+    asset = Column(String(20), nullable=False)  # Denormalized for quick access
+    initial_capital = Column(Numeric(14, 2), nullable=False)
 
-    # Cost assumptions
-    commission_per_trade = Column(Numeric(8, 2), default=0)
-    slippage_percent = Column(Numeric(5, 2), default=0)
+    # Core performance metrics (stored as decimals, not percentages)
+    total_trades = Column(Integer, default=0)
+    win_rate = Column(Numeric(5, 4))  # 0.0000 to 1.0000 (e.g., 0.65 = 65%)
+    total_return = Column(Numeric(8, 4))  # Decimal (e.g., 0.125 = 12.5%)
+    max_drawdown = Column(Numeric(8, 4))  # Decimal (e.g., -0.08 = -8%)
+    sharpe_ratio = Column(Numeric(6, 3))  # e.g., 1.450
+    final_equity = Column(Numeric(14, 2))  # Final portfolio value
 
-    # Performance metrics
-    total_trades = Column(Integer)
-    winning_trades = Column(Integer)
-    losing_trades = Column(Integer)
-    win_rate = Column(Numeric(5, 2))  # Percentage
-
-    profit_factor = Column(Numeric(8, 2))
-    max_drawdown = Column(Numeric(8, 2))
-    max_drawdown_percent = Column(Numeric(5, 2))
-    sharpe_ratio = Column(Numeric(6, 3))
-
-    total_return = Column(Numeric(12, 2))
-    total_return_percent = Column(Numeric(8, 2))
-    cagr = Column(Numeric(6, 2))
-
-    avg_win = Column(Numeric(10, 2))
-    avg_loss = Column(Numeric(10, 2))
-    largest_win = Column(Numeric(10, 2))
-    largest_loss = Column(Numeric(10, 2))
-
-    longest_win_streak = Column(Integer)
-    longest_lose_streak = Column(Integer)
-
-    # Detailed results (stored as JSON)
-    equity_curve = Column(JSON)  # [{date, equity, drawdown}, ...]
-    trades = Column(JSON)  # [{entry_date, exit_date, pnl, ...}, ...]
-    monthly_returns = Column(JSON)  # {2024-01: 2.5, 2024-02: -1.2, ...}
+    # Detailed results (stored as JSONB for efficient querying)
+    trades = Column(JSONB)  # Array of trade objects
+    equity_curve = Column(JSONB)  # Array of {date, equity} objects
 
     # Execution info
-    execution_time_seconds = Column(Numeric(8, 2))
+    execution_time_ms = Column(Integer)  # Milliseconds
     status = Column(
         String(20), default="completed"
     )  # pending, running, completed, failed
     error_message = Column(Text)
 
+    # Timestamp
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
     strategy = relationship("Strategy", back_populates="backtests")
 
     def __repr__(self):
-        return f"<Backtest(id={self.id}, strategy_id={self.strategy_id}, return={self.total_return_percent}%)>"
+        return f"<Backtest(id={self.id}, strategy_id={self.strategy_id}, return={self.total_return})>"
+
+    def to_dict(self):
+        """Convert to dictionary for API responses."""
+        return {
+            "id": self.id,
+            "strategyId": self.strategy_id,
+            "userId": str(self.user_id),
+            "asset": self.asset,
+            "initialCapital": float(self.initial_capital)
+            if self.initial_capital
+            else 0,
+            "finalEquity": float(self.final_equity) if self.final_equity else 0,
+            "metrics": {
+                "totalTrades": self.total_trades or 0,
+                "winRate": float(self.win_rate) if self.win_rate else 0,
+                "totalReturn": float(self.total_return) if self.total_return else 0,
+                "maxDrawdown": float(self.max_drawdown) if self.max_drawdown else 0,
+                "sharpeRatio": float(self.sharpe_ratio) if self.sharpe_ratio else 0,
+            },
+            "trades": self.trades or [],
+            "equityCurve": self.equity_curve or [],
+            "executionTimeMs": self.execution_time_ms,
+            "status": self.status,
+            "errorMessage": self.error_message,
+            "createdAt": self.created_at.isoformat() if self.created_at else None,
+        }

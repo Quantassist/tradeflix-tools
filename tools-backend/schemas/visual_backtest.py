@@ -185,3 +185,128 @@ class VisualBacktestResponse(BaseModel):
 
     class Config:
         populate_by_name = True
+
+
+# ============================================
+# Strategy Save/Load Schemas
+# ============================================
+
+
+class StrategySaveRequest(BaseModel):
+    """Request model for saving a strategy"""
+
+    name: str = Field(..., min_length=1, max_length=200)
+    description: Optional[str] = None
+    asset: StrategyAsset
+    entryLogic: LogicGroup = Field(..., alias="entryLogic")
+    exitLogic: LogicGroup = Field(..., alias="exitLogic")
+    stopLossPct: float = Field(2.0, alias="stopLossPct", ge=0, le=100)
+    takeProfitPct: float = Field(5.0, alias="takeProfitPct", ge=0, le=100)
+    isPublic: bool = Field(False, alias="isPublic")
+    isFavorite: bool = Field(False, alias="isFavorite")
+    tags: Optional[List[str]] = None
+
+    class Config:
+        populate_by_name = True
+
+
+class StrategyUpdateRequest(BaseModel):
+    """Request model for updating a strategy"""
+
+    name: Optional[str] = Field(None, min_length=1, max_length=200)
+    description: Optional[str] = None
+    asset: Optional[StrategyAsset] = None
+    entryLogic: Optional[LogicGroup] = Field(None, alias="entryLogic")
+    exitLogic: Optional[LogicGroup] = Field(None, alias="exitLogic")
+    stopLossPct: Optional[float] = Field(None, alias="stopLossPct", ge=0, le=100)
+    takeProfitPct: Optional[float] = Field(None, alias="takeProfitPct", ge=0, le=100)
+    isPublic: Optional[bool] = Field(None, alias="isPublic")
+    isFavorite: Optional[bool] = Field(None, alias="isFavorite")
+    tags: Optional[List[str]] = None
+
+    class Config:
+        populate_by_name = True
+
+
+class StrategyResponse(BaseModel):
+    """Response model for a saved strategy"""
+
+    id: int
+    userId: str = Field(..., alias="userId")
+    name: str
+    description: Optional[str] = None
+    asset: str
+    entryLogic: dict = Field(..., alias="entryLogic")
+    exitLogic: dict = Field(..., alias="exitLogic")
+    stopLossPct: float = Field(..., alias="stopLossPct")
+    takeProfitPct: float = Field(..., alias="takeProfitPct")
+    isPublic: bool = Field(..., alias="isPublic")
+    isFavorite: bool = Field(..., alias="isFavorite")
+    tags: Optional[List[str]] = None
+    createdAt: Optional[str] = Field(None, alias="createdAt")
+    updatedAt: Optional[str] = Field(None, alias="updatedAt")
+
+    class Config:
+        populate_by_name = True
+        from_attributes = True
+
+
+class StrategyListResponse(BaseModel):
+    """Response model for list of strategies"""
+
+    strategies: List[StrategyResponse]
+    total: int
+
+
+# ============================================
+# Backtest Save/Load Schemas
+# ============================================
+
+
+class BacktestSaveRequest(BaseModel):
+    """Request model for saving a backtest result"""
+
+    strategyId: Optional[int] = Field(None, alias="strategyId")
+    asset: StrategyAsset
+    initialCapital: float = Field(..., alias="initialCapital", gt=0)
+    finalEquity: float = Field(..., alias="finalEquity")
+    totalTrades: int = Field(0, alias="totalTrades", ge=0)
+    winRate: float = Field(0, alias="winRate", ge=0, le=1)
+    totalReturn: float = Field(0, alias="totalReturn")
+    maxDrawdown: float = Field(0, alias="maxDrawdown")
+    sharpeRatio: float = Field(0, alias="sharpeRatio")
+    trades: List[dict] = []
+    equityCurve: List[dict] = Field([], alias="equityCurve")
+    executionTimeMs: Optional[int] = Field(None, alias="executionTimeMs")
+
+    class Config:
+        populate_by_name = True
+
+
+class BacktestResponse(BaseModel):
+    """Response model for a saved backtest"""
+
+    id: int
+    strategyId: Optional[int] = Field(None, alias="strategyId")
+    userId: str = Field(..., alias="userId")
+    asset: str
+    initialCapital: float = Field(..., alias="initialCapital")
+    finalEquity: float = Field(..., alias="finalEquity")
+    metrics: VisualBacktestMetrics
+    trades: List[dict] = []
+    equityCurve: List[dict] = Field([], alias="equityCurve")
+    executionTimeMs: Optional[int] = Field(None, alias="executionTimeMs")
+    status: str
+    errorMessage: Optional[str] = Field(None, alias="errorMessage")
+    createdAt: Optional[str] = Field(None, alias="createdAt")
+
+    class Config:
+        populate_by_name = True
+        from_attributes = True
+
+
+class BacktestListResponse(BaseModel):
+    """Response model for list of backtests"""
+
+    backtests: List[BacktestResponse]
+    total: int

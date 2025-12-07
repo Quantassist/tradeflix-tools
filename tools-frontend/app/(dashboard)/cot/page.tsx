@@ -1966,7 +1966,7 @@ export default function COTReportPage() {
                       <div className="text-sm text-muted-foreground">OI Trend Signal</div>
                       {(() => {
                         const oiChange = result.weekly_changes.change_open_interest;
-                        const mmChange = result.weekly_changes.change_mm_net;
+                        const mmChange = result.weekly_changes.change_m_money_net;
                         let signal = '';
                         let color = '';
                         let desc = '';

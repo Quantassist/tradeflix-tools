@@ -462,9 +462,15 @@ def run_backtest_with_lib(
     equity_curve = []
     if hasattr(stats, "_equity_curve") and stats._equity_curve is not None:
         for date, row in stats._equity_curve.iterrows():
-            equity_curve.append(
-                {"date": str(date), "equity": safe_float(row["Equity"])}
-            )
+            raw_equity = safe_float(row["Equity"])
+            # Scale equity back to original scale if we scaled up for trading
+            if equity_scale_factor > 1.0:
+                # Calculate the profit percentage at this point
+                profit_pct_at_point = (raw_equity - effective_equity) / effective_equity
+                scaled_equity = initial_equity * (1 + profit_pct_at_point)
+            else:
+                scaled_equity = raw_equity
+            equity_curve.append({"date": str(date), "equity": scaled_equity})
 
     # Calculate metrics with safe_float to handle NaN
     raw_final_equity = safe_float(stats["Equity Final [$]"], effective_equity)

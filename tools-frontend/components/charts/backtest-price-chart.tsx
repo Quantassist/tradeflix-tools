@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo } from "react"
+import React, { useMemo, useState } from "react"
 import {
     ResponsiveContainer,
     ComposedChart,
@@ -19,13 +19,70 @@ interface BacktestPriceChartProps {
     result: VisualBacktestResult | null
 }
 
+// Maximum data points to render for performance
+const MAX_DATA_POINTS = 500
+
+// Custom tooltip for trade markers
+interface MarkerTooltipProps {
+    x: number
+    y: number
+    type: "entry" | "exit"
+    price: number
+    date: string
+    profit?: number
+}
+
+const MarkerTooltip = ({ x, y, type, price, date, profit }: MarkerTooltipProps) => {
+    const isEntry = type === "entry"
+    const bgColor = isEntry ? "#10b981" : (profit && profit > 0 ? "#10b981" : "#ef4444")
+
+    return (
+        <g>
+            <rect
+                x={x - 50}
+                y={isEntry ? y + 25 : y - 55}
+                width={100}
+                height={40}
+                rx={4}
+                fill={bgColor}
+                opacity={0.95}
+            />
+            <text
+                x={x}
+                y={isEntry ? y + 40 : y - 40}
+                textAnchor="middle"
+                fill="#fff"
+                fontSize={10}
+                fontWeight={600}
+            >
+                {isEntry ? "BUY" : "SELL"} @ ₹{price.toFixed(2)}
+            </text>
+            <text
+                x={x}
+                y={isEntry ? y + 54 : y - 26}
+                textAnchor="middle"
+                fill="#fff"
+                fontSize={9}
+                opacity={0.9}
+            >
+                {new Date(date).toLocaleDateString()}
+                {!isEntry && profit !== undefined && ` (${profit > 0 ? "+" : ""}${profit.toFixed(1)}%)`}
+            </text>
+        </g>
+    )
+}
+
 // Custom triangle marker for entry signals (pointing up, below the price line)
-const EntryMarker = (props: { cx?: number; cy?: number }) => {
-    const { cx, cy } = props
-    if (!cx || !cy) return null
+const EntryMarker = (props: {
+    cx?: number
+    cy?: number
+    payload?: { date?: string; entrySignal?: number }
+    onHover?: (data: MarkerTooltipProps | null) => void
+}) => {
+    const { cx, cy, payload, onHover } = props
+    if (!cx || !cy || !payload?.entrySignal) return null
     const size = 10
-    const offset = 15 // Distance below the price point
-    // Triangle pointing up (▲)
+    const offset = 15
     const points = `${cx},${cy + offset - size} ${cx - size * 0.7},${cy + offset + size * 0.5} ${cx + size * 0.7},${cy + offset + size * 0.5}`
     return (
         <polygon
@@ -34,18 +91,25 @@ const EntryMarker = (props: { cx?: number; cy?: number }) => {
             stroke="#fff"
             strokeWidth={1.5}
             filter="drop-shadow(0 1px 2px rgba(0,0,0,0.2))"
+            style={{ cursor: "pointer" }}
+            onMouseEnter={() => onHover?.({ x: cx, y: cy, type: "entry", price: payload.entrySignal!, date: payload.date || "" })}
+            onMouseLeave={() => onHover?.(null)}
         />
     )
 }
 
 // Custom triangle marker for exit signals (pointing down, above the price line)
-const ExitMarker = (props: { cx?: number; cy?: number; payload?: { tradeProfit?: number } }) => {
-    const { cx, cy, payload } = props
-    if (!cx || !cy) return null
+const ExitMarker = (props: {
+    cx?: number
+    cy?: number
+    payload?: { tradeProfit?: number; date?: string; exitSignal?: number }
+    onHover?: (data: MarkerTooltipProps | null) => void
+}) => {
+    const { cx, cy, payload, onHover } = props
+    if (!cx || !cy || !payload?.exitSignal) return null
     const isWin = (payload?.tradeProfit || 0) > 0
     const size = 10
-    const offset = 15 // Distance above the price point
-    // Triangle pointing down (▼)
+    const offset = 15
     const points = `${cx},${cy - offset + size} ${cx - size * 0.7},${cy - offset - size * 0.5} ${cx + size * 0.7},${cy - offset - size * 0.5}`
     return (
         <polygon
@@ -54,6 +118,9 @@ const ExitMarker = (props: { cx?: number; cy?: number; payload?: { tradeProfit?:
             stroke="#fff"
             strokeWidth={1.5}
             filter="drop-shadow(0 1px 2px rgba(0,0,0,0.2))"
+            style={{ cursor: "pointer" }}
+            onMouseEnter={() => onHover?.({ x: cx, y: cy, type: "exit", price: payload.exitSignal!, date: payload.date || "", profit: payload.tradeProfit })}
+            onMouseLeave={() => onHover?.(null)}
         />
     )
 }
@@ -65,24 +132,63 @@ const formatDate = (dateStr: string) => {
 }
 
 // Shared margin for both charts to ensure alignment
-const CHART_MARGIN = { top: 10, right: 10, left: 10, bottom: 0 }
-const Y_AXIS_WIDTH = 70
+const CHART_MARGIN = { top: 10, right: 70, left: 10, bottom: 0 }
+const Y_AXIS_WIDTH = 60
+
+// Downsample data while preserving trade points
+const downsampleData = <T extends { date: string }>(
+    data: T[],
+    maxPoints: number,
+    preserveDates: Set<string>
+): T[] => {
+    if (data.length <= maxPoints) return data
+
+    const step = Math.ceil(data.length / maxPoints)
+    const result: T[] = []
+
+    for (let i = 0; i < data.length; i++) {
+        // Always include first, last, and trade dates
+        if (i === 0 || i === data.length - 1 || preserveDates.has(data[i].date) || i % step === 0) {
+            result.push(data[i])
+        }
+    }
+
+    return result
+}
 
 export function BacktestPriceChart({ data, result }: BacktestPriceChartProps) {
-    // Merge candle data with equity data and trade signals
-    const chartData = useMemo(() => data.map((candle) => {
-        const equityPoint = result?.equityCurve.find((e) => e.date === candle.date)
-        const entryTrade = result?.trades.find((t) => t.entryDate === candle.date)
-        const exitTrade = result?.trades.find((t) => t.exitDate === candle.date)
+    // State for marker tooltip
+    const [markerTooltip, setMarkerTooltip] = useState<MarkerTooltipProps | null>(null)
 
-        return {
-            ...candle,
-            equity: equityPoint ? equityPoint.equity : null,
-            entrySignal: entryTrade ? entryTrade.entryPrice : null,
-            exitSignal: exitTrade ? exitTrade.exitPrice : null,
-            tradeProfit: exitTrade ? exitTrade.profitPct : null,
-        }
-    }), [data, result])
+    // Get all trade dates that must be preserved
+    const tradeDates = useMemo(() => {
+        const dates = new Set<string>()
+        result?.trades.forEach(t => {
+            if (t.entryDate) dates.add(t.entryDate)
+            if (t.exitDate) dates.add(t.exitDate)
+        })
+        return dates
+    }, [result])
+
+    // Merge candle data with equity data and trade signals, then downsample
+    const chartData = useMemo(() => {
+        const fullData = data.map((candle) => {
+            const equityPoint = result?.equityCurve.find((e) => e.date === candle.date)
+            const entryTrade = result?.trades.find((t) => t.entryDate === candle.date)
+            const exitTrade = result?.trades.find((t) => t.exitDate === candle.date)
+
+            return {
+                ...candle,
+                equity: equityPoint ? equityPoint.equity : null,
+                entrySignal: entryTrade ? entryTrade.entryPrice : null,
+                exitSignal: exitTrade ? exitTrade.exitPrice : null,
+                tradeProfit: exitTrade ? exitTrade.profitPct : null,
+            }
+        })
+
+        // Downsample for performance while preserving trade points
+        return downsampleData(fullData, MAX_DATA_POINTS, tradeDates)
+    }, [data, result, tradeDates])
 
     // Calculate tick indices for x-axis (show ~6 ticks) - shared between both charts
     const xAxisTicks = useMemo(() => {
@@ -92,6 +198,22 @@ export function BacktestPriceChart({ data, result }: BacktestPriceChartProps) {
     }, [chartData])
 
     if (data.length === 0) {
+        // If we have result but no price data, show a message to re-run backtest
+        if (result) {
+            return (
+                <div className="h-full flex flex-col items-center justify-center text-gray-500 gap-3">
+                    <div className="text-center">
+                        <p className="font-medium">Previous Results Loaded</p>
+                        <p className="text-sm text-gray-400 mt-1">
+                            Run the backtest again to see the price chart and equity curve
+                        </p>
+                    </div>
+                    <div className="text-xs text-gray-400 bg-gray-50 px-4 py-2 rounded-lg">
+                        Initial: ₹{result.initialEquity.toLocaleString()} → Final: ₹{result.finalEquity.toLocaleString()}
+                    </div>
+                </div>
+            )
+        }
         return (
             <div className="h-full flex items-center justify-center text-gray-400">
                 <p>Run a backtest to see chart data</p>
@@ -179,16 +301,18 @@ export function BacktestPriceChart({ data, result }: BacktestPriceChartProps) {
                             yAxisId="right"
                             name="Entry"
                             dataKey="entrySignal"
-                            shape={<EntryMarker />}
+                            shape={<EntryMarker onHover={setMarkerTooltip} />}
                             legendType="none"
                         />
                         <Scatter
                             yAxisId="right"
                             name="Exit"
                             dataKey="exitSignal"
-                            shape={<ExitMarker />}
+                            shape={<ExitMarker onHover={setMarkerTooltip} />}
                             legendType="none"
                         />
+                        {/* Custom tooltip for trade markers */}
+                        {markerTooltip && <MarkerTooltip {...markerTooltip} />}
                     </ComposedChart>
                 </ResponsiveContainer>
             </div>
@@ -217,6 +341,7 @@ export function BacktestPriceChart({ data, result }: BacktestPriceChartProps) {
                                 interval="preserveStartEnd"
                             />
                             <YAxis
+                                orientation="right"
                                 domain={["auto", "auto"]}
                                 axisLine={{ stroke: "#d1d5db" }}
                                 tickLine={{ stroke: "#d1d5db" }}

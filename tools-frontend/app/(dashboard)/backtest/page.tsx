@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Play, Loader2, Settings, BarChart3, IndianRupee, Save, FolderOpen, Star, StarOff, X, FilePlus, Calendar as CalendarIcon, ChevronDown } from "lucide-react"
+import { Play, Loader2, Settings, BarChart3, IndianRupee, Save, FolderOpen, Star, StarOff, X, Calendar as CalendarIcon, ChevronDown, Trash2, Tag, Library, Check } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -27,7 +27,10 @@ import {
   updateStrategy,
   saveBacktest,
   listStrategies,
+  listBacktests,
+  deleteStrategy,
   getDateRange,
+  linkBacktestsToStrategy,
   type SavedStrategy,
   type DateRangeResponse,
 } from "@/lib/api/backtest"
@@ -107,7 +110,10 @@ export default function BacktestPage() {
   const [loadingStrategies, setLoadingStrategies] = useState(false)
   const [currentStrategyId, setCurrentStrategyId] = useState<number | null>(null)
   const [loadedStrategyName, setLoadedStrategyName] = useState<string | null>(null)
-  const [saveAsNew, setSaveAsNew] = useState(false)
+  const [strategyTags, setStrategyTags] = useState<string[]>([])
+  const [tagInput, setTagInput] = useState("")
+  const [deletingStrategyId, setDeletingStrategyId] = useState<number | null>(null)
+  const [showTrades, setShowTrades] = useState(false)
 
   // Period selection state
   type PeriodOption = "1M" | "6M" | "1Y" | "3Y" | "MAX" | "CUSTOM"
@@ -223,7 +229,8 @@ export default function BacktestPage() {
     setStrategyName(loadedStrategyName || strategy.name)
     setStrategyDescription("")
     setIsFavorite(false)
-    setSaveAsNew(false) // Default to update if loaded
+    setStrategyTags([])
+    setTagInput("")
     setSaveDialogOpen(true)
   }
 
@@ -262,12 +269,12 @@ export default function BacktestPage() {
         stopLossPct: strategy.stopLossPct,
         takeProfitPct: strategy.takeProfitPct,
         isFavorite,
+        tags: strategyTags.length > 0 ? strategyTags : undefined,
       }
 
       let saved: SavedStrategy
-      const isUpdate = currentStrategyId && !saveAsNew
 
-      if (isUpdate) {
+      if (currentStrategyId) {
         // Update existing strategy
         saved = await updateStrategy(currentStrategyId, strategyData)
         toast({
@@ -277,6 +284,17 @@ export default function BacktestPage() {
       } else {
         // Create new strategy
         saved = await saveStrategy(strategyData)
+
+        // Link any orphan backtests to the newly saved strategy
+        try {
+          const linkResult = await linkBacktestsToStrategy(saved.id)
+          if (linkResult.linked > 0) {
+            console.log(`Linked ${linkResult.linked} backtest(s) to strategy ${saved.id}`)
+          }
+        } catch (linkError) {
+          console.error("Failed to link backtests:", linkError)
+        }
+
         toast({
           title: "Strategy Saved!",
           description: `"${strategyName}" has been saved as a new strategy`,
@@ -316,8 +334,62 @@ export default function BacktestPage() {
     }
   }
 
-  // Load a specific strategy
-  const handleLoadStrategy = (saved: SavedStrategy) => {
+  // Show delete confirmation
+  const handleDeleteClick = (strategyId: number) => {
+    setDeletingStrategyId(strategyId)
+  }
+
+  // Confirm delete
+  const handleConfirmDelete = async (strategyId: number) => {
+    try {
+      await deleteStrategy(strategyId)
+      setSavedStrategies((prev) => prev.filter((s) => s.id !== strategyId))
+
+      // If we deleted the currently loaded strategy, clear it
+      if (currentStrategyId === strategyId) {
+        setCurrentStrategyId(null)
+        setLoadedStrategyName(null)
+      }
+
+      toast({
+        title: "Strategy Deleted",
+        description: "The strategy has been permanently deleted",
+      })
+    } catch (error) {
+      toast({
+        title: "Delete Failed",
+        description: error instanceof Error ? error.message : "Failed to delete strategy",
+        variant: "destructive",
+      })
+    } finally {
+      setDeletingStrategyId(null)
+    }
+  }
+
+  // Cancel delete
+  const handleCancelDelete = () => {
+    setDeletingStrategyId(null)
+  }
+
+  // Add tag to strategy
+  const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && tagInput.trim()) {
+      e.preventDefault()
+      const newTag = tagInput.trim().toLowerCase()
+      if (!strategyTags.includes(newTag)) {
+        setStrategyTags([...strategyTags, newTag])
+      }
+      setTagInput("")
+    }
+  }
+
+  // Remove tag from strategy
+  const handleRemoveTag = (tagToRemove: string) => {
+    setStrategyTags(strategyTags.filter((tag) => tag !== tagToRemove))
+  }
+
+  // Load a specific strategy and its latest backtest results
+  const handleLoadStrategy = async (saved: SavedStrategy) => {
     setStrategy({
       id: saved.id.toString(),
       name: saved.name,
@@ -329,10 +401,44 @@ export default function BacktestPage() {
     })
     setCurrentStrategyId(saved.id)
     setLoadedStrategyName(saved.name)
-    setResult(null)
-    setPriceData([])
     setLoadDialogOpen(false)
 
+    // Try to load the latest backtest results for this strategy
+    try {
+      const backtestResponse = await listBacktests({ strategyId: saved.id, limit: 1 })
+      if (backtestResponse.backtests && backtestResponse.backtests.length > 0) {
+        const latestBacktest = backtestResponse.backtests[0]
+        // Reconstruct the result from saved backtest data
+        const reconstructedResult: VisualBacktestResult = {
+          metrics: {
+            totalReturn: latestBacktest.metrics.totalReturn,
+            winRate: latestBacktest.metrics.winRate,
+            maxDrawdown: latestBacktest.metrics.maxDrawdown,
+            sharpeRatio: latestBacktest.metrics.sharpeRatio,
+            tradesCount: latestBacktest.metrics.tradesCount,
+          },
+          trades: latestBacktest.trades as VisualBacktestResult["trades"],
+          equityCurve: latestBacktest.equityCurve as VisualBacktestResult["equityCurve"],
+          finalEquity: latestBacktest.finalEquity,
+          initialEquity: latestBacktest.initialCapital,
+          priceData: [], // Price data is not stored in backtest results
+        }
+        setResult(reconstructedResult)
+        setPriceData([]) // We don't have price data stored
+        setActiveTab("results")
+        toast({
+          title: "Strategy Loaded",
+          description: `"${saved.name}" loaded with previous results`,
+        })
+        return
+      }
+    } catch (error) {
+      console.error("Failed to load backtest results:", error)
+    }
+
+    // No results found
+    setResult(null)
+    setPriceData([])
     toast({
       title: "Strategy Loaded",
       description: `"${saved.name}" has been loaded`,
@@ -544,22 +650,13 @@ export default function BacktestPage() {
               {/* Action Buttons */}
               <div className="flex items-center gap-1.5">
                 <Button
-                  onClick={handleNewStrategy}
-                  variant="outline"
-                  size="sm"
-                  className="h-8 text-slate-600 border-slate-300 hover:bg-slate-50"
-                >
-                  <FilePlus size={14} className="mr-1.5" />
-                  New
-                </Button>
-                <Button
                   onClick={handleOpenLoadDialog}
                   variant="outline"
                   size="sm"
                   className="h-8 text-slate-600 border-slate-300 hover:bg-slate-50"
                 >
-                  <FolderOpen size={14} className="mr-1.5" />
-                  Load
+                  <Library size={14} className="mr-1.5" />
+                  My Strategies
                 </Button>
                 <Button
                   onClick={handleOpenSaveDialog}
@@ -599,6 +696,105 @@ export default function BacktestPage() {
                 <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm h-[500px]">
                   <BacktestPriceChart data={priceData} result={result} />
                 </div>
+
+                {/* Trades List - Progressive Disclosure */}
+                {result.trades.length > 0 && (
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <button
+                      onClick={() => setShowTrades(!showTrades)}
+                      className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-slate-50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                          <BarChart3 size={16} className="text-indigo-600" />
+                        </div>
+                        <div className="text-left">
+                          <h3 className="text-sm font-semibold text-slate-800">Trade History</h3>
+                          <p className="text-xs text-slate-500">{result.trades.length} completed trades</p>
+                        </div>
+                      </div>
+                      <ChevronDown
+                        size={18}
+                        className={`text-slate-400 transition-transform duration-200 ${showTrades ? "rotate-180" : ""}`}
+                      />
+                    </button>
+
+                    {showTrades && (
+                      <div className="border-t border-slate-100">
+                        {/* Table Header */}
+                        <div className="grid grid-cols-6 gap-4 px-5 py-2.5 bg-slate-50 text-xs font-medium text-slate-500 uppercase tracking-wide">
+                          <div>#</div>
+                          <div>Entry Date</div>
+                          <div className="text-right">Entry Price</div>
+                          <div>Exit Date</div>
+                          <div className="text-right">Exit Price</div>
+                          <div className="text-right">P&L</div>
+                        </div>
+
+                        {/* Trade Rows */}
+                        <div className="divide-y divide-slate-100 max-h-[300px] overflow-y-auto">
+                          {result.trades.map((trade, index) => {
+                            const isProfit = (trade.profitPct || 0) > 0
+                            return (
+                              <div
+                                key={index}
+                                className="grid grid-cols-6 gap-4 px-5 py-3 text-sm hover:bg-slate-50 transition-colors"
+                              >
+                                <div className="text-slate-400 font-medium">{index + 1}</div>
+                                <div className="text-slate-700">
+                                  {new Date(trade.entryDate).toLocaleDateString("en-IN", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  })}
+                                </div>
+                                <div className="text-right font-mono text-slate-700">
+                                  ₹{trade.entryPrice.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
+                                </div>
+                                <div className="text-slate-700">
+                                  {trade.exitDate ? new Date(trade.exitDate).toLocaleDateString("en-IN", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  }) : "-"}
+                                </div>
+                                <div className="text-right font-mono text-slate-700">
+                                  {trade.exitPrice ? `₹${trade.exitPrice.toLocaleString("en-IN", { maximumFractionDigits: 2 })}` : "-"}
+                                </div>
+                                <div className={`text-right font-semibold ${isProfit ? "text-emerald-600" : "text-red-500"}`}>
+                                  <span className="inline-flex items-center gap-1">
+                                    {isProfit ? "+" : ""}
+                                    {((trade.profitPct || 0) * 100).toFixed(2)}%
+                                  </span>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+
+                        {/* Summary Footer */}
+                        <div className="border-t border-slate-200 px-5 py-3 bg-slate-50 flex items-center justify-between">
+                          <div className="text-xs text-slate-500">
+                            <span className="font-medium text-emerald-600">
+                              {result.trades.filter(t => (t.profitPct || 0) > 0).length} wins
+                            </span>
+                            {" · "}
+                            <span className="font-medium text-red-500">
+                              {result.trades.filter(t => (t.profitPct || 0) <= 0).length} losses
+                            </span>
+                          </div>
+                          <div className="text-xs">
+                            <span className="text-slate-500">Total Return: </span>
+                            <span className={`font-semibold ${result.metrics.totalReturn >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                              {result.metrics.totalReturn >= 0 ? "+" : ""}
+                              {(result.metrics.totalReturn * 100).toFixed(2)}%
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </>
             )}
           </TabsContent>
@@ -610,41 +806,15 @@ export default function BacktestPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {currentStrategyId && !saveAsNew ? "Update Strategy" : "Save New Strategy"}
+              {currentStrategyId ? "Update Strategy" : "Save New Strategy"}
             </DialogTitle>
             <DialogDescription>
-              {currentStrategyId && !saveAsNew
+              {currentStrategyId
                 ? `Update "${loadedStrategyName}" with your changes.`
                 : "Save your strategy to load it later or share with others."}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            {/* Save as new toggle when editing existing strategy */}
-            {currentStrategyId && (
-              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                <button
-                  type="button"
-                  onClick={() => setSaveAsNew(false)}
-                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${!saveAsNew
-                    ? "bg-indigo-600 text-white shadow-sm"
-                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
-                    }`}
-                >
-                  Update Existing
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSaveAsNew(true)}
-                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${saveAsNew
-                    ? "bg-indigo-600 text-white shadow-sm"
-                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
-                    }`}
-                >
-                  Save as New
-                </button>
-              </div>
-            )}
-
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">Strategy Name</label>
               <Input
@@ -663,6 +833,39 @@ export default function BacktestPage() {
                 className="resize-none h-20"
               />
             </div>
+            {/* Tags Input */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700 flex items-center gap-1.5">
+                <Tag size={12} />
+                Tags (optional)
+              </label>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {strategyTags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-indigo-100 text-indigo-700 text-xs"
+                  >
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveTag(tag)}
+                      className="hover:text-indigo-900"
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <Input
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={handleAddTag}
+                placeholder="e.g., momentum, gold, swing"
+                className="h-8 text-sm"
+              />
+              <p className="text-[11px] text-slate-400">Press Enter to add a tag</p>
+            </div>
+
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -693,7 +896,7 @@ export default function BacktestPage() {
               )}
               {savingStrategy
                 ? "Saving..."
-                : currentStrategyId && !saveAsNew
+                : currentStrategyId
                   ? "Update Strategy"
                   : "Save Strategy"}
             </Button>
@@ -701,13 +904,16 @@ export default function BacktestPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Load Strategy Dialog */}
+      {/* My Strategies Dialog */}
       <Dialog open={loadDialogOpen} onOpenChange={setLoadDialogOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[80vh]">
+        <DialogContent className="sm:max-w-xl max-h-[80vh]">
           <DialogHeader>
-            <DialogTitle>Load Strategy</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Library size={18} className="text-indigo-600" />
+              My Strategies
+            </DialogTitle>
             <DialogDescription>
-              Select a saved strategy to load into the builder.
+              Select a strategy to load, or manage your saved strategies.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -724,36 +930,102 @@ export default function BacktestPage() {
             ) : (
               <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
                 {savedStrategies.map((saved) => (
-                  <button
+                  <div
                     key={saved.id}
-                    onClick={() => handleLoadStrategy(saved)}
                     className="w-full text-left p-3 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 transition-all group"
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <button
+                        onClick={() => handleLoadStrategy(saved)}
+                        className="flex-1 min-w-0 text-left"
+                      >
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-slate-800 truncate">{saved.name}</span>
                           {saved.isFavorite && (
-                            <Star size={12} className="text-amber-500 flex-shrink-0" fill="currentColor" />
+                            <Star size={12} className="text-amber-500 shrink-0" fill="currentColor" />
                           )}
                         </div>
                         {saved.description && (
                           <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{saved.description}</p>
                         )}
-                        <div className="flex items-center gap-3 mt-1.5">
+                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                           <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
                             {saved.asset}
                           </span>
                           <span className="text-[10px] text-slate-400">
                             SL: {saved.stopLossPct}% | TP: {saved.takeProfitPct}%
                           </span>
+                          {/* Display tags */}
+                          {saved.tags && saved.tags.length > 0 && (
+                            <div className="flex items-center gap-1">
+                              {saved.tags.slice(0, 3).map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-600"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                              {saved.tags.length > 3 && (
+                                <span className="text-[10px] text-slate-400">
+                                  +{saved.tags.length - 3}
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
+                      </button>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-[10px] text-slate-400">
+                          {saved.createdAt ? new Date(saved.createdAt).toLocaleDateString() : ""}
+                        </span>
+                        {deletingStrategyId === saved.id ? (
+                          // Confirmation UI
+                          <div className="flex items-center gap-1.5 bg-red-50 border border-red-200 rounded-md px-2 py-1">
+                            <span className="text-[11px] text-red-600 font-medium">Delete?</span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                handleConfirmDelete(saved.id)
+                              }}
+                              className="p-1 rounded hover:bg-red-100 text-red-600 transition-colors"
+                              title="Confirm delete"
+                            >
+                              <Check size={14} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                handleCancelDelete()
+                              }}
+                              className="p-1 rounded hover:bg-slate-200 text-slate-500 transition-colors"
+                              title="Cancel"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ) : (
+                          // Delete button
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              handleDeleteClick(saved.id)
+                            }}
+                            className="p-1.5 rounded text-slate-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
+                            title="Delete strategy"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
                       </div>
-                      <span className="text-xs text-slate-400 flex-shrink-0 ml-2">
-                        {saved.createdAt ? new Date(saved.createdAt).toLocaleDateString() : ""}
-                      </span>
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
             )}

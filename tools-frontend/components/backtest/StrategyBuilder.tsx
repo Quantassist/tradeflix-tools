@@ -194,11 +194,12 @@ const LogicNodeBuilder: React.FC<LogicNodeProps> = ({
     // --- Render Condition ---
     if (node.type === "CONDITION") {
         const condition = node as StrategyCondition
-        const isStaticValue = condition.value !== undefined
+        // Check if we're in static value mode - value must exist AND not be null
+        const isStaticValue = condition.value !== undefined && condition.value !== null
 
         const updateCond = (
             field: keyof StrategyCondition | "left" | "right",
-            value: Partial<IndicatorConfig> | StrategyComparator | number
+            value: Partial<IndicatorConfig> | StrategyComparator | number | undefined
         ) => {
             updateTree(rootType, condition.id, (n) => {
                 const c = n as StrategyCondition
@@ -261,9 +262,18 @@ const LogicNodeBuilder: React.FC<LogicNodeProps> = ({
                     {hasPeriod(condition.left.type) && (
                         <Input
                             type="number"
-                            value={condition.left.period ?? 14}
-                            onChange={(e) => updateCond("left", { period: parseInt(e.target.value) || 14 })}
-                            className="h-8 w-14 text-xs text-center bg-white border-slate-300 focus:ring-indigo-500"
+                            value={condition.left.period ?? ""}
+                            onChange={(e) => {
+                                const val = e.target.value
+                                updateCond("left", { period: val === "" ? undefined : parseInt(val) })
+                            }}
+                            onBlur={(e) => {
+                                if (e.target.value === "" || isNaN(parseInt(e.target.value))) {
+                                    updateCond("left", { period: 14 })
+                                }
+                            }}
+                            className="h-8 min-w-[3.5rem] w-auto text-xs text-center bg-white border-slate-300 focus:ring-indigo-500"
+                            style={{ width: `${Math.max(3.5, String(condition.left.period ?? "").length * 0.6 + 2)}rem` }}
                         />
                     )}
                 </div>
@@ -319,20 +329,36 @@ const LogicNodeBuilder: React.FC<LogicNodeProps> = ({
                     {isStaticValue ? (
                         <Input
                             type="number"
-                            value={condition.value ?? 0}
-                            onChange={(e) => updateCond("value", parseFloat(e.target.value) || 0)}
-                            className="h-8 w-20 text-xs bg-white border-slate-300 font-mono text-indigo-700 focus:ring-indigo-500"
+                            value={condition.value ?? ""}
+                            onChange={(e) => {
+                                const val = e.target.value
+                                updateCond("value", val === "" ? undefined : parseFloat(val))
+                            }}
+                            onBlur={(e) => {
+                                if (e.target.value === "" || isNaN(parseFloat(e.target.value))) {
+                                    updateCond("value", 0)
+                                }
+                            }}
+                            className="h-8 min-w-[4rem] w-auto text-xs bg-white border-slate-300 font-mono text-indigo-700 focus:ring-indigo-500"
+                            style={{ width: `${Math.max(4, String(condition.value ?? "").length * 0.6 + 2)}rem` }}
                             placeholder="0"
                         />
                     ) : (
                         hasPeriod(condition.right.type) && (
                             <Input
                                 type="number"
-                                value={condition.right.period ?? 14}
-                                onChange={(e) =>
-                                    updateCond("right", { period: parseInt(e.target.value) || 14 })
-                                }
-                                className="h-8 w-14 text-xs text-center bg-white border-slate-300 focus:ring-indigo-500"
+                                value={condition.right.period ?? ""}
+                                onChange={(e) => {
+                                    const val = e.target.value
+                                    updateCond("right", { period: val === "" ? undefined : parseInt(val) })
+                                }}
+                                onBlur={(e) => {
+                                    if (e.target.value === "" || isNaN(parseInt(e.target.value))) {
+                                        updateCond("right", { period: 14 })
+                                    }
+                                }}
+                                className="h-8 min-w-14 w-auto text-xs text-center bg-white border-slate-300 focus:ring-indigo-500"
+                                style={{ width: `${Math.max(3.5, String(condition.right.period ?? "").length * 0.6 + 2)}rem` }}
                             />
                         )
                     )}
@@ -526,7 +552,8 @@ export function StrategyBuilder({ strategy, setStrategy }: StrategyBuilderProps)
             {/* Risk Management */}
             <div className="grid grid-cols-2 gap-4 pt-3 mt-2 border-t border-slate-100">
                 <div>
-                    <label className="text-xs text-slate-600 font-medium block mb-1.5">
+                    <label className="text-xs text-slate-600 font-medium mb-1.5 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-rose-500"></span>
                         Stop Loss
                     </label>
                     <div className="relative">
@@ -536,15 +563,16 @@ export function StrategyBuilder({ strategy, setStrategy }: StrategyBuilderProps)
                             onChange={(e) =>
                                 setStrategy((s) => ({ ...s, stopLossPct: parseFloat(e.target.value) || 0 }))
                             }
-                            className="h-9 pr-8 bg-rose-50 border-rose-200 text-rose-700 focus:ring-rose-500"
+                            className="h-9 pr-8 bg-white border-slate-200 focus:border-rose-400 focus:ring-rose-500"
                         />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-rose-400 text-xs font-medium">
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-rose-500 text-xs font-semibold">
                             %
                         </span>
                     </div>
                 </div>
                 <div>
-                    <label className="text-xs text-slate-600 font-medium block mb-1.5">
+                    <label className="text-xs text-slate-600 font-medium mb-1.5 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                         Take Profit
                     </label>
                     <div className="relative">
@@ -554,9 +582,9 @@ export function StrategyBuilder({ strategy, setStrategy }: StrategyBuilderProps)
                             onChange={(e) =>
                                 setStrategy((s) => ({ ...s, takeProfitPct: parseFloat(e.target.value) || 0 }))
                             }
-                            className="h-9 pr-8 bg-emerald-50 border-emerald-200 text-emerald-700 focus:ring-emerald-500"
+                            className="h-9 pr-8 bg-white border-slate-200 focus:border-emerald-400 focus:ring-emerald-500"
                         />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-400 text-xs font-medium">
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500 text-xs font-semibold">
                             %
                         </span>
                     </div>

@@ -28,13 +28,9 @@ from schemas.visual_backtest import (
     BacktestResponse,
     BacktestListResponse,
 )
-from services.strategy_engine import run_visual_backtest
 from services.backtest_engine import run_backtest_with_lib
 
 logger = logging.getLogger(__name__)
-
-# Engine selection: "legacy" uses custom engine, "backtesting" uses backtesting.py
-DEFAULT_ENGINE = "legacy"  # Change to "backtesting" to use backtesting.py by default
 
 router = APIRouter()
 
@@ -724,16 +720,13 @@ async def fetch_metals_data(
 async def run_visual_backtest_endpoint(
     request: VisualBacktestRequest,
     db: Session = Depends(get_db),
-    engine: str = DEFAULT_ENGINE,
 ):
     """
     Run a backtest with the visual strategy builder format.
 
     Uses historical data from the metals_prices_spot table.
     Supports recursive AND/OR logic groups for entry/exit conditions.
-
-    Query Parameters:
-        engine: "legacy" (default) or "backtesting" (uses backtesting.py library)
+    Uses backtesting.py library for high-performance backtesting.
     """
     try:
         strategy = request.strategy
@@ -762,19 +755,10 @@ async def run_visual_backtest_endpoint(
             "takeProfitPct": strategy.takeProfitPct,
         }
 
-        # Run backtest with selected engine
-        if engine == "backtesting":
-            # Use backtesting.py library (faster, more features)
-            logger.info("Using backtesting.py engine")
-            result = run_backtest_with_lib(
-                strategy_dict, candle_data, request.initialCapital
-            )
-        else:
-            # Use legacy custom engine
-            logger.info("Using legacy backtest engine")
-            result = run_visual_backtest(
-                strategy_dict, candle_data, request.initialCapital
-            )
+        # Run backtest with backtesting.py engine
+        result = run_backtest_with_lib(
+            strategy_dict, candle_data, request.initialCapital
+        )
 
         # Convert to response model
         trades = [
@@ -1028,7 +1012,7 @@ async def delete_strategy(
     user_id: UUID = Depends(get_user_id_from_header),
 ):
     """
-    Delete a strategy.
+    Delete a strategy and all associated backtest results.
 
     Requires X-User-Id header with the user's UUID.
     """
@@ -1045,9 +1029,21 @@ async def delete_strategy(
         raise HTTPException(status_code=404, detail="Strategy not found")
 
     try:
+        # First, delete all associated backtests
+        deleted_backtests = (
+            db.query(BacktestModel)
+            .filter(BacktestModel.strategy_id == strategy_id)
+            .delete(synchronize_session=False)
+        )
+        logger.info(f"Deleted {deleted_backtests} backtests for strategy {strategy_id}")
+
+        # Then delete the strategy
         db.delete(strategy)
         db.commit()
-        return {"message": "Strategy deleted successfully"}
+        return {
+            "message": "Strategy deleted successfully",
+            "deletedBacktests": deleted_backtests,
+        }
 
     except Exception as e:
         db.rollback()
@@ -1277,4 +1273,64 @@ async def delete_backtest(
         logger.error(f"Failed to delete backtest: {e}", exc_info=True)
         raise HTTPException(
             status_code=500, detail=f"Failed to delete backtest: {str(e)}"
+        )
+
+
+@router.patch("/backtests/link-to-strategy", tags=["backtests"])
+async def link_backtests_to_strategy(
+    strategy_id: int = Query(..., description="Strategy ID to link backtests to"),
+    db: Session = Depends(get_db),
+    user_id: UUID = Depends(get_user_id_from_header),
+):
+    """
+    Link orphan backtests (with no strategy_id) to a strategy.
+
+    This is useful when a user runs backtests before saving their strategy,
+    then saves the strategy and wants to link the results.
+
+    Only links the most recent orphan backtest for this user.
+    """
+    # Verify the strategy exists and belongs to the user
+    strategy = (
+        db.query(StrategyModel)
+        .filter(
+            StrategyModel.id == strategy_id,
+            StrategyModel.user_id == user_id,
+        )
+        .first()
+    )
+
+    if not strategy:
+        raise HTTPException(status_code=404, detail="Strategy not found")
+
+    try:
+        # Find the most recent orphan backtest for this user
+        orphan_backtest = (
+            db.query(BacktestModel)
+            .filter(
+                BacktestModel.user_id == user_id,
+                BacktestModel.strategy_id.is_(None),
+            )
+            .order_by(BacktestModel.created_at.desc())
+            .first()
+        )
+
+        if not orphan_backtest:
+            return {"message": "No orphan backtests found", "linked": 0}
+
+        # Link the backtest to the strategy
+        orphan_backtest.strategy_id = strategy_id
+        db.commit()
+
+        return {
+            "message": "Backtest linked to strategy successfully",
+            "linked": 1,
+            "backtestId": orphan_backtest.id,
+        }
+
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to link backtests: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to link backtests: {str(e)}"
         )

@@ -84,15 +84,10 @@ export async function getDateRange(asset: string): Promise<DateRangeResponse> {
 }
 
 /**
- * Backtest engine options
- */
-export type BacktestEngine = "legacy" | "backtesting"
-
-/**
  * Run a visual backtest with the recursive strategy builder format
  * 
  * @param strategy - The visual strategy configuration
- * @param options - Optional parameters including dates, capital, and engine selection
+ * @param options - Optional parameters including dates and capital
  * @returns Backtest results with trades, metrics, and equity curve
  */
 export async function runVisualBacktest(
@@ -101,7 +96,6 @@ export async function runVisualBacktest(
     startDate?: string
     endDate?: string
     initialCapital?: number
-    engine?: BacktestEngine  // "legacy" or "backtesting" (uses backtesting.py)
   }
 ): Promise<VisualBacktestResult> {
   const request: VisualBacktestRequest = {
@@ -111,9 +105,7 @@ export async function runVisualBacktest(
     initialCapital: options?.initialCapital ?? 10000,
   }
 
-  // Use backtesting.py engine by default for better performance
-  const engine = options?.engine ?? "backtesting"
-  const url = `${API_BASE_URL}/api/v1/backtest/run-visual?engine=${engine}`
+  const url = `${API_BASE_URL}/api/v1/backtest/run-visual`
 
   const response = await fetch(url, {
     method: "POST",
@@ -393,4 +385,21 @@ export async function deleteBacktest(backtestId: number): Promise<void> {
     const errorText = await response.text()
     throw new Error(`Failed to delete backtest: ${errorText || response.statusText}`)
   }
+}
+
+/**
+ * Link orphan backtests (with no strategy_id) to a strategy
+ */
+export async function linkBacktestsToStrategy(strategyId: number): Promise<{ linked: number; backtestId?: number }> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/backtest/backtests/link-to-strategy?strategy_id=${strategyId}`, {
+    method: "PATCH",
+    headers: getHeaders(),
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new Error(`Failed to link backtests: ${errorText || response.statusText}`)
+  }
+
+  return response.json()
 }

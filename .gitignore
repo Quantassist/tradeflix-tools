@@ -85,3 +85,4 @@ tools-frontend/yarn-error.log*
 tools-frontend/.pnpm-debug.log*
 tools-frontend/*.tsbuildinfo
 tools-frontend/next-env.d.ts
+/better-auth-nextjs

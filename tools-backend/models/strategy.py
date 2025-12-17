@@ -15,7 +15,7 @@ from sqlalchemy import (
     Numeric,
     Boolean,
 )
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -50,12 +50,12 @@ class Strategy(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    # Link to public."User" table (UUID)
-    # Note: Foreign key constraint exists in DB, but we don't validate at model level
-    # because the User table is managed by a different system (Clerk/external auth)
+    # Link to betterauth."user" table (text ID)
+    # Note: Foreign key constraint exists in DB referencing betterauth.user
+    # user_id is nullable for prebuilt strategies (system-defined)
     user_id = Column(
-        UUID(as_uuid=True),
-        nullable=False,
+        String(50),
+        nullable=True,
         index=True,
     )
 
@@ -77,6 +77,8 @@ class Strategy(Base):
     # Metadata
     is_public = Column(Boolean, default=False)
     is_favorite = Column(Boolean, default=False)
+    is_prebuilt = Column(Boolean, default=False)  # True for system-defined strategies
+    category = Column(String(50))  # seasonal, momentum, trend, pivot, volatility
     tags = Column(JSONB)  # ["momentum", "mean-reversion", "rsi"]
 
     # Timestamps
@@ -137,12 +139,12 @@ class Backtest(Base):
         index=True,
     )
 
-    # Link to public."User" table (UUID)
-    # Note: Foreign key constraint exists in DB, but we don't validate at model level
-    # because the User table is managed by a different system (Clerk/external auth)
+    # Link to betterauth."user" table (text ID)
+    # Note: Foreign key constraint exists in DB referencing betterauth.user
+    # user_id is nullable to allow backtests without logged-in user
     user_id = Column(
-        UUID(as_uuid=True),
-        nullable=False,
+        String(50),
+        nullable=True,
         index=True,
     )
 

@@ -6,12 +6,12 @@ import {
     Area, ReferenceLine, Legend
 } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import {
     Bell, TrendingUp, TrendingDown, Activity, AlertTriangle,
     CheckCircle, Loader2
 } from "lucide-react"
+import { AdvancedEventDropdown } from "@/components/ui/advanced-event-dropdown"
 import {
     metalsPricesApi,
     MetalType,
@@ -87,9 +87,12 @@ export function SeasonalAdvancedCharts({
             setAlerts(alertsRes.alerts || [])
             setEvents(eventsRes.events || [])
 
-            // Auto-select first event for trajectory
+            // Auto-select Diwali as default, or first event if Diwali not found
             if (eventsRes.events?.length > 0 && !selectedEvent) {
-                setSelectedEvent(eventsRes.events[0])
+                const diwaliEvent = eventsRes.events.find(e =>
+                    e.name.toLowerCase().includes('diwali')
+                )
+                setSelectedEvent(diwaliEvent || eventsRes.events[0])
             }
         } catch (err) {
             console.error("Error loading advanced analysis:", err)
@@ -131,65 +134,58 @@ export function SeasonalAdvancedCharts({
         loadTrajectory()
     }, [loadTrajectory])
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-                <span className="ml-2 text-muted-foreground">Loading advanced analysis...</span>
-            </div>
-        )
-    }
-
     return (
         <div className="space-y-6">
-            {/* Upcoming Alerts Section */}
+            {/* Show loading state inline instead of replacing entire component */}
+            {loading && (
+                <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg border">
+                    <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+                    <span className="ml-2 text-muted-foreground">Loading advanced analysis...</span>
+                </div>
+            )}
+            {/* Upcoming Alerts Section - Compact Grid Layout */}
             {alerts.length > 0 && (
                 <Card className="border-2 border-blue-200">
-                    <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
-                        <div className="flex items-center gap-2">
-                            <Bell className="h-5 w-5 text-blue-600" />
-                            <CardTitle className="text-lg">Upcoming Event Alerts</CardTitle>
+                    <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 pb-3">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Bell className="h-5 w-5 text-blue-600" />
+                                <CardTitle className="text-lg">Upcoming Event Alerts</CardTitle>
+                            </div>
+                            <Badge variant="secondary" className="text-xs">
+                                {alerts.length} events in next 60 days
+                            </Badge>
                         </div>
-                        <CardDescription>Events happening in the next 60 days with historical context</CardDescription>
                     </CardHeader>
                     <CardContent className="pt-4">
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                             {alerts.map((alert, idx) => (
                                 <div
                                     key={idx}
-                                    className={`p-4 rounded-lg border-2 ${alert.alert_type === "opportunity"
-                                        ? "border-green-200 bg-green-50"
-                                        : "border-amber-200 bg-amber-50"
-                                        }`}
+                                    className={`p-3 rounded-lg border ${alert.alert_type === "opportunity"
+                                        ? "border-green-200 bg-green-50/50"
+                                        : "border-amber-200 bg-amber-50/50"
+                                        } hover:shadow-md transition-shadow`}
                                 >
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex items-center gap-2">
-                                            {alert.alert_type === "opportunity" ? (
-                                                <CheckCircle className="h-5 w-5 text-green-600" />
-                                            ) : (
-                                                <AlertTriangle className="h-5 w-5 text-amber-600" />
-                                            )}
-                                            <div>
-                                                <p className="font-semibold">{alert.event_name}</p>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {alert.event_date} • {alert.days_until} days away
-                                                </p>
-                                            </div>
+                                    <div className="flex items-start gap-2">
+                                        {alert.alert_type === "opportunity" ? (
+                                            <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
+                                        ) : (
+                                            <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                                        )}
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-sm truncate">{alert.event_name}</p>
+                                            <p className="text-xs text-muted-foreground">
+                                                {alert.days_until} days • {new Date(alert.event_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                            </p>
                                         </div>
-                                        <Badge variant={alert.alert_type === "opportunity" ? "default" : "secondary"}>
-                                            {alert.alert_type === "opportunity" ? "Opportunity" : "Caution"}
-                                        </Badge>
                                     </div>
-                                    <p className="mt-2 text-sm">{alert.message}</p>
-                                    <div className="mt-2 flex gap-4 text-xs">
-                                        <span>
-                                            Win Rate: <strong>{alert.win_rate.toFixed(0)}%</strong>
+                                    <div className="mt-2 flex items-center justify-between text-xs">
+                                        <span className={`font-bold ${alert.avg_change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                            {alert.avg_change >= 0 ? '+' : ''}{alert.avg_change.toFixed(1)}%
                                         </span>
-                                        <span>
-                                            Best: <strong className="text-green-600">+{alert.best_return.toFixed(1)}%</strong>
-                                        </span>
-                                        <span>
-                                            Worst: <strong className="text-red-600">{alert.worst_return.toFixed(1)}%</strong>
+                                        <span className="text-muted-foreground">
+                                            {alert.win_rate.toFixed(0)}% win
                                         </span>
                                     </div>
                                 </div>
@@ -212,24 +208,22 @@ export function SeasonalAdvancedCharts({
                                 </CardDescription>
                             </div>
                         </div>
-                        <Select
-                            value={selectedEvent?.name || ""}
-                            onValueChange={(v) => {
-                                const event = events.find(e => e.name === v)
-                                if (event) setSelectedEvent(event)
+                        <AdvancedEventDropdown
+                            events={events.map(e => ({
+                                name: e.name,
+                                value: e.avg_price_change,
+                                type: e.event_type
+                            }))}
+                            selectedEvents={selectedEvent ? [selectedEvent.name] : []}
+                            onSelectionChange={(selected) => {
+                                if (selected.length > 0 && selected[0] !== selectedEvent?.name) {
+                                    const event = events.find(e => e.name === selected[0])
+                                    if (event) setSelectedEvent(event)
+                                }
                             }}
-                        >
-                            <SelectTrigger className="w-[200px]">
-                                <SelectValue placeholder="Select event" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {events.map((event) => (
-                                    <SelectItem key={event.name} value={event.name}>
-                                        {event.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                            placeholder="Select event..."
+                            singleSelect
+                        />
                     </div>
                 </CardHeader>
                 <CardContent className="pt-4">

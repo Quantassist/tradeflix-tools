@@ -12,6 +12,10 @@ import { formatPercent } from "@/lib/utils"
 import { toast } from "sonner"
 import { SeasonalAnalysisCharts } from "@/components/charts/seasonal-analysis-charts"
 import { SeasonalAdvancedCharts } from "@/components/charts/seasonal-advanced-charts"
+import { CalendarHeatmap } from "@/components/charts/calendar-heatmap"
+import { RecessionIndicators } from "@/components/charts/recession-indicators"
+import { EconomicEventsAnalysis } from "@/components/charts/economic-events-analysis"
+import { SeasonalStrategyPicker } from "@/components/seasonal/SeasonalStrategyPicker"
 import { AddEventDialog } from "@/components/seasonal/add-event-dialog"
 import { EditEventDialog } from "@/components/seasonal/edit-event-dialog"
 import { DeleteEventDialog } from "@/components/seasonal/delete-event-dialog"
@@ -185,9 +189,116 @@ export default function SeasonalTrendsPage() {
         <div className="absolute right-10 top-10 w-20 h-20 bg-yellow-300/20 rounded-full blur-2xl"></div>
       </motion.div>
 
-      {/* Historical Seasonal Analysis from Real Data - FIRST */}
+      {/* Global Analysis Controls - Sticky Header */}
+      <motion.div variants={itemVariants} className="sticky -top-6 z-50 -mx-6 px-6 pt-6 pb-2 bg-background">
+        <Card className="border-2 border-emerald-300 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 shadow-lg backdrop-blur-sm">
+          <CardContent className="py-4">
+            <div className="flex flex-wrap gap-4 items-center justify-between">
+              <div className="flex flex-wrap gap-4 items-center">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-emerald-700">Metal:</span>
+                  <Select
+                    value={analysisSettings.metal}
+                    onValueChange={(v) => setAnalysisSettings(prev => ({ ...prev, metal: v as MetalType }))}
+                  >
+                    <SelectTrigger className="w-[120px] bg-white border-emerald-200 hover:border-emerald-400 transition-colors font-medium">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="GOLD">🥇 Gold</SelectItem>
+                      <SelectItem value="SILVER">🥈 Silver</SelectItem>
+                      <SelectItem value="PLATINUM">💎 Platinum</SelectItem>
+                      <SelectItem value="PALLADIUM">⚪ Palladium</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-emerald-700">Currency:</span>
+                  <Select
+                    value={analysisSettings.currency}
+                    onValueChange={(v) => setAnalysisSettings(prev => ({ ...prev, currency: v as CurrencyType }))}
+                  >
+                    <SelectTrigger className="w-[90px] bg-white border-emerald-200 hover:border-emerald-400 transition-colors font-medium">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="INR">🇮🇳 INR</SelectItem>
+                      <SelectItem value="USD">🇺🇸 USD</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-emerald-700">Period:</span>
+                  <Select
+                    value={analysisSettings.yearsBack.toString()}
+                    onValueChange={(v) => setAnalysisSettings(prev => ({ ...prev, yearsBack: parseFloat(v) }))}
+                  >
+                    <SelectTrigger className="w-[110px] bg-white border-emerald-200 hover:border-emerald-400 transition-colors font-medium">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0.083">1 Month</SelectItem>
+                      <SelectItem value="0.25">3 Months</SelectItem>
+                      <SelectItem value="0.5">6 Months</SelectItem>
+                      <SelectItem value="1">1 Year</SelectItem>
+                      <SelectItem value="3">3 Years</SelectItem>
+                      <SelectItem value="5">5 Years</SelectItem>
+                      <SelectItem value="10">10 Years</SelectItem>
+                      <SelectItem value="15">15 Years</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-emerald-700">Window:</span>
+                  <Select
+                    value={analysisSettings.daysWindow.toString()}
+                    onValueChange={(v) => setAnalysisSettings(prev => ({ ...prev, daysWindow: parseInt(v) }))}
+                  >
+                    <SelectTrigger className="w-[110px] bg-white border-emerald-200 hover:border-emerald-400 transition-colors font-medium">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="3">±3 Days</SelectItem>
+                      <SelectItem value="5">±5 Days</SelectItem>
+                      <SelectItem value="7">±7 Days</SelectItem>
+                      <SelectItem value="10">±10 Days</SelectItem>
+                      <SelectItem value="14">±14 Days</SelectItem>
+                      <SelectItem value="30">±30 Days</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <Badge variant="outline" className="bg-emerald-100 text-emerald-700 border-emerald-300 font-medium">
+                📊 Global Analysis Settings
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Seasonal Strategy Backtester */}
       <motion.div variants={itemVariants}>
-        <SeasonalAnalysisCharts onSettingsChange={handleSettingsChange} />
+        <SeasonalStrategyPicker />
+      </motion.div>
+
+      {/* Historical Seasonal Analysis from Real Data */}
+      <motion.div variants={itemVariants}>
+        <SeasonalAnalysisCharts
+          metal={analysisSettings.metal}
+          currency={analysisSettings.currency}
+          yearsBack={analysisSettings.yearsBack}
+          daysWindow={analysisSettings.daysWindow}
+          onSettingsChange={handleSettingsChange}
+        />
+      </motion.div>
+
+      {/* Interactive Calendar Heatmap */}
+      <motion.div variants={itemVariants}>
+        <CalendarHeatmap
+          metal={analysisSettings.metal}
+          currency={analysisSettings.currency}
+          yearsBack={analysisSettings.yearsBack}
+        />
       </motion.div>
 
       {/* Advanced Analysis - Alerts, Trajectory, Comparison */}
@@ -197,6 +308,23 @@ export default function SeasonalTrendsPage() {
           currency={analysisSettings.currency}
           yearsBack={analysisSettings.yearsBack}
           daysWindow={analysisSettings.daysWindow}
+        />
+      </motion.div>
+
+      {/* Recession & Crisis Indicators */}
+      <motion.div variants={itemVariants}>
+        <RecessionIndicators
+          metal={analysisSettings.metal}
+          currency={analysisSettings.currency}
+        />
+      </motion.div>
+
+      {/* Economic Events Deep Analysis */}
+      <motion.div variants={itemVariants}>
+        <EconomicEventsAnalysis
+          metal={analysisSettings.metal}
+          currency={analysisSettings.currency}
+          yearsBack={analysisSettings.yearsBack}
         />
       </motion.div>
 

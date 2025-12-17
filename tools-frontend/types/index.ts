@@ -37,28 +37,37 @@ export enum StrategyIndicatorType {
   CPR_PIVOT = "CPR_PIVOT",
   CPR_TC = "CPR_TC",
   CPR_BC = "CPR_BC",
+  // Seasonal Indicators
+  MONTH = "MONTH",
+  DAY_OF_MONTH = "DAY_OF_MONTH",
+  DAY_OF_YEAR = "DAY_OF_YEAR",
+  DAYS_TO_EVENT = "DAYS_TO_EVENT",
+  DAYS_FROM_EVENT = "DAYS_FROM_EVENT",
+  IS_EVENT_WINDOW = "IS_EVENT_WINDOW",
+  IS_FAVORABLE_MONTH = "IS_FAVORABLE_MONTH",
 }
 
 export enum StrategyComparator {
-  GREATER_THAN = ">",
-  LESS_THAN = "<",
-  EQUALS = "==",
-  CROSSES_ABOVE = "CROSS_ABOVE",
-  CROSSES_BELOW = "CROSS_BELOW",
+  GREATER_THAN = "GREATER_THAN",
+  LESS_THAN = "LESS_THAN",
+  EQUALS = "EQUALS",
+  CROSSES_ABOVE = "CROSSES_ABOVE",
+  CROSSES_BELOW = "CROSSES_BELOW",
 }
 
 export type IndicatorConfig = {
-  type: StrategyIndicatorType
-  period: number
+  type: StrategyIndicatorType | string  // Allow string for dynamic seasonal types
+  period?: number
   source?: "close" | "open" | "high" | "low"
+  event?: string  // For seasonal event-based indicators (DAYS_TO_EVENT, etc.)
 }
 
 export type StrategyCondition = {
   id: string
   type: "CONDITION"
   left: IndicatorConfig
-  comparator: StrategyComparator
-  right: IndicatorConfig
+  comparator: StrategyComparator | string  // Allow string for dynamic comparators
+  right?: IndicatorConfig  // Optional when using static value
   value?: number // Static value override (when comparing to a fixed number)
 }
 

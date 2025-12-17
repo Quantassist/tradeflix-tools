@@ -229,7 +229,9 @@ class MetalsPriceService:
         current_year = date.today().year
         yearly_data = []
 
-        for i in range(years_back):
+        # Convert float years_back to int for iteration (minimum 1 year for event analysis)
+        years_to_analyze = max(1, int(years_back)) if years_back >= 1 else 1
+        for i in range(years_to_analyze):
             year = current_year - i - 1
             try:
                 event_date = date(year, event_month, event_day)
@@ -300,7 +302,9 @@ class MetalsPriceService:
         current_year = date.today().year
         monthly_returns = {i: [] for i in range(1, 13)}
 
-        for year in range(current_year - years_back, current_year):
+        # Convert float years_back to int for iteration
+        years_to_analyze = max(1, int(years_back)) if years_back >= 1 else 1
+        for year in range(current_year - years_to_analyze, current_year):
             for month in range(1, 13):
                 # Get first and last day of month
                 first_day = date(year, month, 1)
@@ -397,7 +401,9 @@ class MetalsPriceService:
         current_year = date.today().year
         daily_returns = {}  # Key: (month, day), Value: list of returns
 
-        for year in range(current_year - years_back, current_year):
+        # Convert float years_back to int for iteration
+        years_to_analyze = max(1, int(years_back)) if years_back >= 1 else 1
+        for year in range(current_year - years_to_analyze, current_year):
             for month in range(1, 13):
                 # Determine days in month
                 if month == 12:
@@ -465,7 +471,9 @@ class MetalsPriceService:
         current_year = date.today().year
         trajectories = []  # List of trajectories for each year
 
-        for i in range(years_back):
+        # Convert float years_back to int for iteration (minimum 1 year for trajectory analysis)
+        years_to_analyze = max(1, int(years_back)) if years_back >= 1 else 1
+        for i in range(years_to_analyze):
             year = current_year - i - 1
             try:
                 event_date = date(year, event_month, event_day)
@@ -635,7 +643,9 @@ class MetalsPriceService:
         current_year = date.today().year
         volatility_data = []
 
-        for i in range(years_back):
+        # Convert float years_back to int for iteration (minimum 1 year for volatility analysis)
+        years_to_analyze = max(1, int(years_back)) if years_back >= 1 else 1
+        for i in range(years_to_analyze):
             year = current_year - i - 1
             try:
                 event_date = date(year, event_month, event_day)

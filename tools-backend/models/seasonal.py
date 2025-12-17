@@ -34,6 +34,8 @@ class EventType(str, enum.Enum):
     # Central bank and macro events
     FOMC_MEETING = "fomc_meeting"
     MACRO_RELEASE = "macro_release"  # CPI, NFP, GDP, etc.
+    # Recession and crisis periods
+    RECESSION_CRISIS = "recession_crisis"  # Economic downturns, market crashes
     # Custom/other
     CUSTOM = "custom"
 

@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Query, Header
 from pydantic import BaseModel
 from typing import List, Optional
-from uuid import UUID
 import pandas as pd
 import math
 import logging
@@ -769,8 +768,489 @@ async def get_strategy_templates():
             ],
             "notes": "High-probability levels where multiple timeframes align",
         },
+        # ============================================================================
+        # Seasonal Trading Strategies
+        # ============================================================================
+        {
+            "id": "seasonal-diwali-long",
+            "name": "Diwali Season Long",
+            "description": "Buy 10 days before Diwali, exit 5 days after. Historically gold averages +2.3% during this period.",
+            "category": "seasonal",
+            "strategy_type": "festival",
+            "historical_avg_return": 2.3,
+            "historical_win_rate": 75,
+            "entry_logic": {
+                "id": "root-entry",
+                "type": "GROUP",
+                "operator": "AND",
+                "children": [
+                    {
+                        "id": "e1",
+                        "type": "CONDITION",
+                        "left": {"type": "DAYS_TO_EVENT", "event": "DIWALI"},
+                        "comparator": "LESS_THAN",
+                        "value": 11,
+                    },
+                    {
+                        "id": "e2",
+                        "type": "CONDITION",
+                        "left": {"type": "DAYS_TO_EVENT", "event": "DIWALI"},
+                        "comparator": "GREATER_THAN",
+                        "value": 0,
+                    },
+                ],
+            },
+            "exit_logic": {
+                "id": "root-exit",
+                "type": "GROUP",
+                "operator": "OR",
+                "children": [
+                    {
+                        "id": "x1",
+                        "type": "CONDITION",
+                        "left": {"type": "DAYS_FROM_EVENT", "event": "DIWALI"},
+                        "comparator": "GREATER_THAN",
+                        "value": 5,
+                    },
+                ],
+            },
+            "stopLossPct": 3.0,
+            "takeProfitPct": 5.0,
+            "notes": "Peak gold buying season in India. Dhanteras (2 days before) sees highest demand.",
+        },
+        {
+            "id": "seasonal-akshaya-tritiya",
+            "name": "Akshaya Tritiya Accumulation",
+            "description": "Buy 7 days before Akshaya Tritiya. Considered most auspicious day for gold purchase.",
+            "category": "seasonal",
+            "strategy_type": "festival",
+            "historical_avg_return": 1.8,
+            "historical_win_rate": 70,
+            "entry_logic": {
+                "id": "root-entry",
+                "type": "GROUP",
+                "operator": "AND",
+                "children": [
+                    {
+                        "id": "e1",
+                        "type": "CONDITION",
+                        "left": {"type": "DAYS_TO_EVENT", "event": "AKSHAYA_TRITIYA"},
+                        "comparator": "LESS_THAN",
+                        "value": 8,
+                    },
+                    {
+                        "id": "e2",
+                        "type": "CONDITION",
+                        "left": {"type": "DAYS_TO_EVENT", "event": "AKSHAYA_TRITIYA"},
+                        "comparator": "GREATER_THAN",
+                        "value": 0,
+                    },
+                ],
+            },
+            "exit_logic": {
+                "id": "root-exit",
+                "type": "GROUP",
+                "operator": "OR",
+                "children": [
+                    {
+                        "id": "x1",
+                        "type": "CONDITION",
+                        "left": {"type": "DAYS_FROM_EVENT", "event": "AKSHAYA_TRITIYA"},
+                        "comparator": "GREATER_THAN",
+                        "value": 3,
+                    },
+                ],
+            },
+            "stopLossPct": 2.5,
+            "takeProfitPct": 4.0,
+            "notes": "Second most important gold buying festival after Diwali.",
+        },
+        {
+            "id": "seasonal-dhanteras-quick",
+            "name": "Dhanteras Quick Trade",
+            "description": "Short-term trade around Dhanteras (2 days before Diwali).",
+            "category": "seasonal",
+            "strategy_type": "festival",
+            "historical_avg_return": 1.2,
+            "historical_win_rate": 68,
+            "entry_logic": {
+                "id": "root-entry",
+                "type": "GROUP",
+                "operator": "AND",
+                "children": [
+                    {
+                        "id": "e1",
+                        "type": "CONDITION",
+                        "left": {"type": "DAYS_TO_EVENT", "event": "DHANTERAS"},
+                        "comparator": "LESS_THAN",
+                        "value": 4,
+                    },
+                    {
+                        "id": "e2",
+                        "type": "CONDITION",
+                        "left": {"type": "DAYS_TO_EVENT", "event": "DHANTERAS"},
+                        "comparator": "GREATER_THAN",
+                        "value": 0,
+                    },
+                ],
+            },
+            "exit_logic": {
+                "id": "root-exit",
+                "type": "GROUP",
+                "operator": "OR",
+                "children": [
+                    {
+                        "id": "x1",
+                        "type": "CONDITION",
+                        "left": {"type": "DAYS_FROM_EVENT", "event": "DHANTERAS"},
+                        "comparator": "GREATER_THAN",
+                        "value": 1,
+                    },
+                ],
+            },
+            "stopLossPct": 1.5,
+            "takeProfitPct": 2.5,
+            "notes": "Day dedicated to wealth - peak gold buying day of the year.",
+        },
+        {
+            "id": "seasonal-favorable-months",
+            "name": "Favorable Months Only",
+            "description": "Only trade during historically favorable months (Sep-Feb) with RSI confirmation.",
+            "category": "seasonal",
+            "strategy_type": "monthly",
+            "historical_avg_return": 8.5,
+            "historical_win_rate": 62,
+            "entry_logic": {
+                "id": "root-entry",
+                "type": "GROUP",
+                "operator": "AND",
+                "children": [
+                    {
+                        "id": "e1",
+                        "type": "CONDITION",
+                        "left": {"type": "IS_FAVORABLE_MONTH"},
+                        "comparator": "EQUALS",
+                        "value": 1,
+                    },
+                    {
+                        "id": "e2",
+                        "type": "CONDITION",
+                        "left": {"type": "RSI", "period": 14},
+                        "comparator": "LESS_THAN",
+                        "value": 40,
+                    },
+                ],
+            },
+            "exit_logic": {
+                "id": "root-exit",
+                "type": "GROUP",
+                "operator": "OR",
+                "children": [
+                    {
+                        "id": "x1",
+                        "type": "CONDITION",
+                        "left": {"type": "RSI", "period": 14},
+                        "comparator": "GREATER_THAN",
+                        "value": 70,
+                    },
+                ],
+            },
+            "stopLossPct": 3.0,
+            "takeProfitPct": 8.0,
+            "notes": "Avoids weak summer months (May-Aug). Combines seasonal filter with technical entry.",
+        },
+        {
+            "id": "seasonal-pre-budget",
+            "name": "Pre-Budget Volatility Play",
+            "description": "Position before Union Budget announcement (Feb 1).",
+            "category": "seasonal",
+            "strategy_type": "economic",
+            "historical_avg_return": 1.5,
+            "historical_win_rate": 58,
+            "entry_logic": {
+                "id": "root-entry",
+                "type": "GROUP",
+                "operator": "AND",
+                "children": [
+                    {
+                        "id": "e1",
+                        "type": "CONDITION",
+                        "left": {"type": "DAYS_TO_EVENT", "event": "UNION_BUDGET"},
+                        "comparator": "LESS_THAN",
+                        "value": 6,
+                    },
+                    {
+                        "id": "e2",
+                        "type": "CONDITION",
+                        "left": {"type": "DAYS_TO_EVENT", "event": "UNION_BUDGET"},
+                        "comparator": "GREATER_THAN",
+                        "value": 0,
+                    },
+                ],
+            },
+            "exit_logic": {
+                "id": "root-exit",
+                "type": "GROUP",
+                "operator": "OR",
+                "children": [
+                    {
+                        "id": "x1",
+                        "type": "CONDITION",
+                        "left": {"type": "DAYS_FROM_EVENT", "event": "UNION_BUDGET"},
+                        "comparator": "GREATER_THAN",
+                        "value": 1,
+                    },
+                ],
+            },
+            "stopLossPct": 2.0,
+            "takeProfitPct": 3.0,
+            "notes": "Gold import duty changes often announced in budget. High volatility expected.",
+        },
+        {
+            "id": "seasonal-wedding-season",
+            "name": "Wedding Season Long",
+            "description": "Long position during peak Indian wedding season (Nov-Feb).",
+            "category": "seasonal",
+            "strategy_type": "monthly",
+            "historical_avg_return": 5.2,
+            "historical_win_rate": 65,
+            "entry_logic": {
+                "id": "root-entry",
+                "type": "GROUP",
+                "operator": "AND",
+                "children": [
+                    {
+                        "id": "e1",
+                        "type": "CONDITION",
+                        "left": {"type": "MONTH"},
+                        "comparator": "GREATER_THAN",
+                        "value": 10,
+                    },
+                ],
+            },
+            "exit_logic": {
+                "id": "root-exit",
+                "type": "GROUP",
+                "operator": "OR",
+                "children": [
+                    {
+                        "id": "x1",
+                        "type": "CONDITION",
+                        "left": {"type": "MONTH"},
+                        "comparator": "GREATER_THAN",
+                        "value": 2,
+                    },
+                ],
+            },
+            "stopLossPct": 4.0,
+            "takeProfitPct": 8.0,
+            "notes": "Peak jewelry demand during wedding season drives gold prices.",
+        },
+        {
+            "id": "seasonal-avoid-summer",
+            "name": "Avoid Summer Weakness",
+            "description": "Exit positions during historically weak summer months (May-Aug).",
+            "category": "seasonal",
+            "strategy_type": "monthly",
+            "historical_avg_return": -1.8,
+            "historical_win_rate": 35,
+            "entry_logic": {
+                "id": "root-entry",
+                "type": "GROUP",
+                "operator": "AND",
+                "children": [
+                    {
+                        "id": "e1",
+                        "type": "CONDITION",
+                        "left": {"type": "MONTH"},
+                        "comparator": "LESS_THAN",
+                        "value": 5,
+                    },
+                    {
+                        "id": "e2",
+                        "type": "CONDITION",
+                        "left": {"type": "RSI", "period": 14},
+                        "comparator": "LESS_THAN",
+                        "value": 35,
+                    },
+                ],
+            },
+            "exit_logic": {
+                "id": "root-exit",
+                "type": "GROUP",
+                "operator": "OR",
+                "children": [
+                    {
+                        "id": "x1",
+                        "type": "CONDITION",
+                        "left": {"type": "MONTH"},
+                        "comparator": "GREATER_THAN",
+                        "value": 4,
+                    },
+                ],
+            },
+            "stopLossPct": 2.0,
+            "takeProfitPct": 4.0,
+            "notes": "Summer months historically show weakness. Use for short-term trades only.",
+        },
+        {
+            "id": "seasonal-christmas-rally",
+            "name": "Christmas Rally",
+            "description": "Position for year-end rally around Christmas and New Year.",
+            "category": "seasonal",
+            "strategy_type": "festival",
+            "historical_avg_return": 1.4,
+            "historical_win_rate": 60,
+            "entry_logic": {
+                "id": "root-entry",
+                "type": "GROUP",
+                "operator": "AND",
+                "children": [
+                    {
+                        "id": "e1",
+                        "type": "CONDITION",
+                        "left": {"type": "DAYS_TO_EVENT", "event": "CHRISTMAS"},
+                        "comparator": "LESS_THAN",
+                        "value": 8,
+                    },
+                    {
+                        "id": "e2",
+                        "type": "CONDITION",
+                        "left": {"type": "DAYS_TO_EVENT", "event": "CHRISTMAS"},
+                        "comparator": "GREATER_THAN",
+                        "value": 0,
+                    },
+                ],
+            },
+            "exit_logic": {
+                "id": "root-exit",
+                "type": "GROUP",
+                "operator": "OR",
+                "children": [
+                    {
+                        "id": "x1",
+                        "type": "CONDITION",
+                        "left": {"type": "DAYS_FROM_EVENT", "event": "NEW_YEAR"},
+                        "comparator": "GREATER_THAN",
+                        "value": 3,
+                    },
+                ],
+            },
+            "stopLossPct": 2.0,
+            "takeProfitPct": 3.5,
+            "notes": "Global jewelry demand and year-end portfolio rebalancing.",
+        },
     ]
     return templates
+
+
+# ============================================================================
+# Prebuilt Strategies from Database
+# ============================================================================
+
+
+class PrebuiltStrategyResponse(BaseModel):
+    """Response model for prebuilt strategy"""
+
+    id: int
+    name: str
+    description: Optional[str]
+    asset: str
+    category: Optional[str]
+    entry_logic: dict
+    exit_logic: dict
+    stop_loss_pct: float
+    take_profit_pct: float
+    tags: Optional[List[str]]
+
+
+@router.get("/prebuilt-strategies", response_model=List[PrebuiltStrategyResponse])
+async def get_prebuilt_strategies(
+    category: Optional[str] = Query(
+        None,
+        description="Filter by category (seasonal, momentum, trend, pivot, volatility)",
+    ),
+    db: Session = Depends(get_db),
+):
+    """
+    Get all prebuilt strategies from the database.
+
+    These are system-defined strategies that users can select and run backtests on.
+    Optionally filter by category.
+    """
+    try:
+        query = db.query(StrategyModel).filter(StrategyModel.is_prebuilt.is_(True))
+
+        if category:
+            query = query.filter(StrategyModel.category == category)
+
+        strategies = query.order_by(StrategyModel.category, StrategyModel.name).all()
+
+        return [
+            PrebuiltStrategyResponse(
+                id=s.id,
+                name=s.name,
+                description=s.description,
+                asset=s.asset,
+                category=s.category,
+                entry_logic=s.entry_logic,
+                exit_logic=s.exit_logic,
+                stop_loss_pct=float(s.stop_loss_pct) if s.stop_loss_pct else 2.0,
+                take_profit_pct=float(s.take_profit_pct) if s.take_profit_pct else 5.0,
+                tags=s.tags if s.tags else [],
+            )
+            for s in strategies
+        ]
+    except Exception as e:
+        logger.error(f"Failed to fetch prebuilt strategies: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to fetch prebuilt strategies: {str(e)}"
+        )
+
+
+@router.get(
+    "/prebuilt-strategies/{strategy_id}", response_model=PrebuiltStrategyResponse
+)
+async def get_prebuilt_strategy(
+    strategy_id: int,
+    db: Session = Depends(get_db),
+):
+    """Get a specific prebuilt strategy by ID."""
+    try:
+        strategy = (
+            db.query(StrategyModel)
+            .filter(
+                StrategyModel.id == strategy_id, StrategyModel.is_prebuilt.is_(True)
+            )
+            .first()
+        )
+
+        if not strategy:
+            raise HTTPException(status_code=404, detail="Prebuilt strategy not found")
+
+        return PrebuiltStrategyResponse(
+            id=strategy.id,
+            name=strategy.name,
+            description=strategy.description,
+            asset=strategy.asset,
+            category=strategy.category,
+            entry_logic=strategy.entry_logic,
+            exit_logic=strategy.exit_logic,
+            stop_loss_pct=float(strategy.stop_loss_pct)
+            if strategy.stop_loss_pct
+            else 2.0,
+            take_profit_pct=float(strategy.take_profit_pct)
+            if strategy.take_profit_pct
+            else 5.0,
+            tags=strategy.tags if strategy.tags else [],
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to fetch prebuilt strategy: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to fetch prebuilt strategy: {str(e)}"
+        )
 
 
 # ============================================================================
@@ -1021,28 +1501,27 @@ async def run_visual_backtest_endpoint(
 # ============================================
 
 
-def get_user_id_from_header(x_user_id: str = Header(..., alias="X-User-Id")) -> UUID:
+def get_user_id_from_header(x_user_id: str = Header(..., alias="X-User-Id")) -> str:
     """Extract and validate user ID from header."""
-    try:
-        return UUID(x_user_id)
-    except ValueError:
+    if not x_user_id or len(x_user_id) < 10:
         raise HTTPException(status_code=400, detail="Invalid user ID format")
+    return x_user_id
 
 
 @router.post("/strategies", response_model=StrategyResponse, tags=["strategies"])
 async def save_strategy(
     request: StrategySaveRequest,
     db: Session = Depends(get_db),
-    user_id: UUID = Depends(get_user_id_from_header),
+    user_id: str = Depends(get_user_id_from_header),
 ):
     """
     Save a new strategy.
 
-    Requires X-User-Id header with the user's UUID.
+    Requires X-User-Id header with the user's ID from better-auth.
     """
     try:
         strategy = StrategyModel(
-            user_id=user_id,
+            user_id=None if request.isPrebuilt else user_id,
             name=request.name,
             description=request.description,
             asset=request.asset.value,
@@ -1052,6 +1531,7 @@ async def save_strategy(
             take_profit_pct=request.takeProfitPct,
             is_public=request.isPublic,
             is_favorite=request.isFavorite,
+            is_prebuilt=request.isPrebuilt,
             tags=request.tags,
         )
 
@@ -1072,7 +1552,7 @@ async def save_strategy(
 @router.get("/strategies", response_model=StrategyListResponse, tags=["strategies"])
 async def list_strategies(
     db: Session = Depends(get_db),
-    user_id: UUID = Depends(get_user_id_from_header),
+    user_id: str = Depends(get_user_id_from_header),
     asset: Optional[str] = Query(None, description="Filter by asset"),
     is_favorite: Optional[bool] = Query(None, description="Filter favorites only"),
     limit: int = Query(50, ge=1, le=100),
@@ -1120,12 +1600,12 @@ async def list_strategies(
 async def get_strategy(
     strategy_id: int,
     db: Session = Depends(get_db),
-    user_id: UUID = Depends(get_user_id_from_header),
+    user_id: str = Depends(get_user_id_from_header),
 ):
     """
     Get a specific strategy by ID.
 
-    Requires X-User-Id header with the user's UUID.
+    Requires X-User-Id header with the user's ID.
     """
     strategy = (
         db.query(StrategyModel)
@@ -1149,12 +1629,12 @@ async def update_strategy(
     strategy_id: int,
     request: StrategyUpdateRequest,
     db: Session = Depends(get_db),
-    user_id: UUID = Depends(get_user_id_from_header),
+    user_id: str = Depends(get_user_id_from_header),
 ):
     """
     Update an existing strategy.
 
-    Requires X-User-Id header with the user's UUID.
+    Requires X-User-Id header with the user's ID.
     """
     strategy = (
         db.query(StrategyModel)
@@ -1188,6 +1668,8 @@ async def update_strategy(
             strategy.is_public = request.isPublic
         if request.isFavorite is not None:
             strategy.is_favorite = request.isFavorite
+        if request.isPrebuilt is not None:
+            strategy.is_prebuilt = request.isPrebuilt
         if request.tags is not None:
             strategy.tags = request.tags
 
@@ -1208,12 +1690,12 @@ async def update_strategy(
 async def delete_strategy(
     strategy_id: int,
     db: Session = Depends(get_db),
-    user_id: UUID = Depends(get_user_id_from_header),
+    user_id: str = Depends(get_user_id_from_header),
 ):
     """
     Delete a strategy and all associated backtest results.
 
-    Requires X-User-Id header with the user's UUID.
+    Requires X-User-Id header with the user's ID.
     """
     strategy = (
         db.query(StrategyModel)
@@ -1261,12 +1743,12 @@ async def delete_strategy(
 async def save_backtest(
     request: BacktestSaveRequest,
     db: Session = Depends(get_db),
-    user_id: UUID = Depends(get_user_id_from_header),
+    user_id: str = Depends(get_user_id_from_header),
 ):
     """
     Save a backtest result.
 
-    Requires X-User-Id header with the user's UUID.
+    Requires X-User-Id header with the user's ID.
     """
     try:
         backtest = BacktestModel(
@@ -1329,7 +1811,7 @@ async def save_backtest(
 @router.get("/backtests", response_model=BacktestListResponse, tags=["backtests"])
 async def list_backtests(
     db: Session = Depends(get_db),
-    user_id: UUID = Depends(get_user_id_from_header),
+    user_id: str = Depends(get_user_id_from_header),
     strategy_id: Optional[int] = Query(None, description="Filter by strategy ID"),
     asset: Optional[str] = Query(None, description="Filter by asset"),
     limit: int = Query(50, ge=1, le=100),
@@ -1338,7 +1820,7 @@ async def list_backtests(
     """
     List user's backtest results.
 
-    Requires X-User-Id header with the user's UUID.
+    Requires X-User-Id header with the user's ID.
     """
     try:
         query = db.query(BacktestModel).filter(BacktestModel.user_id == user_id)
@@ -1397,12 +1879,12 @@ async def list_backtests(
 async def get_backtest(
     backtest_id: int,
     db: Session = Depends(get_db),
-    user_id: UUID = Depends(get_user_id_from_header),
+    user_id: str = Depends(get_user_id_from_header),
 ):
     """
     Get a specific backtest result by ID.
 
-    Requires X-User-Id header with the user's UUID.
+    Requires X-User-Id header with the user's ID.
     """
     bt = (
         db.query(BacktestModel)
@@ -1443,12 +1925,12 @@ async def get_backtest(
 async def delete_backtest(
     backtest_id: int,
     db: Session = Depends(get_db),
-    user_id: UUID = Depends(get_user_id_from_header),
+    user_id: str = Depends(get_user_id_from_header),
 ):
     """
     Delete a backtest result.
 
-    Requires X-User-Id header with the user's UUID.
+    Requires X-User-Id header with the user's ID.
     """
     backtest = (
         db.query(BacktestModel)
@@ -1479,7 +1961,7 @@ async def delete_backtest(
 async def link_backtests_to_strategy(
     strategy_id: int = Query(..., description="Strategy ID to link backtests to"),
     db: Session = Depends(get_db),
-    user_id: UUID = Depends(get_user_id_from_header),
+    user_id: str = Depends(get_user_id_from_header),
 ):
     """
     Link orphan backtests (with no strategy_id) to a strategy.

@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback } from "react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, TrendingUp, BarChart3, Loader2, AlertCircle, Award, Target, Sparkles, ArrowUpRight, ArrowDownRight } from "lucide-react"
+import { AdvancedEventDropdown } from "@/components/ui/advanced-event-dropdown"
 import { metalsPricesApi, MonthlySeasonality, SeasonalEventAnalysis, MetalType, CurrencyType } from "@/lib/api/metals-prices"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
@@ -13,6 +13,8 @@ import { motion, AnimatePresence } from "framer-motion"
 interface SeasonalAnalysisChartsProps {
     metal?: MetalType
     currency?: CurrencyType
+    yearsBack?: number
+    daysWindow?: number
     onSettingsChange?: (settings: { metal: MetalType; currency: CurrencyType; yearsBack: number; daysWindow: number }) => void
 }
 
@@ -126,16 +128,46 @@ const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: any[] 
     return null
 }
 
-export function SeasonalAnalysisCharts({ metal = "GOLD", currency = "INR", onSettingsChange }: SeasonalAnalysisChartsProps) {
+
+export function SeasonalAnalysisCharts({
+    metal = "GOLD",
+    currency = "INR",
+    yearsBack: propYearsBack = 10,
+    daysWindow: propDaysWindow = 7,
+    onSettingsChange
+}: SeasonalAnalysisChartsProps) {
     const [loading, setLoading] = useState(true)
     const [monthlyData, setMonthlyData] = useState<MonthlySeasonality[]>([])
     const [eventsData, setEventsData] = useState<SeasonalEventAnalysis[]>([])
     const [selectedMetal, setSelectedMetal] = useState<MetalType>(metal)
     const [selectedCurrency, setSelectedCurrency] = useState<CurrencyType>(currency)
-    const [yearsBack, setYearsBack] = useState(10)
-    const [daysWindow, setDaysWindow] = useState(7)
+    const [yearsBack, setYearsBack] = useState(propYearsBack)
+    const [daysWindow, setDaysWindow] = useState(propDaysWindow)
+
+    // Sync with parent props when they change
+    useEffect(() => {
+        setSelectedMetal(metal)
+    }, [metal])
+
+    useEffect(() => {
+        setSelectedCurrency(currency)
+    }, [currency])
+
+    useEffect(() => {
+        setYearsBack(propYearsBack)
+    }, [propYearsBack])
+
+    useEffect(() => {
+        setDaysWindow(propDaysWindow)
+    }, [propDaysWindow])
     const [error, setError] = useState<string | null>(null)
-    const [selectedEventForChart, setSelectedEventForChart] = useState<string>("")
+    const [selectedEventForChart, setSelectedEventForChart] = useState<string>("Diwali")
+    // Selected events for Major Events chart (user can add/remove)
+    // Note: Union Budget excluded from default selection as requested
+    const [selectedMajorEvents, setSelectedMajorEvents] = useState<string[]>([
+        "Christmas", "Diwali", "New Year", "Republic Day", "Dhanteras",
+        "Chinese New Year", "Independence Day", "Akshaya Tritiya"
+    ])
 
     // Notify parent of settings changes
     useEffect(() => {
@@ -176,15 +208,64 @@ export function SeasonalAnalysisCharts({ metal = "GOLD", currency = "INR", onSet
         fill: m.avg_return >= 0 ? 'url(#colorPositive)' : 'url(#colorNegative)'
     }))
 
-    // Process events data for chart
+    // Process events data for chart - filter for selected major events only
     const processedEventsData = eventsData
-        .filter(e => e.occurrences > 0)
-        .sort((a, b) => Math.abs(b.avg_price_change) - Math.abs(a.avg_price_change))
-        .slice(0, 10)
+        .filter(e => e.occurrences > 0 && selectedMajorEvents.some(name =>
+            e.name.toLowerCase().includes(name.toLowerCase()) ||
+            name.toLowerCase().includes(e.name.toLowerCase())
+        ))
+        .sort((a, b) => b.avg_price_change - a.avg_price_change)
         .map(e => ({
             ...e,
             fill: e.avg_price_change >= 0 ? 'url(#colorPositive)' : 'url(#colorNegative)'
         }))
+
+    // Toggle event selection
+    const toggleEventSelection = (eventName: string) => {
+        setSelectedMajorEvents(prev =>
+            prev.includes(eventName)
+                ? prev.filter(n => n !== eventName)
+                : [...prev, eventName]
+        )
+    }
+
+
+    // Calculate major events summary stats
+    const majorEventsStats = processedEventsData.length > 0 ? {
+        avgReturn: processedEventsData.reduce((sum, e) => sum + e.avg_price_change, 0) / processedEventsData.length,
+        avgWinRate: processedEventsData.reduce((sum, e) => sum + e.win_rate, 0) / processedEventsData.length,
+        bestEvent: processedEventsData.reduce((best, e) => e.avg_price_change > best.avg_price_change ? e : best, processedEventsData[0]),
+        worstEvent: processedEventsData.reduce((worst, e) => e.avg_price_change < worst.avg_price_change ? e : worst, processedEventsData[0]),
+    } : null
+
+    // Event emoji/icon mapping
+    const getEventEmoji = (name: string): string => {
+        const lower = name.toLowerCase()
+        if (lower.includes('diwali')) return '🪔'
+        if (lower.includes('christmas')) return '🎄'
+        if (lower.includes('new year')) return '🎉'
+        if (lower.includes('republic')) return '🇮🇳'
+        if (lower.includes('dhanteras')) return '💰'
+        if (lower.includes('chinese')) return '🐉'
+        if (lower.includes('independence')) return '🏛️'
+        if (lower.includes('budget')) return '📊'
+        if (lower.includes('akshaya')) return '✨'
+        return '📅'
+    }
+
+    const getEventDescription = (name: string): string => {
+        const lower = name.toLowerCase()
+        if (lower.includes('diwali')) return 'Festival of Lights - Peak gold buying season'
+        if (lower.includes('christmas')) return 'Global holiday - Gift buying season'
+        if (lower.includes('new year')) return 'New Year celebrations'
+        if (lower.includes('republic')) return 'India Republic Day'
+        if (lower.includes('dhanteras')) return 'Day of wealth - Start of Diwali festivities'
+        if (lower.includes('chinese')) return 'Lunar New Year - Major Asian gold demand'
+        if (lower.includes('independence')) return 'India Independence Day'
+        if (lower.includes('budget')) return 'India Union Budget announcement'
+        if (lower.includes('akshaya')) return 'Most auspicious day for gold purchase'
+        return 'Seasonal event'
+    }
 
     // Calculate summary stats
     const bestMonth = monthlyData.reduce((best, m) =>
@@ -236,24 +317,6 @@ export function SeasonalAnalysisCharts({ metal = "GOLD", currency = "INR", onSet
 
     const insights = generateInsights()
 
-    if (loading) {
-        return (
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex flex-col items-center justify-center h-96 space-y-4"
-            >
-                <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                >
-                    <Loader2 className="h-12 w-12 text-emerald-600" />
-                </motion.div>
-                <p className="text-gray-500 font-medium">Loading seasonal analysis...</p>
-            </motion.div>
-        )
-    }
-
     if (error) {
         return (
             <motion.div
@@ -294,72 +357,7 @@ export function SeasonalAnalysisCharts({ metal = "GOLD", currency = "INR", onSet
             initial="hidden"
             animate="visible"
         >
-            {/* Controls */}
-            <motion.div variants={itemVariants}>
-                <Card className="border border-gray-200 bg-gradient-to-r from-gray-50 to-white shadow-sm overflow-hidden">
-                    <CardContent className="pt-6">
-                        <div className="flex flex-wrap gap-4 items-center">
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-gray-600">Metal:</span>
-                                <Select value={selectedMetal} onValueChange={(v) => setSelectedMetal(v as MetalType)}>
-                                    <SelectTrigger className="w-[130px] bg-white border-gray-200 hover:border-gray-300 transition-colors">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="GOLD">Gold</SelectItem>
-                                        <SelectItem value="SILVER">Silver</SelectItem>
-                                        <SelectItem value="PLATINUM">Platinum</SelectItem>
-                                        <SelectItem value="PALLADIUM">Palladium</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-gray-600">Currency:</span>
-                                <Select value={selectedCurrency} onValueChange={(v) => setSelectedCurrency(v as CurrencyType)}>
-                                    <SelectTrigger className="w-[100px] bg-white border-gray-200 hover:border-gray-300 transition-colors">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="INR">INR</SelectItem>
-                                        <SelectItem value="USD">USD</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-gray-600">Years:</span>
-                                <Select value={yearsBack.toString()} onValueChange={(v) => setYearsBack(parseInt(v))}>
-                                    <SelectTrigger className="w-[100px] bg-white border-gray-200 hover:border-gray-300 transition-colors">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="5">5 Years</SelectItem>
-                                        <SelectItem value="10">10 Years</SelectItem>
-                                        <SelectItem value="15">15 Years</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-gray-600">Window:</span>
-                                <Select value={daysWindow.toString()} onValueChange={(v) => setDaysWindow(parseInt(v))}>
-                                    <SelectTrigger className="w-[120px] bg-white border-gray-200 hover:border-gray-300 transition-colors">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="3">±3 Days</SelectItem>
-                                        <SelectItem value="5">±5 Days</SelectItem>
-                                        <SelectItem value="7">±7 Days</SelectItem>
-                                        <SelectItem value="10">±10 Days</SelectItem>
-                                        <SelectItem value="14">±14 Days</SelectItem>
-                                        <SelectItem value="30">±30 Days</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            </motion.div>
-
-            {/* Trading Insights - Moved to top */}
+            {/* Trading Insights */}
             {insights.length > 0 && (
                 <motion.div variants={itemVariants}>
                     <Card className="border border-gray-200 shadow-sm overflow-hidden">
@@ -540,56 +538,214 @@ export function SeasonalAnalysisCharts({ metal = "GOLD", currency = "INR", onSet
             )}
 
             {/* Top Events by Impact */}
-            {processedEventsData.length > 0 && (
+            {eventsData.length > 0 && (
                 <motion.div variants={itemVariants}>
                     <Card className="shadow-sm border border-gray-200 overflow-hidden">
                         <CardHeader className="bg-gradient-to-r from-purple-50 via-pink-50 to-rose-50">
-                            <CardTitle className="text-xl flex items-center gap-2">
-                                <TrendingUp className="h-5 w-5 text-purple-600" />
-                                Major Events Impact Analysis
-                            </CardTitle>
-                            <CardDescription className="mt-1">
-                                Historical price impact around major events (±{daysWindow} days)
-                            </CardDescription>
+                            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                                {/* Title */}
+                                <div>
+                                    <CardTitle className="text-xl flex items-center gap-2">
+                                        <TrendingUp className="h-5 w-5 text-purple-600" />
+                                        Major Events Impact Analysis
+                                    </CardTitle>
+                                    <CardDescription className="mt-1">
+                                        Historical price impact around major events (±{daysWindow} days) • {processedEventsData.length} events selected
+                                    </CardDescription>
+                                </div>
+                                {/* Event Selector - Right aligned */}
+                                <div className="flex-shrink-0">
+                                    <AdvancedEventDropdown
+                                        events={eventsData.map(e => ({
+                                            name: e.name,
+                                            value: e.avg_price_change,
+                                            type: e.event_type
+                                        }))}
+                                        selectedEvents={selectedMajorEvents}
+                                        onSelectionChange={setSelectedMajorEvents}
+                                        placeholder="Add event..."
+                                    />
+                                </div>
+                            </div>
+                            {/* Selected Events Tags */}
+                            {selectedMajorEvents.length > 0 && (
+                                <div className="flex flex-wrap gap-1.5 mt-3">
+                                    {selectedMajorEvents.map((name) => (
+                                        <Badge
+                                            key={name}
+                                            variant="secondary"
+                                            className="text-xs cursor-pointer hover:bg-red-100 hover:text-red-700 transition-colors"
+                                            onClick={() => toggleEventSelection(name)}
+                                        >
+                                            {name} ×
+                                        </Badge>
+                                    ))}
+                                </div>
+                            )}
                         </CardHeader>
                         <CardContent className="pt-6">
-                            <ResponsiveContainer width="100%" height={Math.max(350, processedEventsData.length * 45)}>
-                                <BarChart
-                                    data={processedEventsData}
-                                    layout="vertical"
-                                    margin={{ top: 10, right: 100, left: 140, bottom: 10 }}
-                                >
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
-                                    <XAxis
-                                        type="number"
-                                        tick={{ fontSize: 11, fill: '#6b7280' }}
-                                        tickFormatter={(value) => `${value}%`}
-                                        axisLine={{ stroke: '#d1d5db' }}
-                                        tickLine={false}
-                                        domain={['auto', 'auto']}
-                                    />
-                                    <YAxis
-                                        type="category"
-                                        dataKey="name"
-                                        width={130}
-                                        tick={{ fontSize: 12, fontWeight: 500, fill: '#374151' }}
-                                        axisLine={{ stroke: '#d1d5db' }}
-                                        tickLine={false}
-                                    />
-                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
-                                    <Bar dataKey="avg_price_change" radius={[0, 8, 8, 0]} maxBarSize={35}>
-                                        {processedEventsData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                                        ))}
-                                        <LabelList
-                                            dataKey="avg_price_change"
-                                            position="right"
-                                            formatter={(value: number) => `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`}
-                                            style={{ fontSize: 11, fontWeight: 600, fill: '#374151' }}
+                            {/* Loading State */}
+                            {loading && (
+                                <div className="flex items-center justify-center py-12">
+                                    <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+                                    <span className="ml-2 text-gray-500">Loading events data...</span>
+                                </div>
+                            )}
+
+                            {/* Empty State */}
+                            {!loading && processedEventsData.length === 0 && (
+                                <div className="text-center py-12 text-gray-500">
+                                    <Calendar className="h-12 w-12 mx-auto mb-3 opacity-40" />
+                                    <p className="font-medium">No events selected</p>
+                                    <p className="text-sm mt-1">Use the dropdown above to add events to analyze</p>
+                                </div>
+                            )}
+
+                            {/* Summary Stats Cards */}
+                            {!loading && majorEventsStats && processedEventsData.length > 0 && (
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200"
+                                    >
+                                        <p className="text-xs text-purple-600 font-medium mb-1">Avg Event Return</p>
+                                        <p className={`text-2xl font-bold ${majorEventsStats.avgReturn >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                                            {majorEventsStats.avgReturn >= 0 ? '+' : ''}{majorEventsStats.avgReturn.toFixed(2)}%
+                                        </p>
+                                        <p className="text-xs text-purple-500 mt-1">±{daysWindow} day window</p>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.1 }}
+                                        className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
+                                    >
+                                        <p className="text-xs text-blue-600 font-medium mb-1">Avg Win Rate</p>
+                                        <p className="text-2xl font-bold text-blue-600">
+                                            {majorEventsStats.avgWinRate.toFixed(0)}%
+                                        </p>
+                                        <p className="text-xs text-blue-500 mt-1">Positive returns</p>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="p-4 bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl border border-emerald-200"
+                                    >
+                                        <div className="flex items-center gap-1 mb-1">
+                                            <Sparkles className="h-3 w-3 text-emerald-600" />
+                                            <p className="text-xs text-emerald-600 font-medium">Best Event</p>
+                                        </div>
+                                        <p className="text-lg font-bold text-emerald-600 truncate">
+                                            {majorEventsStats.bestEvent?.name || "N/A"}
+                                        </p>
+                                        <p className="text-xs text-emerald-500">
+                                            +{majorEventsStats.bestEvent?.avg_price_change.toFixed(2)}%
+                                        </p>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                        className="p-4 bg-gradient-to-br from-red-50 to-rose-50 rounded-xl border border-red-200"
+                                    >
+                                        <div className="flex items-center gap-1 mb-1">
+                                            <ArrowDownRight className="h-3 w-3 text-red-600" />
+                                            <p className="text-xs text-red-600 font-medium">Weakest Event</p>
+                                        </div>
+                                        <p className="text-lg font-bold text-red-600 truncate">
+                                            {majorEventsStats.worstEvent?.name || "N/A"}
+                                        </p>
+                                        <p className="text-xs text-red-500">
+                                            {majorEventsStats.worstEvent?.avg_price_change.toFixed(2)}%
+                                        </p>
+                                    </motion.div>
+                                </div>
+                            )}
+
+                            {/* Bar Chart */}
+                            {!loading && processedEventsData.length > 0 && (
+                                <ResponsiveContainer width="100%" height={Math.max(350, processedEventsData.length * 45)}>
+                                    <BarChart
+                                        data={processedEventsData}
+                                        layout="vertical"
+                                        margin={{ top: 10, right: 100, left: 140, bottom: 10 }}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
+                                        <XAxis
+                                            type="number"
+                                            tick={{ fontSize: 11, fill: '#6b7280' }}
+                                            tickFormatter={(value) => `${value}%`}
+                                            axisLine={{ stroke: '#d1d5db' }}
+                                            tickLine={false}
+                                            domain={['auto', 'auto']}
                                         />
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
+                                        <YAxis
+                                            type="category"
+                                            dataKey="name"
+                                            width={130}
+                                            tick={{ fontSize: 12, fontWeight: 500, fill: '#374151' }}
+                                            axisLine={{ stroke: '#d1d5db' }}
+                                            tickLine={false}
+                                        />
+                                        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
+                                        <Bar dataKey="avg_price_change" radius={[0, 8, 8, 0]} maxBarSize={35}>
+                                            {processedEventsData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.fill} />
+                                            ))}
+                                            <LabelList
+                                                dataKey="avg_price_change"
+                                                position="right"
+                                                formatter={(value: number) => `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`}
+                                                style={{ fontSize: 11, fontWeight: 600, fill: '#374151' }}
+                                            />
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            )}
+
+                            {/* Event Detail Cards */}
+                            {!loading && processedEventsData.length > 0 && (
+                                <div className="mt-6 mb-6">
+                                    <h4 className="font-semibold text-sm text-gray-700 mb-3">Event Details</h4>
+                                    <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                                        {processedEventsData.map((event, idx) => (
+                                            <motion.div
+                                                key={idx}
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                transition={{ delay: idx * 0.05 }}
+                                                className="p-4 rounded-xl border bg-white hover:shadow-md transition-all"
+                                            >
+                                                <div className="flex items-start gap-3">
+                                                    <span className="text-2xl">{getEventEmoji(event.name)}</span>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center justify-between gap-2">
+                                                            <span className="font-medium text-gray-800 truncate">{event.name}</span>
+                                                            <span className={`font-bold text-lg ${event.avg_price_change >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                                                                {event.avg_price_change >= 0 ? '+' : ''}{event.avg_price_change.toFixed(2)}%
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-xs text-gray-500 mt-0.5">{getEventDescription(event.name)}</p>
+                                                        <div className="flex items-center gap-3 mt-2 text-xs">
+                                                            <span className="text-gray-500">
+                                                                Win Rate: <strong>{event.win_rate.toFixed(0)}%</strong>
+                                                            </span>
+                                                            <span className="text-gray-500">
+                                                                {event.occurrences} years
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Events Table */}
                             <div className="mt-6 overflow-x-auto">
@@ -668,21 +824,17 @@ export function SeasonalAnalysisCharts({ metal = "GOLD", currency = "INR", onSet
                                         {selectedMetal}&apos;s Performance ({selectedCurrency}): ±{daysWindow} days Pre and Post Event
                                     </CardDescription>
                                 </div>
-                                <Select
-                                    value={selectedEventForChart || eventsData[0]?.name || ""}
-                                    onValueChange={setSelectedEventForChart}
-                                >
-                                    <SelectTrigger className="w-[200px] bg-white border-gray-200">
-                                        <SelectValue placeholder="Select event" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {eventsData.map((event) => (
-                                            <SelectItem key={event.name} value={event.name}>
-                                                {event.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <AdvancedEventDropdown
+                                    events={eventsData.map(e => ({
+                                        name: e.name,
+                                        value: e.avg_price_change,
+                                        type: e.event_type
+                                    }))}
+                                    selectedEvents={selectedEventForChart ? [selectedEventForChart] : (eventsData[0] ? [eventsData[0].name] : [])}
+                                    onSelectionChange={(events) => setSelectedEventForChart(events[0] || "")}
+                                    placeholder="Select event..."
+                                    singleSelect
+                                />
                             </div>
                         </CardHeader>
                         <CardContent className="pt-6">

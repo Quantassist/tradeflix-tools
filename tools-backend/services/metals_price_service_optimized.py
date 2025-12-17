@@ -156,7 +156,7 @@ class MetalsPriceServiceOptimized:
         db: Session,
         metal: str = "GOLD",
         currency: str = "INR",
-        years_back: int = 10,
+        years_back: float = 10,
     ) -> List[Dict]:
         """Calculate monthly seasonality using pandas groupby - much faster"""
         df = cls._get_full_dataframe(db)
@@ -169,25 +169,31 @@ class MetalsPriceServiceOptimized:
         if return_col not in df.columns:
             return []
 
-        # Filter by years
-        current_year = date.today().year
-        min_year = current_year - years_back
-        df_filtered = df[df["year"] >= min_year].copy()
+        # Filter by date (supports fractional years like 0.5 for 6 months)
+        from datetime import timedelta
+
+        cutoff_date = date.today() - timedelta(days=int(years_back * 365))
+        # Note: 'date' is the index, not a column
+        df_filtered = df[df.index >= pd.Timestamp(cutoff_date)].copy()
+
+        if df_filtered.empty:
+            return []
+
+        # Get unique year-month combinations in the filtered data
+        df_filtered["year_month"] = df_filtered.index.to_period("M")
+        unique_periods = df_filtered["year_month"].unique()
 
         # Calculate monthly returns (first to last price of each month)
         monthly_returns = []
-        for year in range(min_year, current_year):
-            for month in range(1, 13):
-                month_data = df_filtered[
-                    (df_filtered["year"] == year) & (df_filtered["month"] == month)
-                ][col].dropna()
-                if len(month_data) >= 2:
-                    first_price = month_data.iloc[0]
-                    last_price = month_data.iloc[-1]
-                    ret = ((last_price - first_price) / first_price) * 100
-                    monthly_returns.append(
-                        {"month": month, "year": year, "return": ret}
-                    )
+        for period in unique_periods:
+            month_data = df_filtered[df_filtered["year_month"] == period][col].dropna()
+            if len(month_data) >= 2:
+                first_price = month_data.iloc[0]
+                last_price = month_data.iloc[-1]
+                ret = ((last_price - first_price) / first_price) * 100
+                monthly_returns.append(
+                    {"month": period.month, "year": period.year, "return": ret}
+                )
 
         if not monthly_returns:
             return []
@@ -271,7 +277,9 @@ class MetalsPriceServiceOptimized:
         current_year = date.today().year
         yearly_data = []
 
-        for i in range(years_back):
+        # Convert float years_back to int for iteration (minimum 1 year for event analysis)
+        years_to_analyze = max(1, int(years_back)) if years_back >= 1 else 1
+        for i in range(years_to_analyze):
             year = current_year - i - 1
             try:
                 event_date = pd.Timestamp(date(year, event_month, event_day))
@@ -509,7 +517,9 @@ class MetalsPriceServiceOptimized:
         current_year = date.today().year
         all_trajectories = []
 
-        for i in range(years_back):
+        # Convert float years_back to int for iteration (minimum 1 year for trajectory analysis)
+        years_to_analyze = max(1, int(years_back)) if years_back >= 1 else 1
+        for i in range(years_to_analyze):
             year = current_year - i - 1
             try:
                 event_date = pd.Timestamp(date(year, event_month, event_day))
@@ -662,7 +672,9 @@ class MetalsPriceServiceOptimized:
         current_year = date.today().year
         volatility_data = []
 
-        for i in range(years_back):
+        # Convert float years_back to int for iteration (minimum 1 year for volatility analysis)
+        years_to_analyze = max(1, int(years_back)) if years_back >= 1 else 1
+        for i in range(years_to_analyze):
             year = current_year - i - 1
             try:
                 event_date = pd.Timestamp(date(year, event_month, event_day))
@@ -795,6 +807,64 @@ class MetalsPriceServiceOptimized:
             result[metal] = cls.get_monthly_seasonality(db, metal, currency, years_back)
 
         return result
+
+    @classmethod
+    def get_daily_calendar_heatmap(
+        cls,
+        db: Session,
+        metal: str = "GOLD",
+        currency: str = "INR",
+        years_back: int = 10,
+    ) -> List[Dict]:
+        """
+        Get daily calendar heatmap data - average returns for each day of the year.
+        Returns 365/366 data points, one for each calendar day.
+        """
+        df = cls._get_full_dataframe(db)
+        if df.empty:
+            return []
+
+        # Get price column
+        usd_col, inr_col = cls.METAL_COLUMNS.get(
+            metal.upper(), ("gold_usd", "gold_inr")
+        )
+        price_col = inr_col if currency.upper() == "INR" else usd_col
+
+        # Filter by years - note: date is the index, not a column
+        cutoff_date = pd.Timestamp.now() - pd.DateOffset(years=years_back)
+        df_filtered = df[df.index >= cutoff_date].copy()
+
+        if df_filtered.empty:
+            return []
+
+        # Calculate daily returns - sort by index (date)
+        df_filtered = df_filtered.sort_index()
+        df_filtered["return"] = df_filtered[price_col].pct_change() * 100
+
+        # month and day columns already exist from _get_full_dataframe
+
+        # Group by month and day
+        heatmap_data = []
+        for (month, day), group in df_filtered.groupby(["month", "day"]):
+            returns = group["return"].dropna()
+            if len(returns) > 0:
+                heatmap_data.append(
+                    {
+                        "month": int(month),
+                        "day": int(day),
+                        "avg_return": round(float(returns.mean()), 4),
+                        "win_rate": round(
+                            float((returns > 0).sum() / len(returns) * 100), 1
+                        ),
+                        "occurrences": len(returns),
+                        "best_return": round(float(returns.max()), 2),
+                        "worst_return": round(float(returns.min()), 2),
+                    }
+                )
+
+        # Sort by month and day
+        heatmap_data.sort(key=lambda x: (x["month"], x["day"]))
+        return heatmap_data
 
     @classmethod
     def clear_cache(cls):

@@ -8,19 +8,22 @@ import type {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 
-// TODO: Replace with actual auth when implemented
-const DEV_USER_ID = process.env.NEXT_PUBLIC_DEV_USER_ID || "5fb81e15-b774-4d2d-b129-a041eaa6b7b8"
-
 /**
  * Get common headers for API requests
+ * @param userId - The authenticated user's ID from better-auth session
  */
-const getHeaders = (): HeadersInit => ({
-  "Content-Type": "application/json",
-  "X-User-Id": DEV_USER_ID,
-})
+const getHeaders = (userId?: string): HeadersInit => {
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  }
+  if (userId) {
+    headers["X-User-Id"] = userId
+  }
+  return headers
+}
 
 export async function runBacktest(request: BacktestRequest): Promise<BacktestResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/backtest/run`, {
+  const response = await fetch(`${API_BASE_URL}/backtest/run`, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify(request),
@@ -48,10 +51,64 @@ interface StrategyTemplate {
 }
 
 export async function getStrategyTemplates(): Promise<StrategyTemplate[]> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/backtest/templates`)
+  const response = await fetch(`${API_BASE_URL}/backtest/templates`)
 
   if (!response.ok) {
     throw new Error(`Failed to fetch templates: ${response.statusText}`)
+  }
+
+  return response.json()
+}
+
+/**
+ * Prebuilt strategy from database
+ */
+export interface PrebuiltStrategy {
+  id: number
+  name: string
+  description?: string
+  asset: string
+  category?: string
+  entry_logic: Record<string, unknown>
+  exit_logic: Record<string, unknown>
+  stop_loss_pct: number
+  take_profit_pct: number
+  tags?: string[]
+}
+
+/**
+ * Get all prebuilt strategies from the database
+ */
+export async function getPrebuiltStrategies(category?: string): Promise<PrebuiltStrategy[]> {
+  const params = new URLSearchParams()
+  if (category) params.set("category", category)
+  
+  const url = `${API_BASE_URL}/backtest/prebuilt-strategies${params.toString() ? `?${params.toString()}` : ""}`
+  const response = await fetch(url, {
+    method: "GET",
+    headers: getHeaders(),
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new Error(`Failed to fetch prebuilt strategies: ${errorText || response.statusText}`)
+  }
+
+  return response.json()
+}
+
+/**
+ * Get a specific prebuilt strategy by ID
+ */
+export async function getPrebuiltStrategy(strategyId: number): Promise<PrebuiltStrategy> {
+  const response = await fetch(`${API_BASE_URL}/backtest/prebuilt-strategies/${strategyId}`, {
+    method: "GET",
+    headers: getHeaders(),
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new Error(`Failed to fetch prebuilt strategy: ${errorText || response.statusText}`)
   }
 
   return response.json()
@@ -70,7 +127,7 @@ export interface DateRangeResponse {
  * Get available date range for backtesting data
  */
 export async function getDateRange(asset: string): Promise<DateRangeResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/backtest/date-range/${asset}`, {
+  const response = await fetch(`${API_BASE_URL}/backtest/date-range/${asset}`, {
     method: "GET",
     headers: getHeaders(),
   })
@@ -105,7 +162,7 @@ export async function runVisualBacktest(
     initialCapital: options?.initialCapital ?? 10000,
   }
 
-  const url = `${API_BASE_URL}/api/v1/backtest/run-visual`
+  const url = `${API_BASE_URL}/backtest/run-visual`
 
   const response = await fetch(url, {
     method: "POST",
@@ -158,16 +215,17 @@ export interface SaveStrategyRequest {
   takeProfitPct: number
   isPublic?: boolean
   isFavorite?: boolean
+  isPrebuilt?: boolean
   tags?: string[]
 }
 
 /**
  * Save a new strategy
  */
-export async function saveStrategy(request: SaveStrategyRequest): Promise<SavedStrategy> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/backtest/strategies`, {
+export async function saveStrategy(request: SaveStrategyRequest, userId: string): Promise<SavedStrategy> {
+  const response = await fetch(`${API_BASE_URL}/backtest/strategies`, {
     method: "POST",
-    headers: getHeaders(),
+    headers: getHeaders(userId),
     body: JSON.stringify(request),
   })
 
@@ -182,7 +240,7 @@ export async function saveStrategy(request: SaveStrategyRequest): Promise<SavedS
 /**
  * List user's strategies
  */
-export async function listStrategies(options?: {
+export async function listStrategies(userId: string, options?: {
   asset?: string
   isFavorite?: boolean
   limit?: number
@@ -194,10 +252,10 @@ export async function listStrategies(options?: {
   if (options?.limit) params.set("limit", String(options.limit))
   if (options?.offset) params.set("offset", String(options.offset))
 
-  const url = `${API_BASE_URL}/api/v1/backtest/strategies?${params.toString()}`
+  const url = `${API_BASE_URL}/backtest/strategies?${params.toString()}`
   const response = await fetch(url, {
     method: "GET",
-    headers: getHeaders(),
+    headers: getHeaders(userId),
   })
 
   if (!response.ok) {
@@ -211,10 +269,10 @@ export async function listStrategies(options?: {
 /**
  * Get a specific strategy by ID
  */
-export async function getStrategy(strategyId: number): Promise<SavedStrategy> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/backtest/strategies/${strategyId}`, {
+export async function getStrategy(strategyId: number, userId: string): Promise<SavedStrategy> {
+  const response = await fetch(`${API_BASE_URL}/backtest/strategies/${strategyId}`, {
     method: "GET",
-    headers: getHeaders(),
+    headers: getHeaders(userId),
   })
 
   if (!response.ok) {
@@ -230,11 +288,12 @@ export async function getStrategy(strategyId: number): Promise<SavedStrategy> {
  */
 export async function updateStrategy(
   strategyId: number,
-  request: Partial<SaveStrategyRequest>
+  request: Partial<SaveStrategyRequest>,
+  userId: string
 ): Promise<SavedStrategy> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/backtest/strategies/${strategyId}`, {
+  const response = await fetch(`${API_BASE_URL}/backtest/strategies/${strategyId}`, {
     method: "PUT",
-    headers: getHeaders(),
+    headers: getHeaders(userId),
     body: JSON.stringify(request),
   })
 
@@ -249,10 +308,10 @@ export async function updateStrategy(
 /**
  * Delete a strategy
  */
-export async function deleteStrategy(strategyId: number): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/backtest/strategies/${strategyId}`, {
+export async function deleteStrategy(strategyId: number, userId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/backtest/strategies/${strategyId}`, {
     method: "DELETE",
-    headers: getHeaders(),
+    headers: getHeaders(userId),
   })
 
   if (!response.ok) {
@@ -311,10 +370,10 @@ export interface SaveBacktestRequest {
 /**
  * Save a backtest result
  */
-export async function saveBacktest(request: SaveBacktestRequest): Promise<SavedBacktest> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/backtest/backtests/save`, {
+export async function saveBacktest(request: SaveBacktestRequest, userId: string): Promise<SavedBacktest> {
+  const response = await fetch(`${API_BASE_URL}/backtest/backtests/save`, {
     method: "POST",
-    headers: getHeaders(),
+    headers: getHeaders(userId),
     body: JSON.stringify(request),
   })
 
@@ -329,7 +388,7 @@ export async function saveBacktest(request: SaveBacktestRequest): Promise<SavedB
 /**
  * List user's backtest results
  */
-export async function listBacktests(options?: {
+export async function listBacktests(userId: string, options?: {
   strategyId?: number
   asset?: string
   limit?: number
@@ -341,10 +400,10 @@ export async function listBacktests(options?: {
   if (options?.limit) params.set("limit", String(options.limit))
   if (options?.offset) params.set("offset", String(options.offset))
 
-  const url = `${API_BASE_URL}/api/v1/backtest/backtests?${params.toString()}`
+  const url = `${API_BASE_URL}/backtest/backtests?${params.toString()}`
   const response = await fetch(url, {
     method: "GET",
-    headers: getHeaders(),
+    headers: getHeaders(userId),
   })
 
   if (!response.ok) {
@@ -358,10 +417,10 @@ export async function listBacktests(options?: {
 /**
  * Get a specific backtest by ID
  */
-export async function getBacktest(backtestId: number): Promise<SavedBacktest> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/backtest/backtests/${backtestId}`, {
+export async function getBacktest(backtestId: number, userId: string): Promise<SavedBacktest> {
+  const response = await fetch(`${API_BASE_URL}/backtest/backtests/${backtestId}`, {
     method: "GET",
-    headers: getHeaders(),
+    headers: getHeaders(userId),
   })
 
   if (!response.ok) {
@@ -375,10 +434,10 @@ export async function getBacktest(backtestId: number): Promise<SavedBacktest> {
 /**
  * Delete a backtest result
  */
-export async function deleteBacktest(backtestId: number): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/backtest/backtests/${backtestId}`, {
+export async function deleteBacktest(backtestId: number, userId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/backtest/backtests/${backtestId}`, {
     method: "DELETE",
-    headers: getHeaders(),
+    headers: getHeaders(userId),
   })
 
   if (!response.ok) {
@@ -390,10 +449,10 @@ export async function deleteBacktest(backtestId: number): Promise<void> {
 /**
  * Link orphan backtests (with no strategy_id) to a strategy
  */
-export async function linkBacktestsToStrategy(strategyId: number): Promise<{ linked: number; backtestId?: number }> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/backtest/backtests/link-to-strategy?strategy_id=${strategyId}`, {
+export async function linkBacktestsToStrategy(strategyId: number, userId: string): Promise<{ linked: number; backtestId?: number }> {
+  const response = await fetch(`${API_BASE_URL}/backtest/backtests/link-to-strategy?strategy_id=${strategyId}`, {
     method: "PATCH",
-    headers: getHeaders(),
+    headers: getHeaders(userId),
   })
 
   if (!response.ok) {

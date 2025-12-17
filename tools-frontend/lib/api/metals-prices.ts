@@ -155,6 +155,41 @@ export interface CalendarHeatmapDay {
   worst_return: number
 }
 
+export interface RecessionPeriod {
+  name: string
+  type: string
+  start_date: string
+  end_date: string
+  duration_days?: number
+  price_change_pct?: number
+  max_gain_pct?: number
+  max_drawdown_pct?: number
+  volatility?: number
+  start_price?: number
+  end_price?: number
+  data_points?: number
+  has_data: boolean
+  error?: string
+}
+
+export interface RecessionIndicatorsResponse {
+  metal: MetalType
+  currency: CurrencyType
+  recession_periods: RecessionPeriod[]
+  summary: {
+    total_periods: number
+    periods_with_data: number
+    avg_price_change: number
+    positive_periods: number
+    positive_rate: number
+    avg_volatility: number
+    best_period: string | null
+    best_return: number | null
+    worst_period: string | null
+    worst_return: number | null
+  }
+}
+
 export const metalsPricesApi = {
   // Get data statistics
   getStats: async (): Promise<DataStats> => {
@@ -329,5 +364,17 @@ export const metalsPricesApi = {
       years_back: yearsBack.toString(),
     })
     return apiClient.get(`/metals-prices/calendar-heatmap?${params.toString()}`)
+  },
+
+  // Get recession indicators
+  getRecessionIndicators: async (
+    metal: MetalType = "GOLD",
+    currency: CurrencyType = "INR"
+  ): Promise<RecessionIndicatorsResponse> => {
+    const params = new URLSearchParams({
+      metal,
+      currency,
+    })
+    return apiClient.get(`/metals-prices/recession-indicators?${params.toString()}`)
   },
 }

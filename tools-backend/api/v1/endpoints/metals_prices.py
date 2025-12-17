@@ -106,7 +106,12 @@ async def get_historical_event_performance(
     event_day: int = Query(..., ge=1, le=31, description="Event day (1-31)"),
     metal: str = Query(default="GOLD", description="GOLD, SILVER, PLATINUM, PALLADIUM"),
     currency: str = Query(default="INR", description="USD or INR"),
-    years_back: int = Query(default=10, ge=1, le=20, description="Years to analyze"),
+    years_back: float = Query(
+        default=10,
+        ge=0.08,
+        le=20,
+        description="Years to analyze (supports fractions like 0.5 for 6 months)",
+    ),
     days_before: int = Query(default=7, ge=1, le=30, description="Days before event"),
     days_after: int = Query(default=7, ge=1, le=30, description="Days after event"),
     db: Session = Depends(get_db),
@@ -142,7 +147,12 @@ async def get_historical_event_performance(
 async def get_monthly_seasonality(
     metal: str = Query(default="GOLD", description="GOLD, SILVER, PLATINUM, PALLADIUM"),
     currency: str = Query(default="INR", description="USD or INR"),
-    years_back: int = Query(default=10, ge=1, le=20, description="Years to analyze"),
+    years_back: float = Query(
+        default=10,
+        ge=0.08,
+        le=20,
+        description="Years to analyze (supports fractions like 0.5 for 6 months)",
+    ),
     db: Session = Depends(get_db),
 ):
     """
@@ -185,7 +195,12 @@ async def get_monthly_seasonality(
 async def get_seasonal_events_analysis(
     metal: str = Query(default="GOLD", description="GOLD, SILVER, PLATINUM, PALLADIUM"),
     currency: str = Query(default="INR", description="USD or INR"),
-    years_back: int = Query(default=10, ge=1, le=20, description="Years to analyze"),
+    years_back: float = Query(
+        default=10,
+        ge=0.08,
+        le=20,
+        description="Years to analyze (supports fractions like 0.5 for 6 months)",
+    ),
     days_before: int = Query(
         default=7, ge=1, le=30, description="Days before event to analyze"
     ),
@@ -416,7 +431,12 @@ async def get_event_trajectory(
     event_day: int = Query(..., ge=1, le=31, description="Day of event"),
     metal: str = Query(default="GOLD", description="GOLD, SILVER, PLATINUM, PALLADIUM"),
     currency: str = Query(default="INR", description="USD or INR"),
-    years_back: int = Query(default=10, ge=1, le=20, description="Years to analyze"),
+    years_back: float = Query(
+        default=10,
+        ge=0.08,
+        le=20,
+        description="Years to analyze (supports fractions like 0.5 for 6 months)",
+    ),
     days_before: int = Query(default=10, ge=1, le=30, description="Days before event"),
     days_after: int = Query(default=10, ge=1, le=30, description="Days after event"),
     db: Session = Depends(get_db),
@@ -448,8 +468,11 @@ async def get_event_trajectory(
 async def get_upcoming_alerts(
     metal: str = Query(default="GOLD", description="GOLD, SILVER, PLATINUM, PALLADIUM"),
     currency: str = Query(default="INR", description="USD or INR"),
-    years_back: int = Query(
-        default=10, ge=1, le=20, description="Years for historical analysis"
+    years_back: float = Query(
+        default=10,
+        ge=0.08,
+        le=20,
+        description="Years for historical analysis (supports fractions like 0.5 for 6 months)",
     ),
     alert_days: int = Query(
         default=30, ge=1, le=90, description="Days ahead to look for events"
@@ -470,9 +493,12 @@ async def get_upcoming_alerts(
         .all()
     )
 
+    # Deduplicate events by name to avoid duplicate alerts
+    seen_names = set()
     events = []
     for db_event in db_events:
-        if db_event.start_date:
+        if db_event.start_date and db_event.name not in seen_names:
+            seen_names.add(db_event.name)
             events.append(
                 {
                     "name": db_event.name,
@@ -503,7 +529,12 @@ async def get_volatility_analysis(
     event_day: int = Query(..., ge=1, le=31, description="Day of event"),
     metal: str = Query(default="GOLD", description="GOLD, SILVER, PLATINUM, PALLADIUM"),
     currency: str = Query(default="INR", description="USD or INR"),
-    years_back: int = Query(default=10, ge=1, le=20, description="Years to analyze"),
+    years_back: float = Query(
+        default=10,
+        ge=0.08,
+        le=20,
+        description="Years to analyze (supports fractions like 0.5 for 6 months)",
+    ),
     db: Session = Depends(get_db),
 ):
     """
@@ -532,7 +563,12 @@ async def get_volatility_analysis(
 @router.get("/multi-metal-seasonality")
 async def get_multi_metal_seasonality(
     currency: str = Query(default="INR", description="USD or INR"),
-    years_back: int = Query(default=10, ge=1, le=20, description="Years to analyze"),
+    years_back: float = Query(
+        default=10,
+        ge=0.08,
+        le=20,
+        description="Years to analyze (supports fractions like 0.5 for 6 months)",
+    ),
     db: Session = Depends(get_db),
 ):
     """
@@ -555,7 +591,12 @@ async def get_multi_metal_seasonality(
 async def get_calendar_heatmap(
     metal: str = Query(default="GOLD", description="GOLD, SILVER, PLATINUM, PALLADIUM"),
     currency: str = Query(default="INR", description="USD or INR"),
-    years_back: int = Query(default=10, ge=1, le=20, description="Years to analyze"),
+    years_back: float = Query(
+        default=10,
+        ge=0.08,
+        le=20,
+        description="Years to analyze (supports fractions like 0.5 for 6 months)",
+    ),
     db: Session = Depends(get_db),
 ):
     """
@@ -574,6 +615,148 @@ async def get_calendar_heatmap(
         "years_analyzed": years_back,
         "daily_data": heatmap,
         "total_days": len(heatmap),
+    }
+
+
+@router.get("/recession-indicators")
+async def get_recession_indicators(
+    metal: str = Query(default="GOLD", description="GOLD, SILVER, PLATINUM, PALLADIUM"),
+    currency: str = Query(default="INR", description="USD or INR"),
+    db: Session = Depends(get_db),
+):
+    """
+    Get gold/silver performance during historical recession periods.
+
+    Analyzes how metals performed during major economic downturns and crises.
+    Recession periods are fetched from the database (event_type = 'recession_crisis').
+    """
+    # Fetch recession periods from database
+    recession_events = (
+        db.query(SeasonalEvent)
+        .filter(
+            SeasonalEvent.event_type == "recession_crisis",
+            SeasonalEvent.is_active == True,  # noqa: E712
+        )
+        .order_by(SeasonalEvent.start_date)
+        .all()
+    )
+
+    results = []
+
+    for event in recession_events:
+        start_date = event.start_date
+        end_date = event.end_date or event.start_date
+
+        try:
+            # Get prices for the recession period
+            prices = MetalsPriceService.get_price_range(
+                db, start_date, end_date, metal, currency
+            )
+
+            if prices and len(prices) >= 2:
+                start_price = prices[0]["price"]
+                end_price = prices[-1]["price"]
+                price_change = ((end_price - start_price) / start_price) * 100
+
+                # Calculate max drawdown and max gain during period
+                price_values = [p["price"] for p in prices]
+                max_price = max(price_values)
+                min_price = min(price_values)
+                max_gain = ((max_price - start_price) / start_price) * 100
+                max_drawdown = ((min_price - start_price) / start_price) * 100
+
+                # Calculate volatility
+                if len(price_values) > 1:
+                    import statistics
+
+                    returns = [
+                        (price_values[i] - price_values[i - 1])
+                        / price_values[i - 1]
+                        * 100
+                        for i in range(1, len(price_values))
+                    ]
+                    volatility = statistics.stdev(returns) if len(returns) > 1 else 0
+                else:
+                    volatility = 0
+
+                results.append(
+                    {
+                        "name": event.name,
+                        "type": event.region or "global",  # region stores crisis type
+                        "start_date": str(start_date),
+                        "end_date": str(end_date),
+                        "duration_days": (end_date - start_date).days,
+                        "price_change_pct": round(price_change, 2),
+                        "max_gain_pct": round(max_gain, 2),
+                        "max_drawdown_pct": round(max_drawdown, 2),
+                        "volatility": round(volatility, 3),
+                        "start_price": round(start_price, 2),
+                        "end_price": round(end_price, 2),
+                        "data_points": len(prices),
+                        "has_data": True,
+                    }
+                )
+            else:
+                results.append(
+                    {
+                        "name": event.name,
+                        "type": event.region or "global",
+                        "start_date": str(start_date),
+                        "end_date": str(end_date),
+                        "has_data": False,
+                        "error": "Insufficient price data for this period",
+                    }
+                )
+        except Exception as e:
+            logger.error(f"Error analyzing recession {event.name}: {e}")
+            results.append(
+                {
+                    "name": event.name,
+                    "type": event.region or "global",
+                    "start_date": str(start_date),
+                    "end_date": str(end_date),
+                    "has_data": False,
+                    "error": str(e),
+                }
+            )
+
+    # Calculate summary statistics
+    valid_results = [r for r in results if r.get("has_data")]
+    if valid_results:
+        avg_change = sum(r["price_change_pct"] for r in valid_results) / len(
+            valid_results
+        )
+        positive_periods = sum(1 for r in valid_results if r["price_change_pct"] > 0)
+        avg_volatility = sum(r["volatility"] for r in valid_results) / len(
+            valid_results
+        )
+        best_period = max(valid_results, key=lambda x: x["price_change_pct"])
+        worst_period = min(valid_results, key=lambda x: x["price_change_pct"])
+    else:
+        avg_change = 0
+        positive_periods = 0
+        avg_volatility = 0
+        best_period = None
+        worst_period = None
+
+    return {
+        "metal": metal,
+        "currency": currency,
+        "recession_periods": results,
+        "summary": {
+            "total_periods": len(results),
+            "periods_with_data": len(valid_results),
+            "avg_price_change": round(avg_change, 2),
+            "positive_periods": positive_periods,
+            "positive_rate": round(
+                (positive_periods / len(valid_results) * 100) if valid_results else 0, 1
+            ),
+            "avg_volatility": round(avg_volatility, 3),
+            "best_period": best_period["name"] if best_period else None,
+            "best_return": best_period["price_change_pct"] if best_period else None,
+            "worst_period": worst_period["name"] if worst_period else None,
+            "worst_return": worst_period["price_change_pct"] if worst_period else None,
+        },
     }
 
 

@@ -104,11 +104,20 @@ const INDICATOR_CATEGORIES = {
     "External": [
         StrategyIndicatorType.USDINR,
     ],
+    "Seasonal": [
+        StrategyIndicatorType.MONTH,
+        StrategyIndicatorType.DAY_OF_MONTH,
+        StrategyIndicatorType.DAY_OF_YEAR,
+        StrategyIndicatorType.DAYS_TO_EVENT,
+        StrategyIndicatorType.DAYS_FROM_EVENT,
+        StrategyIndicatorType.IS_EVENT_WINDOW,
+        StrategyIndicatorType.IS_FAVORABLE_MONTH,
+    ],
 }
 
 // Check if indicator type requires a period parameter
-const hasPeriod = (type: StrategyIndicatorType): boolean => {
-    const STATIC_TYPES = [
+const hasPeriod = (type: StrategyIndicatorType | string): boolean => {
+    const STATIC_TYPES: string[] = [
         // Price data - no period needed
         StrategyIndicatorType.PRICE,
         StrategyIndicatorType.OPEN,
@@ -123,8 +132,16 @@ const hasPeriod = (type: StrategyIndicatorType): boolean => {
         StrategyIndicatorType.CPR_PIVOT,
         StrategyIndicatorType.CPR_TC,
         StrategyIndicatorType.CPR_BC,
+        // Seasonal indicators - no period needed
+        StrategyIndicatorType.MONTH,
+        StrategyIndicatorType.DAY_OF_MONTH,
+        StrategyIndicatorType.DAY_OF_YEAR,
+        StrategyIndicatorType.DAYS_TO_EVENT,
+        StrategyIndicatorType.DAYS_FROM_EVENT,
+        StrategyIndicatorType.IS_EVENT_WINDOW,
+        StrategyIndicatorType.IS_FAVORABLE_MONTH,
     ]
-    return !STATIC_TYPES.includes(type)
+    return !STATIC_TYPES.includes(type as string)
 }
 
 // Get default period for indicator type
@@ -154,7 +171,7 @@ const getDefaultPeriod = (type: StrategyIndicatorType): number => {
 }
 
 // Get indicator display name
-const getIndicatorLabel = (type: StrategyIndicatorType): string => {
+const getIndicatorLabel = (type: StrategyIndicatorType | string): string => {
     const labels: Record<string, string> = {
         SMA: "SMA",
         EMA: "EMA",
@@ -179,6 +196,13 @@ const getIndicatorLabel = (type: StrategyIndicatorType): string => {
         CPR_PIVOT: "CPR Pivot",
         CPR_TC: "CPR TC",
         CPR_BC: "CPR BC",
+        MONTH: "Month",
+        DAY_OF_MONTH: "Day of Month",
+        DAY_OF_YEAR: "Day of Year",
+        DAYS_TO_EVENT: "Days to Event",
+        DAYS_FROM_EVENT: "Days from Event",
+        IS_EVENT_WINDOW: "In Event Window",
+        IS_FAVORABLE_MONTH: "Favorable Month",
     }
     return labels[type] || type
 }
@@ -298,12 +322,12 @@ const LogicNodeBuilder: React.FC<LogicNodeProps> = ({
                 {/* Right Side */}
                 <div className="flex items-center gap-2">
                     <Select
-                        value={isStaticValue ? "STATIC_VALUE" : condition.right.type}
+                        value={isStaticValue ? "STATIC_VALUE" : condition.right?.type ?? "STATIC_VALUE"}
                         onValueChange={handleRightSourceChange}
                     >
                         <SelectTrigger className="h-8 text-xs font-medium bg-white border-slate-300 w-28 focus:ring-indigo-500">
                             <SelectValue>
-                                {isStaticValue ? "Value" : getIndicatorLabel(condition.right.type)}
+                                {isStaticValue ? "Value" : getIndicatorLabel(condition.right?.type ?? "PRICE")}
                             </SelectValue>
                         </SelectTrigger>
                         <SelectContent className="max-h-64">
@@ -343,8 +367,8 @@ const LogicNodeBuilder: React.FC<LogicNodeProps> = ({
                             style={{ width: `${Math.max(4, String(condition.value ?? "").length * 0.6 + 2)}rem` }}
                             placeholder="0"
                         />
-                    ) : (
-                        hasPeriod(condition.right.type) && (
+                    ) : condition.right ? (
+                        hasPeriod(condition.right.type) ? (
                             <Input
                                 type="number"
                                 value={condition.right.period ?? ""}
@@ -360,8 +384,8 @@ const LogicNodeBuilder: React.FC<LogicNodeProps> = ({
                                 className="h-8 min-w-14 w-auto text-xs text-center bg-white border-slate-300 focus:ring-indigo-500"
                                 style={{ width: `${Math.max(3.5, String(condition.right.period ?? "").length * 0.6 + 2)}rem` }}
                             />
-                        )
-                    )}
+                        ) : null
+                    ) : null}
                 </div>
 
                 <button

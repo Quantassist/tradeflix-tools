@@ -42,16 +42,24 @@ class StrategyIndicatorType(str, Enum):
     CPR_PIVOT = "CPR_PIVOT"
     CPR_TC = "CPR_TC"
     CPR_BC = "CPR_BC"
+    # Seasonal Indicators
+    MONTH = "MONTH"
+    DAY_OF_MONTH = "DAY_OF_MONTH"
+    DAY_OF_YEAR = "DAY_OF_YEAR"
+    DAYS_TO_EVENT = "DAYS_TO_EVENT"
+    DAYS_FROM_EVENT = "DAYS_FROM_EVENT"
+    IS_EVENT_WINDOW = "IS_EVENT_WINDOW"
+    IS_FAVORABLE_MONTH = "IS_FAVORABLE_MONTH"
 
 
 class StrategyComparator(str, Enum):
     """Comparison operators for strategy conditions"""
 
-    GREATER_THAN = ">"
-    LESS_THAN = "<"
-    EQUALS = "=="
-    CROSSES_ABOVE = "CROSS_ABOVE"
-    CROSSES_BELOW = "CROSS_BELOW"
+    GREATER_THAN = "GREATER_THAN"
+    LESS_THAN = "LESS_THAN"
+    EQUALS = "EQUALS"
+    CROSSES_ABOVE = "CROSSES_ABOVE"
+    CROSSES_BELOW = "CROSSES_BELOW"
 
 
 class StrategyAsset(str, Enum):
@@ -69,6 +77,9 @@ class IndicatorConfig(BaseModel):
     type: StrategyIndicatorType
     period: int = 0
     source: Optional[Literal["close", "open", "high", "low"]] = "close"
+    event: Optional[str] = (
+        None  # For seasonal event-based indicators (DAYS_TO_EVENT, etc.)
+    )
 
 
 class StrategyCondition(BaseModel):
@@ -78,7 +89,7 @@ class StrategyCondition(BaseModel):
     type: Literal["CONDITION"]
     left: IndicatorConfig
     comparator: StrategyComparator
-    right: IndicatorConfig
+    right: Optional[IndicatorConfig] = None  # Optional when using static value
     value: Optional[float] = None  # Static value override
 
 
@@ -204,6 +215,7 @@ class StrategySaveRequest(BaseModel):
     takeProfitPct: float = Field(5.0, alias="takeProfitPct", ge=0, le=100)
     isPublic: bool = Field(False, alias="isPublic")
     isFavorite: bool = Field(False, alias="isFavorite")
+    isPrebuilt: bool = Field(False, alias="isPrebuilt")
     tags: Optional[List[str]] = None
 
     class Config:
@@ -222,6 +234,7 @@ class StrategyUpdateRequest(BaseModel):
     takeProfitPct: Optional[float] = Field(None, alias="takeProfitPct", ge=0, le=100)
     isPublic: Optional[bool] = Field(None, alias="isPublic")
     isFavorite: Optional[bool] = Field(None, alias="isFavorite")
+    isPrebuilt: Optional[bool] = Field(None, alias="isPrebuilt")
     tags: Optional[List[str]] = None
 
     class Config:

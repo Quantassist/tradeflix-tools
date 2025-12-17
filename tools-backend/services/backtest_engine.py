@@ -24,6 +24,7 @@ from services.calc_service import (
     calculate_atr,
     calculate_weekly_cpr,
 )
+from services.seasonal_service import SeasonalEventCalculator
 
 
 def safe_float(value, default: float = 0.0) -> float:
@@ -52,6 +53,32 @@ STATIC_TYPES = {
     "CPR_TC",
     "CPR_BC",
 }
+
+# Seasonal indicator types
+SEASONAL_TYPES = {
+    "MONTH",  # Current month (1-12)
+    "DAY_OF_MONTH",  # Day of month (1-31)
+    "DAY_OF_YEAR",  # Day of year (1-365)
+    "DAYS_TO_EVENT",  # Days until a specific seasonal event
+    "DAYS_FROM_EVENT",  # Days since a specific seasonal event
+    "IS_EVENT_WINDOW",  # Boolean: within X days of event (1 or 0)
+    "IS_FAVORABLE_MONTH",  # Boolean: in favorable trading months
+}
+
+# Supported seasonal events for backtesting
+SUPPORTED_EVENTS = [
+    "DIWALI",
+    "DHANTERAS",
+    "AKSHAYA_TRITIYA",
+    "UNION_BUDGET",
+    "FOMC_MEETING",
+    "CHRISTMAS",
+    "NEW_YEAR",
+    "CHINESE_NEW_YEAR",
+]
+
+# Favorable months for gold trading (historically positive)
+FAVORABLE_MONTHS = [1, 2, 8, 9, 10, 11, 12]  # Jan, Feb, Aug-Dec
 
 
 def prepare_data_for_backtest(data: List[Dict[str, Any]]) -> pd.DataFrame:
@@ -112,6 +139,80 @@ def prepare_data_for_backtest(data: List[Dict[str, Any]]) -> pd.DataFrame:
     df["CPR_PIVOT"] = cpr_df["CPR_PIVOT"].values
     df["CPR_TC"] = cpr_df["CPR_TC"].values
     df["CPR_BC"] = cpr_df["CPR_BC"].values
+
+    return df
+
+
+def add_seasonal_columns(df: pd.DataFrame, strategy: Dict[str, Any]) -> pd.DataFrame:
+    """
+    Add seasonal indicator columns to the DataFrame.
+
+    Args:
+        df: DataFrame with DatetimeIndex
+        strategy: Strategy dictionary containing seasonal event references
+
+    Returns:
+        DataFrame with seasonal columns added
+    """
+    # Add basic date-based columns
+    df["MONTH"] = df.index.month
+    df["DAY_OF_MONTH"] = df.index.day
+    df["DAY_OF_YEAR"] = df.index.dayofyear
+    df["IS_FAVORABLE_MONTH"] = df["MONTH"].isin(FAVORABLE_MONTHS).astype(int)
+
+    # Extract event names from strategy
+    events_needed = set()
+
+    def extract_events_from_node(node: Dict[str, Any]):
+        if node.get("type") == "CONDITION":
+            left = node.get("left", {})
+            if left.get("type") in [
+                "DAYS_TO_EVENT",
+                "DAYS_FROM_EVENT",
+                "IS_EVENT_WINDOW",
+            ]:
+                event = left.get("event")
+                if event:
+                    events_needed.add(event.upper())
+        elif node.get("type") == "GROUP":
+            for child in node.get("children", []):
+                extract_events_from_node(child)
+
+    extract_events_from_node(strategy.get("entryLogic", {}))
+    extract_events_from_node(strategy.get("exitLogic", {}))
+
+    # Calculate event-based columns for each needed event
+    for event_name in events_needed:
+        days_to_col = f"DAYS_TO_{event_name}"
+        days_from_col = f"DAYS_FROM_{event_name}"
+        window_col = f"IS_WINDOW_{event_name}"
+
+        days_to_values = []
+        days_from_values = []
+        window_values = []
+
+        for idx in df.index:
+            check_date = idx.date() if hasattr(idx, "date") else idx
+
+            # Calculate days to event
+            days_to = SeasonalEventCalculator.get_days_to_event(event_name, check_date)
+            days_to_values.append(days_to if days_to is not None else 999)
+
+            # Calculate days from event
+            days_from = SeasonalEventCalculator.get_days_from_event(
+                event_name, check_date
+            )
+            days_from_values.append(days_from if days_from is not None else 999)
+
+            # Check if in event window (default: 10 days before, 5 days after)
+            in_window = SeasonalEventCalculator.is_in_event_window(
+                event_name, check_date, days_before=10, days_after=5
+            )
+            window_values.append(1 if in_window else 0)
+
+        df[days_to_col] = days_to_values
+        df[days_from_col] = days_from_values
+        df[window_col] = window_values
 
     return df
 
@@ -251,6 +352,31 @@ def get_indicator_value(data: pd.DataFrame, config: Dict, idx: int) -> float:
         "CPR_BC",
     ]:
         return data[ind_type].iloc[idx]
+    # Seasonal indicator types
+    elif ind_type == "MONTH":
+        return data["MONTH"].iloc[idx] if "MONTH" in data.columns else 0
+    elif ind_type == "DAY_OF_MONTH":
+        return data["DAY_OF_MONTH"].iloc[idx] if "DAY_OF_MONTH" in data.columns else 0
+    elif ind_type == "DAY_OF_YEAR":
+        return data["DAY_OF_YEAR"].iloc[idx] if "DAY_OF_YEAR" in data.columns else 0
+    elif ind_type == "IS_FAVORABLE_MONTH":
+        return (
+            data["IS_FAVORABLE_MONTH"].iloc[idx]
+            if "IS_FAVORABLE_MONTH" in data.columns
+            else 0
+        )
+    elif ind_type == "DAYS_TO_EVENT":
+        event = config.get("event", "").upper()
+        col = f"DAYS_TO_{event}"
+        return data[col].iloc[idx] if col in data.columns else 999
+    elif ind_type == "DAYS_FROM_EVENT":
+        event = config.get("event", "").upper()
+        col = f"DAYS_FROM_{event}"
+        return data[col].iloc[idx] if col in data.columns else 999
+    elif ind_type == "IS_EVENT_WINDOW":
+        event = config.get("event", "").upper()
+        col = f"IS_WINDOW_{event}"
+        return data[col].iloc[idx] if col in data.columns else 0
     else:
         key = f"{ind_type}_{period}"
         return data[key].iloc[idx] if key in data.columns else 0
@@ -405,6 +531,7 @@ def run_backtest_with_lib(
     # Prepare data
     df = prepare_data_for_backtest(data)
     df = add_indicators_to_data(df, configs)
+    df = add_seasonal_columns(df, strategy)
 
     # Configure strategy
     DynamicStrategy.entry_logic = strategy.get("entryLogic", {})

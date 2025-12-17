@@ -31,8 +31,10 @@ import {
   deleteStrategy,
   getDateRange,
   linkBacktestsToStrategy,
+  getPrebuiltStrategies,
   type SavedStrategy,
   type DateRangeResponse,
+  type PrebuiltStrategy,
 } from "@/lib/api/backtest"
 import { useToast } from "@/hooks/use-toast"
 import type {
@@ -43,6 +45,7 @@ import type {
   LogicGroup,
 } from "@/types"
 import { StrategyIndicatorType, StrategyComparator } from "@/types"
+import { useSession } from "@/lib/auth-client"
 
 // Default Strategy: RSI Oversold + EMA Trend Filter
 const DEFAULT_STRATEGY: VisualStrategy = {
@@ -92,6 +95,8 @@ const DEFAULT_STRATEGY: VisualStrategy = {
 
 export default function BacktestPage() {
   const { toast } = useToast()
+  const { data: session } = useSession()
+  const userId = session?.user?.id
   const [loading, setLoading] = useState(false)
   const [strategy, setStrategy] = useState<VisualStrategy>(DEFAULT_STRATEGY)
   const [result, setResult] = useState<VisualBacktestResult | null>(null)
@@ -106,7 +111,9 @@ export default function BacktestPage() {
   const [strategyName, setStrategyName] = useState("")
   const [strategyDescription, setStrategyDescription] = useState("")
   const [isFavorite, setIsFavorite] = useState(false)
+  const [isPrebuilt, setIsPrebuilt] = useState(false)
   const [savedStrategies, setSavedStrategies] = useState<SavedStrategy[]>([])
+  const [prebuiltStrategies, setPrebuiltStrategies] = useState<PrebuiltStrategy[]>([])
   const [loadingStrategies, setLoadingStrategies] = useState(false)
   const [currentStrategyId, setCurrentStrategyId] = useState<number | null>(null)
   const [loadedStrategyName, setLoadedStrategyName] = useState<string | null>(null)
@@ -114,6 +121,7 @@ export default function BacktestPage() {
   const [tagInput, setTagInput] = useState("")
   const [deletingStrategyId, setDeletingStrategyId] = useState<number | null>(null)
   const [showTrades, setShowTrades] = useState(false)
+  const [strategyListTab, setStrategyListTab] = useState<"my" | "prebuilt">("prebuilt")
 
   // Period selection state
   type PeriodOption = "1M" | "6M" | "1Y" | "3Y" | "MAX" | "CUSTOM"
@@ -134,6 +142,36 @@ export default function BacktestPage() {
     }
     fetchDateRange()
   }, [strategy.asset])
+
+  // Load seasonal strategy from localStorage if navigating from seasonal page
+  useEffect(() => {
+    const seasonalStrategyJson = localStorage.getItem("seasonal_strategy_to_backtest")
+    if (seasonalStrategyJson) {
+      try {
+        const seasonalStrategy = JSON.parse(seasonalStrategyJson)
+        setStrategy({
+          id: seasonalStrategy.id || "seasonal-1",
+          name: seasonalStrategy.name || "Seasonal Strategy",
+          asset: seasonalStrategy.asset || "GOLD",
+          entryLogic: seasonalStrategy.entryLogic,
+          exitLogic: seasonalStrategy.exitLogic,
+          stopLossPct: seasonalStrategy.stopLossPct || 2.0,
+          takeProfitPct: seasonalStrategy.takeProfitPct || 5.0,
+        })
+        setLoadedStrategyName(seasonalStrategy.name)
+        // Clear localStorage after loading
+        localStorage.removeItem("seasonal_strategy_to_backtest")
+        toast({
+          title: "Seasonal Strategy Loaded",
+          description: `"${seasonalStrategy.name}" is ready to backtest`,
+        })
+      } catch (error) {
+        console.error("Failed to parse seasonal strategy:", error)
+        localStorage.removeItem("seasonal_strategy_to_backtest")
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Calculate start/end dates based on period option
   const getBacktestDates = (): { startDate?: string; endDate?: string } => {
@@ -197,22 +235,24 @@ export default function BacktestPage() {
         description: `Analyzed ${response.metrics.tradesCount} trades with ${(response.metrics.winRate * 100).toFixed(1)}% win rate`,
       })
 
-      // Auto-save backtest results in background (non-blocking)
-      saveBacktest({
-        strategyId: currentStrategyId || undefined,
-        asset: strategy.asset,
-        initialCapital,
-        finalEquity: response.finalEquity,
-        totalTrades: response.metrics.tradesCount,
-        winRate: response.metrics.winRate,
-        totalReturn: response.metrics.totalReturn,
-        maxDrawdown: response.metrics.maxDrawdown,
-        sharpeRatio: response.metrics.sharpeRatio,
-        trades: response.trades as unknown as Record<string, unknown>[],
-        equityCurve: response.equityCurve as unknown as Record<string, unknown>[],
-      }).catch((err) => {
-        console.error("Failed to auto-save backtest:", err)
-      })
+      // Auto-save backtest results in background (non-blocking) - only if user is logged in
+      if (userId) {
+        saveBacktest({
+          strategyId: currentStrategyId || undefined,
+          asset: strategy.asset,
+          initialCapital,
+          finalEquity: response.finalEquity,
+          totalTrades: response.metrics.tradesCount,
+          winRate: response.metrics.winRate,
+          totalReturn: response.metrics.totalReturn,
+          maxDrawdown: response.metrics.maxDrawdown,
+          sharpeRatio: response.metrics.sharpeRatio,
+          trades: response.trades as unknown as Record<string, unknown>[],
+          equityCurve: response.equityCurve as unknown as Record<string, unknown>[],
+        }, userId).catch((err) => {
+          console.error("Failed to auto-save backtest:", err)
+        })
+      }
     } catch (error) {
       toast({
         title: "Backtest Failed",
@@ -229,6 +269,7 @@ export default function BacktestPage() {
     setStrategyName(loadedStrategyName || strategy.name)
     setStrategyDescription("")
     setIsFavorite(false)
+    setIsPrebuilt(false)
     setStrategyTags([])
     setTagInput("")
     setSaveDialogOpen(true)
@@ -269,25 +310,35 @@ export default function BacktestPage() {
         stopLossPct: strategy.stopLossPct,
         takeProfitPct: strategy.takeProfitPct,
         isFavorite,
+        isPrebuilt,
         tags: strategyTags.length > 0 ? strategyTags : undefined,
       }
 
       let saved: SavedStrategy
 
+      if (!userId) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to save strategies",
+          variant: "destructive",
+        })
+        return
+      }
+
       if (currentStrategyId) {
         // Update existing strategy
-        saved = await updateStrategy(currentStrategyId, strategyData)
+        saved = await updateStrategy(currentStrategyId, strategyData, userId)
         toast({
           title: "Strategy Updated!",
           description: `"${strategyName}" has been updated successfully`,
         })
       } else {
         // Create new strategy
-        saved = await saveStrategy(strategyData)
+        saved = await saveStrategy(strategyData, userId)
 
         // Link any orphan backtests to the newly saved strategy
         try {
-          const linkResult = await linkBacktestsToStrategy(saved.id)
+          const linkResult = await linkBacktestsToStrategy(saved.id, userId)
           if (linkResult.linked > 0) {
             console.log(`Linked ${linkResult.linked} backtest(s) to strategy ${saved.id}`)
           }
@@ -316,13 +367,17 @@ export default function BacktestPage() {
     }
   }
 
-  // Load saved strategies
+  // Load saved strategies and prebuilt strategies
   const handleOpenLoadDialog = async () => {
     setLoadDialogOpen(true)
     setLoadingStrategies(true)
     try {
-      const response = await listStrategies({ limit: 50 })
-      setSavedStrategies(response.strategies)
+      const [userResponse, prebuiltResponse] = await Promise.all([
+        userId ? listStrategies(userId, { limit: 50 }) : Promise.resolve({ strategies: [], total: 0 }),
+        getPrebuiltStrategies(),
+      ])
+      setSavedStrategies(userResponse.strategies)
+      setPrebuiltStrategies(prebuiltResponse)
     } catch (error) {
       toast({
         title: "Load Failed",
@@ -334,6 +389,26 @@ export default function BacktestPage() {
     }
   }
 
+  // Load a prebuilt strategy
+  const handleLoadPrebuiltStrategy = (prebuilt: PrebuiltStrategy) => {
+    setStrategy({
+      id: `prebuilt-${prebuilt.id}`,
+      name: prebuilt.name,
+      asset: prebuilt.asset as StrategyAsset,
+      entryLogic: prebuilt.entry_logic as LogicGroup,
+      exitLogic: prebuilt.exit_logic as LogicGroup,
+      stopLossPct: prebuilt.stop_loss_pct,
+      takeProfitPct: prebuilt.take_profit_pct,
+    })
+    setLoadedStrategyName(prebuilt.name)
+    setCurrentStrategyId(null) // Prebuilt strategies don't have a user strategy ID
+    setLoadDialogOpen(false)
+    toast({
+      title: "Strategy Loaded",
+      description: `Loaded prebuilt strategy: ${prebuilt.name}`,
+    })
+  }
+
   // Show delete confirmation
   const handleDeleteClick = (strategyId: number) => {
     setDeletingStrategyId(strategyId)
@@ -341,8 +416,9 @@ export default function BacktestPage() {
 
   // Confirm delete
   const handleConfirmDelete = async (strategyId: number) => {
+    if (!userId) return
     try {
-      await deleteStrategy(strategyId)
+      await deleteStrategy(strategyId, userId)
       setSavedStrategies((prev) => prev.filter((s) => s.id !== strategyId))
 
       // If we deleted the currently loaded strategy, clear it
@@ -405,7 +481,7 @@ export default function BacktestPage() {
 
     // Try to load the latest backtest results for this strategy
     try {
-      const backtestResponse = await listBacktests({ strategyId: saved.id, limit: 1 })
+      const backtestResponse = userId ? await listBacktests(userId, { strategyId: saved.id, limit: 1 }) : { backtests: [] }
       if (backtestResponse.backtests && backtestResponse.backtests.length > 0) {
         const latestBacktest = backtestResponse.backtests[0]
         // Reconstruct the result from saved backtest data
@@ -453,8 +529,8 @@ export default function BacktestPage() {
           <div className="flex items-center gap-5">
             {/* Title with gradient accent */}
             <div className="flex items-center gap-2">
-              <div className="w-1 h-6 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full" />
-              <h1 className="text-lg font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+              <div className="w-1 h-6 bg-linear-to-b from-indigo-500 to-purple-500 rounded-full" />
+              <h1 className="text-lg font-bold bg-linear-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
                 Strategy Backtester
               </h1>
             </div>
@@ -656,7 +732,7 @@ export default function BacktestPage() {
                   className="h-8 text-slate-600 border-slate-300 hover:bg-slate-50"
                 >
                   <Library size={14} className="mr-1.5" />
-                  My Strategies
+                  Strategy Library
                 </Button>
                 <Button
                   onClick={handleOpenSaveDialog}
@@ -866,7 +942,7 @@ export default function BacktestPage() {
               <p className="text-[11px] text-slate-400">Press Enter to add a tag</p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3 flex-wrap">
               <button
                 type="button"
                 onClick={() => setIsFavorite(!isFavorite)}
@@ -878,6 +954,15 @@ export default function BacktestPage() {
                 {isFavorite ? <Star size={14} fill="currentColor" /> : <StarOff size={14} />}
                 {isFavorite ? "Favorite" : "Add to Favorites"}
               </button>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isPrebuilt}
+                  onChange={(e) => setIsPrebuilt(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-sm text-slate-600">Mark as Prebuilt Strategy</span>
+              </label>
             </div>
           </div>
           <DialogFooter>
@@ -904,30 +989,105 @@ export default function BacktestPage() {
         </DialogContent>
       </Dialog>
 
-      {/* My Strategies Dialog */}
+      {/* Strategy Library Dialog */}
       <Dialog open={loadDialogOpen} onOpenChange={setLoadDialogOpen}>
         <DialogContent className="sm:max-w-xl max-h-[80vh]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Library size={18} className="text-indigo-600" />
-              My Strategies
+              Strategy Library
             </DialogTitle>
             <DialogDescription>
-              Select a strategy to load, or manage your saved strategies.
+              Select a prebuilt strategy or load one of your saved strategies.
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
+
+          {/* Tab Selection */}
+          <div className="flex gap-2 border-b border-slate-200 pb-2">
+            <button
+              onClick={() => setStrategyListTab("prebuilt")}
+              className={`px-3 py-1.5 text-sm font-medium rounded-t-md transition-colors ${strategyListTab === "prebuilt"
+                ? "bg-indigo-100 text-indigo-700 border-b-2 border-indigo-600"
+                : "text-slate-500 hover:text-slate-700"
+                }`}
+            >
+              Prebuilt Strategies ({prebuiltStrategies.length})
+            </button>
+            <button
+              onClick={() => setStrategyListTab("my")}
+              className={`px-3 py-1.5 text-sm font-medium rounded-t-md transition-colors ${strategyListTab === "my"
+                ? "bg-indigo-100 text-indigo-700 border-b-2 border-indigo-600"
+                : "text-slate-500 hover:text-slate-700"
+                }`}
+            >
+              My Saved ({savedStrategies.length})
+            </button>
+          </div>
+
+          <div className="py-2">
             {loadingStrategies ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 size={24} className="animate-spin text-slate-400" />
               </div>
+            ) : strategyListTab === "prebuilt" ? (
+              /* Prebuilt Strategies Tab */
+              prebuiltStrategies.length === 0 ? (
+                <div className="text-center py-8 text-slate-500">
+                  <FolderOpen size={32} className="mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No prebuilt strategies available</p>
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+                  {prebuiltStrategies.map((prebuilt) => (
+                    <button
+                      key={prebuilt.id}
+                      onClick={() => handleLoadPrebuiltStrategy(prebuilt)}
+                      className="w-full text-left p-3 rounded-lg border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50 transition-all"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-slate-800">{prebuilt.name}</span>
+                        {prebuilt.category && (
+                          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-600 capitalize">
+                            {prebuilt.category}
+                          </span>
+                        )}
+                      </div>
+                      {prebuilt.description && (
+                        <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{prebuilt.description}</p>
+                      )}
+                      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                          {prebuilt.asset}
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          SL: {prebuilt.stop_loss_pct}% | TP: {prebuilt.take_profit_pct}%
+                        </span>
+                        {prebuilt.tags && prebuilt.tags.length > 0 && (
+                          <div className="flex items-center gap-1">
+                            {prebuilt.tags.slice(0, 3).map((tag) => (
+                              <span
+                                key={tag}
+                                className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-600"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )
             ) : savedStrategies.length === 0 ? (
+              /* My Strategies Tab - Empty */
               <div className="text-center py-8 text-slate-500">
                 <FolderOpen size={32} className="mx-auto mb-2 opacity-50" />
                 <p className="text-sm">No saved strategies yet</p>
                 <p className="text-xs text-slate-400 mt-1">Save your first strategy to see it here</p>
               </div>
             ) : (
+              /* My Strategies Tab - List */
               <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
                 {savedStrategies.map((saved) => (
                   <div

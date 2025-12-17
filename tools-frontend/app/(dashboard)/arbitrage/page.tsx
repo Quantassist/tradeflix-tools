@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { StyledCard, StyledCardHeader, StyledCardContent } from "@/components/ui/styled-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,6 +11,7 @@ import { arbitrageApi } from "@/lib/api/arbitrage"
 import type { ArbitrageResponse } from "@/types"
 import { formatCurrency, formatNumber, formatPercent } from "@/lib/utils"
 import { ArbitrageSpreadChart } from "@/components/charts/arbitrage-spread-chart"
+import { ArbitrageHeatmap, MultiCommodityTracker, USDINRSensitivity, ArbitrageHistoryChart } from "@/components/arbitrage"
 import { toast } from "sonner"
 
 export default function ArbitrageCalculatorPage() {
@@ -34,6 +35,7 @@ export default function ArbitrageCalculatorPage() {
       const comexPrice = data.fair_value?.comex_price_usd
       const mcxPrice = data.arbitrage?.mcx_price
       const usdinrRate = data.fair_value?.usdinr_rate
+      const mcxSource = data.data_sources?.mcx
 
       if (!comexPrice || !usdinrRate) {
         throw new Error("Invalid response from API")
@@ -46,11 +48,17 @@ export default function ArbitrageCalculatorPage() {
         usdinr_rate: usdinrRate.toFixed(2),
       })
 
+      // Show different toast based on MCX data source
+      const isRealMcx = mcxSource === "DhanHQ"
       const mcxStatus = mcxPrice
-        ? `MCX: ₹${mcxPrice.toFixed(2)}`
+        ? `MCX: ₹${mcxPrice.toFixed(2)}${!isRealMcx ? " (estimated)" : ""}`
         : "MCX: Not available (enter manually)"
 
-      toast.success(`Live prices fetched! COMEX: $${comexPrice.toFixed(2)}, ${mcxStatus}, USD/INR: ${usdinrRate.toFixed(2)}`)
+      if (isRealMcx) {
+        toast.success(`Live prices fetched! COMEX: $${comexPrice.toFixed(2)}, ${mcxStatus}, USD/INR: ${usdinrRate.toFixed(2)}`)
+      } else {
+        toast.warning(`Prices fetched. COMEX: $${comexPrice.toFixed(2)}, ${mcxStatus}, USD/INR: ${usdinrRate.toFixed(2)}. MCX price is estimated - DhanHQ may be unavailable.`)
+      }
     } catch (error: unknown) {
       console.error("Error auto-fetching prices:", error)
       toast.error("Failed to fetch live prices. Please enter values manually.")
@@ -109,122 +117,122 @@ export default function ArbitrageCalculatorPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Modern Input Form */}
-        <Card className="border-2 hover:border-purple-200 transition-all duration-300 hover:shadow-xl">
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b">
-            <CardTitle className="flex items-center gap-2">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Info className="h-5 w-5 text-purple-600" />
-              </div>
-              Input Parameters
-            </CardTitle>
-            <CardDescription>
-              Enter market prices and parameters for analysis
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6">
+        <StyledCard variant="purple">
+          <StyledCardHeader
+            icon={Info}
+            title="Input Parameters"
+            description="Enter market prices and parameters for analysis"
+            variant="purple"
+          />
+          <StyledCardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Auto-fetch Live Prices Button */}
               <Button
                 type="button"
                 variant="outline"
-                className="w-full border-2 border-dashed border-purple-300 hover:border-purple-500 hover:bg-purple-50 transition-all duration-300"
+                className="w-full border-2 border-dashed border-purple-400 hover:border-purple-500 hover:bg-purple-50 transition-all duration-300 py-5"
                 onClick={handleAutoFetch}
                 disabled={autoFetchLoading}
               >
                 {autoFetchLoading ? (
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-2 text-purple-600">
                     <RefreshCw className="h-4 w-4 animate-spin" />
-                    Fetching Live Prices...
+                    Fetching Live Prices from COMEX & MCX...
                   </span>
                 ) : (
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-2 text-purple-600">
                     <RefreshCw className="h-4 w-4" />
                     Auto-Fetch COMEX, MCX & USD/INR
                   </span>
                 )}
               </Button>
 
-              <div className="space-y-2">
-                <Label htmlFor="comex_price_usd">COMEX Price ($/oz)</Label>
-                <Input
-                  id="comex_price_usd"
-                  type="number"
-                  step="0.01"
-                  placeholder="e.g., 2000"
-                  value={formData.comex_price_usd}
-                  onChange={(e) =>
-                    setFormData({ ...formData, comex_price_usd: e.target.value })
-                  }
-                  required
-                />
-                <p className="text-xs text-muted-foreground">
-                  International gold price per troy ounce
-                </p>
+              {/* Price Data Group */}
+              <div className="p-4 rounded-xl bg-slate-50 border space-y-3">
+                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">Price Data</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label htmlFor="comex_price_usd" className="text-xs text-blue-600 font-medium">COMEX ($/oz)</Label>
+                    <Input
+                      id="comex_price_usd"
+                      type="number"
+                      step="0.01"
+                      placeholder="2650.00"
+                      value={formData.comex_price_usd}
+                      onChange={(e) =>
+                        setFormData({ ...formData, comex_price_usd: e.target.value })
+                      }
+                      required
+                      className="bg-white border-blue-200 focus:border-blue-400"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="mcx_price_inr" className="text-xs text-purple-600 font-medium">MCX (₹/10g)</Label>
+                    <Input
+                      id="mcx_price_inr"
+                      type="number"
+                      step="0.01"
+                      placeholder="75500.00"
+                      value={formData.mcx_price_inr}
+                      onChange={(e) =>
+                        setFormData({ ...formData, mcx_price_inr: e.target.value })
+                      }
+                      required
+                      className="bg-white border-purple-200 focus:border-purple-400"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="usdinr_rate" className="text-xs text-green-600 font-medium">USD/INR Rate</Label>
+                  <Input
+                    id="usdinr_rate"
+                    type="number"
+                    step="0.01"
+                    placeholder="84.50"
+                    value={formData.usdinr_rate}
+                    onChange={(e) =>
+                      setFormData({ ...formData, usdinr_rate: e.target.value })
+                    }
+                    required
+                    className="bg-white border-green-200 focus:border-green-400"
+                  />
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="mcx_price_inr">MCX Price (₹/10g)</Label>
-                <Input
-                  id="mcx_price_inr"
-                  type="number"
-                  step="0.01"
-                  placeholder="e.g., 62500"
-                  value={formData.mcx_price_inr}
-                  onChange={(e) =>
-                    setFormData({ ...formData, mcx_price_inr: e.target.value })
-                  }
-                  required
-                />
-                <p className="text-xs text-muted-foreground">
-                  Domestic MCX gold price per 10 grams
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="usdinr_rate">USD/INR Rate</Label>
-                <Input
-                  id="usdinr_rate"
-                  type="number"
-                  step="0.01"
-                  placeholder="e.g., 83.50"
-                  value={formData.usdinr_rate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, usdinr_rate: e.target.value })
-                  }
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="import_duty_percent">Import Duty (%)</Label>
-                <Input
-                  id="import_duty_percent"
-                  type="number"
-                  step="0.1"
-                  placeholder="e.g., 2.5"
-                  value={formData.import_duty_percent}
-                  onChange={(e) =>
-                    setFormData({ ...formData, import_duty_percent: e.target.value })
-                  }
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="contract_size_grams">Quote Unit (grams)</Label>
-                <Input
-                  id="contract_size_grams"
-                  type="number"
-                  placeholder="e.g., 10"
-                  value={formData.contract_size_grams}
-                  onChange={(e) =>
-                    setFormData({ ...formData, contract_size_grams: e.target.value })
-                  }
-                  required
-                />
-                <p className="text-xs text-muted-foreground">
-                  MCX Gold is quoted per 10 grams
-                </p>
+              {/* Parameters Group */}
+              <div className="p-4 rounded-xl bg-slate-50 border space-y-3">
+                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">Parameters</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label htmlFor="import_duty_percent" className="text-xs text-orange-600 font-medium">Import Duty (%)</Label>
+                    <Input
+                      id="import_duty_percent"
+                      type="number"
+                      step="0.1"
+                      placeholder="2.5"
+                      value={formData.import_duty_percent}
+                      onChange={(e) =>
+                        setFormData({ ...formData, import_duty_percent: e.target.value })
+                      }
+                      required
+                      className="bg-white border-orange-200 focus:border-orange-400"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="contract_size_grams" className="text-xs text-slate-600 font-medium">Quote Unit (g)</Label>
+                    <Input
+                      id="contract_size_grams"
+                      type="number"
+                      placeholder="10"
+                      value={formData.contract_size_grams}
+                      onChange={(e) =>
+                        setFormData({ ...formData, contract_size_grams: e.target.value })
+                      }
+                      required
+                      className="bg-white"
+                    />
+                  </div>
+                </div>
               </div>
 
               <Button
@@ -245,23 +253,18 @@ export default function ArbitrageCalculatorPage() {
                 )}
               </Button>
             </form>
-          </CardContent>
-        </Card>
+          </StyledCardContent>
+        </StyledCard>
 
         {/* Modern Results Card */}
-        <Card className="border-2 hover:border-orange-200 transition-all duration-300 hover:shadow-xl">
-          <CardHeader className="bg-gradient-to-r from-orange-50 to-yellow-50 border-b">
-            <CardTitle className="flex items-center gap-2">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <Sparkles className="h-5 w-5 text-orange-600" />
-              </div>
-              Arbitrage Analysis
-            </CardTitle>
-            <CardDescription>
-              {result ? "Live market opportunity analysis" : "Results will appear here after calculation"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6">
+        <StyledCard variant="orange">
+          <StyledCardHeader
+            icon={Sparkles}
+            title="Arbitrage Analysis"
+            description={result ? "Live market opportunity analysis" : "Results will appear here after calculation"}
+            variant="orange"
+          />
+          <StyledCardContent>
             {result ? (
               <div className="space-y-6 animate-in slide-in-from-bottom duration-500">
                 {/* Modern Signal Status with Gradient */}
@@ -398,8 +401,8 @@ export default function ArbitrageCalculatorPage() {
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </StyledCardContent>
+        </StyledCard>
       </div>
 
       {/* Chart Visualization */}
@@ -412,28 +415,49 @@ export default function ArbitrageCalculatorPage() {
         />
       )}
 
+      {/* Arbitrage Heatmap */}
+      {result && (
+        <ArbitrageHeatmap
+          premiumPercent={result.arbitrage.premium_percent}
+          premium={result.arbitrage.premium}
+          signal={result.arbitrage.signal}
+          commodity="GOLD"
+        />
+      )}
+
+      {/* Multi-Commodity Tracker & USDINR Sensitivity - Side by side on large screens */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <MultiCommodityTracker />
+        <USDINRSensitivity
+          initialComexPrice={result?.fair_value?.comex_price_usd}
+          initialUsdinr={result?.fair_value?.usdinr_rate}
+        />
+      </div>
+
+      {/* Historical Arbitrage Data */}
+      <ArbitrageHistoryChart />
+
       {/* Modern Info Card */}
-      <Card className="border-2 border-indigo-100 bg-gradient-to-br from-indigo-50 to-purple-50 hover:shadow-xl transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <div className="p-2 bg-indigo-100 rounded-lg">
-              <Info className="h-5 w-5 text-indigo-600" />
-            </div>
-            About Arbitrage Trading
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm">
-          <p>
-            Arbitrage is the simultaneous purchase and sale of the same asset in different markets to profit from price differences.
-          </p>
-          <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-            <li>Fair Value = (International Price × Exchange Rate) + Import Duty + Transport Cost</li>
-            <li>Premium = Domestic Price - Fair Value</li>
-            <li>Positive premium indicates domestic market is expensive</li>
-            <li>Negative premium indicates import opportunity</li>
-          </ul>
-        </CardContent>
-      </Card>
+      <StyledCard variant="indigo">
+        <StyledCardHeader
+          icon={Info}
+          title="About Arbitrage Trading"
+          variant="indigo"
+        />
+        <StyledCardContent>
+          <div className="space-y-3 text-sm">
+            <p>
+              Arbitrage is the simultaneous purchase and sale of the same asset in different markets to profit from price differences.
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+              <li>Fair Value = (International Price × Exchange Rate) + Import Duty + Transport Cost</li>
+              <li>Premium = Domestic Price - Fair Value</li>
+              <li>Positive premium indicates domestic market is expensive</li>
+              <li>Negative premium indicates import opportunity</li>
+            </ul>
+          </div>
+        </StyledCardContent>
+      </StyledCard>
     </div>
   )
 }

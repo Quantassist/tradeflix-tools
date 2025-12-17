@@ -30,6 +30,7 @@ YAHOO_SYMBOLS = {
     "SILVER": "SI=F",
     "CRUDE": "CL=F",
     "COPPER": "HG=F",
+    "NATURALGAS": "NG=F",
 }
 
 
@@ -275,25 +276,351 @@ async def get_auto_pivots(
         )
 
 
+@router.get("/multi-timeframe")
+async def get_multi_timeframe_pivots(
+    symbol: str = Query(description="Symbol (GOLD, SILVER, CRUDE, etc.)"),
+    exchange: str = Query(default="COMEX", description="COMEX or MCX"),
+):
+    """
+    Get pivot levels for all timeframes (daily, weekly, monthly) with confluence detection.
+
+    Returns pivot levels for each timeframe and identifies confluence zones where
+    multiple timeframe levels align.
+    """
+    try:
+        results = {}
+        all_levels = []
+
+        # Fetch pivots for each timeframe
+        for timeframe in ["daily", "weekly", "monthly"]:
+            ohlc_data = await fetch_previous_ohlc(symbol, timeframe, exchange)
+
+            high = ohlc_data["high"]
+            low = ohlc_data["low"]
+            close = ohlc_data["close"]
+
+            cpr_data = pivot_service.calculate_cpr(high, low, close)
+            floor_data = pivot_service.calculate_floor_pivots(high, low, close)
+            fib_data = pivot_service.calculate_fibonacci(high, low, direction="up")
+
+            results[timeframe] = {
+                "ohlc": {"high": high, "low": low, "close": close},
+                "ohlc_date": ohlc_data["date"].isoformat(),
+                "cpr": cpr_data,
+                "floor_pivots": floor_data,
+                "fibonacci": fib_data,
+            }
+
+            # Collect all levels for confluence detection
+            tf_prefix = timeframe[0].upper()  # D, W, M
+            all_levels.extend(
+                [
+                    {
+                        "name": f"{tf_prefix}_CPR_TC",
+                        "value": cpr_data["tc"],
+                        "timeframe": timeframe,
+                        "type": "cpr",
+                    },
+                    {
+                        "name": f"{tf_prefix}_CPR_Pivot",
+                        "value": cpr_data["pivot"],
+                        "timeframe": timeframe,
+                        "type": "cpr",
+                    },
+                    {
+                        "name": f"{tf_prefix}_CPR_BC",
+                        "value": cpr_data["bc"],
+                        "timeframe": timeframe,
+                        "type": "cpr",
+                    },
+                    {
+                        "name": f"{tf_prefix}_R3",
+                        "value": floor_data["r3"],
+                        "timeframe": timeframe,
+                        "type": "resistance",
+                    },
+                    {
+                        "name": f"{tf_prefix}_R2",
+                        "value": floor_data["r2"],
+                        "timeframe": timeframe,
+                        "type": "resistance",
+                    },
+                    {
+                        "name": f"{tf_prefix}_R1",
+                        "value": floor_data["r1"],
+                        "timeframe": timeframe,
+                        "type": "resistance",
+                    },
+                    {
+                        "name": f"{tf_prefix}_S1",
+                        "value": floor_data["s1"],
+                        "timeframe": timeframe,
+                        "type": "support",
+                    },
+                    {
+                        "name": f"{tf_prefix}_S2",
+                        "value": floor_data["s2"],
+                        "timeframe": timeframe,
+                        "type": "support",
+                    },
+                    {
+                        "name": f"{tf_prefix}_S3",
+                        "value": floor_data["s3"],
+                        "timeframe": timeframe,
+                        "type": "support",
+                    },
+                    {
+                        "name": f"{tf_prefix}_Fib_618",
+                        "value": fib_data["level_618"],
+                        "timeframe": timeframe,
+                        "type": "fibonacci",
+                    },
+                ]
+            )
+
+        # Detect confluence zones (levels within 0.3% of each other from different timeframes)
+        confluence_zones = []
+        confluence_threshold = 0.003  # 0.3%
+
+        for i, level1 in enumerate(all_levels):
+            for level2 in all_levels[i + 1 :]:
+                if level1["timeframe"] != level2["timeframe"]:
+                    avg_value = (level1["value"] + level2["value"]) / 2
+                    diff_pct = abs(level1["value"] - level2["value"]) / avg_value
+
+                    if diff_pct <= confluence_threshold:
+                        # Check if this confluence zone already exists
+                        zone_exists = False
+                        for zone in confluence_zones:
+                            if (
+                                abs(zone["value"] - avg_value) / avg_value
+                                <= confluence_threshold
+                            ):
+                                # Add to existing zone
+                                if level1["name"] not in [
+                                    lvl["name"] for lvl in zone["levels"]
+                                ]:
+                                    zone["levels"].append(level1)
+                                if level2["name"] not in [
+                                    lvl["name"] for lvl in zone["levels"]
+                                ]:
+                                    zone["levels"].append(level2)
+                                zone["value"] = sum(
+                                    lvl["value"] for lvl in zone["levels"]
+                                ) / len(zone["levels"])
+                                zone["strength"] = len(zone["levels"])
+                                zone_exists = True
+                                break
+
+                        if not zone_exists:
+                            confluence_zones.append(
+                                {
+                                    "value": round(avg_value, 2),
+                                    "levels": [level1, level2],
+                                    "strength": 2,
+                                    "description": f"{level1['name']} ≈ {level2['name']}",
+                                }
+                            )
+
+        # Sort confluence zones by strength (number of aligned levels)
+        confluence_zones.sort(key=lambda x: x["strength"], reverse=True)
+
+        # Get current price
+        yahoo = YahooFinanceProvider()
+        yahoo_symbol = YAHOO_SYMBOLS.get(symbol.upper(), f"{symbol}=F")
+        current_price_data = await yahoo.get_price(yahoo_symbol, "USD")
+        current_price = float(current_price_data.price)
+
+        # Find nearest confluence zone
+        nearest_confluence = None
+        if confluence_zones:
+            nearest_confluence = min(
+                confluence_zones, key=lambda z: abs(z["value"] - current_price)
+            )
+            nearest_confluence["distance"] = round(
+                abs(nearest_confluence["value"] - current_price), 2
+            )
+            nearest_confluence["distance_percent"] = round(
+                (abs(nearest_confluence["value"] - current_price) / current_price)
+                * 100,
+                3,
+            )
+
+        return {
+            "symbol": symbol.upper(),
+            "exchange": exchange.upper(),
+            "current_price": current_price,
+            "timeframes": results,
+            "confluence_zones": [
+                {
+                    "value": round(z["value"], 2),
+                    "strength": z["strength"],
+                    "levels": [
+                        {
+                            "name": lvl["name"],
+                            "value": lvl["value"],
+                            "timeframe": lvl["timeframe"],
+                        }
+                        for lvl in z["levels"]
+                    ],
+                    "description": " + ".join([lvl["name"] for lvl in z["levels"]]),
+                }
+                for z in confluence_zones[:10]  # Top 10 confluence zones
+            ],
+            "nearest_confluence": nearest_confluence,
+            "market_bias": pivot_service.get_level_bias(
+                current_price, results["daily"]["cpr"]
+            ),
+        }
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error calculating multi-timeframe pivots: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Error calculating pivots: {str(e)}"
+        )
+
+
 @router.get("/history")
-async def get_pivot_history(symbol: str, timeframe: str = "daily", days: int = 30):
+async def get_pivot_history(
+    symbol: str,
+    timeframe: str = "daily",
+    days: int = 30,
+    exchange: str = Query("MCX", description="Exchange: MCX or COMEX"),
+    tolerance: float = Query(0.3, description="Tolerance percentage for level testing"),
+):
     """
     Get historical pivot levels and their accuracy statistics
 
-    - **symbol**: Trading symbol (GOLD, SILVER, etc.)
-    - **timeframe**: daily, weekly, or monthly
-    - **days**: Number of days of history to retrieve
+    Fetches historical OHLC data and calculates real pivot accuracy statistics
+    by analyzing how often each level was tested and respected.
 
-    Returns historical pivot data with accuracy metrics.
+    - **symbol**: Trading symbol (GOLD, SILVER, CRUDE, COPPER, etc.)
+    - **timeframe**: daily, weekly, or monthly
+    - **days**: Number of days of history to analyze (max 365)
+    - **exchange**: MCX (India) or COMEX (International)
+    - **tolerance**: Percentage tolerance for level testing (default 0.3%)
+
+    Returns historical pivot data with real accuracy metrics.
     """
-    # TODO: Implement database query for historical pivots
-    return {
-        "message": "Historical pivot data - to be implemented with database",
-        "symbol": symbol.upper(),
-        "timeframe": timeframe.lower(),
-        "days": days,
-        "note": "This endpoint will return historical pivot levels and statistics on how often each level was respected",
-    }
+    symbol = symbol.upper()
+    timeframe = timeframe.lower()
+    days = min(days, 365)  # Cap at 1 year
+
+    try:
+        # Fetch historical data
+        today = date.today()
+        # Add buffer days for weekends/holidays
+        start_date = today - timedelta(days=int(days * 1.5))
+        end_date = today
+
+        historical_data = []
+
+        if exchange.upper() == "MCX":
+            # Use DhanHQ for MCX data
+            if not settings.dhan_client_id or not settings.dhan_access_token:
+                raise HTTPException(
+                    status_code=503,
+                    detail="DhanHQ credentials not configured. Set DHAN_CLIENT_ID and DHAN_ACCESS_TOKEN in .env file.",
+                )
+
+            dhan = DhanHQProvider(
+                client_id=settings.dhan_client_id,
+                access_token=settings.dhan_access_token,
+            )
+
+            result = await dhan.get_historical_data(
+                symbol=symbol, start_date=start_date, end_date=end_date, interval="1d"
+            )
+
+            # Convert to list of dicts for accuracy calculation
+            for dp in result.data_points:
+                historical_data.append(
+                    {
+                        "date": dp.date,
+                        "open": float(dp.open),
+                        "high": float(dp.high),
+                        "low": float(dp.low),
+                        "close": float(dp.close),
+                    }
+                )
+        else:
+            # Use Yahoo Finance for COMEX data
+            yahoo = YahooFinanceProvider()
+            yahoo_symbol = YAHOO_SYMBOLS.get(symbol, f"{symbol}=F")
+
+            result = await yahoo.get_historical_data(
+                symbol=yahoo_symbol,
+                start_date=start_date,
+                end_date=end_date,
+                interval="1d",
+            )
+
+            # Convert to list of dicts
+            for dp in result.data_points:
+                historical_data.append(
+                    {
+                        "date": dp.date,
+                        "open": float(dp.open),
+                        "high": float(dp.high),
+                        "low": float(dp.low),
+                        "close": float(dp.close),
+                    }
+                )
+
+        # Ensure data is sorted by date ascending
+        historical_data.sort(key=lambda x: x["date"])
+
+        # Limit to requested number of days
+        if len(historical_data) > days + 1:
+            historical_data = historical_data[-(days + 1) :]
+
+        if len(historical_data) < 2:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Insufficient historical data for {symbol}. Need at least 2 days.",
+            )
+
+        # Calculate real accuracy statistics
+        accuracy_result = PivotService.calculate_pivot_accuracy(
+            historical_data=historical_data, tolerance_percent=tolerance
+        )
+
+        if "error" in accuracy_result:
+            raise HTTPException(status_code=400, detail=accuracy_result["error"])
+
+        # Build response
+        return {
+            "symbol": symbol,
+            "timeframe": timeframe,
+            "exchange": exchange.upper(),
+            "period_analyzed": f"Last {len(historical_data) - 1} trading days",
+            "total_sessions": accuracy_result["total_sessions_analyzed"],
+            "level_accuracy": accuracy_result["level_accuracy"],
+            "cpr_statistics": accuracy_result["cpr_statistics"],
+            "best_performing_levels": accuracy_result["best_performing_levels"],
+            "notes": f"Accuracy calculated with {tolerance}% tolerance. A level is 'respected' if price reverses after testing it.",
+            "data_source": "DhanHQ" if exchange.upper() == "MCX" else "Yahoo Finance",
+        }
+
+    except HTTPException:
+        raise
+    except ProviderError as e:
+        logger.error(
+            f"Provider error fetching historical data for {symbol} on {exchange}: {e}"
+        )
+        raise HTTPException(
+            status_code=503,
+            detail=f"Data provider error for {symbol}: {str(e)}. For MCX, ensure security IDs are updated in dhanhq_provider.py",
+        )
+    except Exception as e:
+        logger.error(
+            f"Error calculating pivot accuracy for {symbol}: {e}", exc_info=True
+        )
+        raise HTTPException(
+            status_code=500, detail=f"Error calculating pivot accuracy: {str(e)}"
+        )
 
 
 @router.post("/nearest-level")

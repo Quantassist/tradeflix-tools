@@ -539,11 +539,13 @@ async def run_backtest(request: BacktestRequest):
 
 @router.get("/templates")
 async def get_strategy_templates():
-    """Get pre-built strategy templates"""
+    """Get pre-built strategy templates including pivot-based strategies"""
     templates = [
+        # Technical Indicator Strategies
         {
             "name": "RSI Oversold/Overbought",
             "description": "Buy when RSI < 30, Sell when RSI > 70",
+            "category": "momentum",
             "entry_conditions": [{"indicator": "RSI", "operator": "<", "value": 30}],
             "exit_conditions": [
                 {"type": "TAKE_PROFIT", "value": 2.0},
@@ -553,6 +555,7 @@ async def get_strategy_templates():
         {
             "name": "Moving Average Crossover",
             "description": "Buy when price crosses above 50 SMA",
+            "category": "trend",
             "entry_conditions": [
                 {"indicator": "SMA", "operator": "CROSSES_ABOVE", "value": 50}
             ],
@@ -561,6 +564,7 @@ async def get_strategy_templates():
         {
             "name": "Trend Following",
             "description": "Buy on strong uptrend with RSI confirmation",
+            "category": "trend",
             "entry_conditions": [
                 {"indicator": "SMA", "operator": "CROSSES_ABOVE", "value": 20},
                 {"indicator": "RSI", "operator": ">", "value": 50},
@@ -569,6 +573,201 @@ async def get_strategy_templates():
                 {"type": "TAKE_PROFIT", "value": 3.0},
                 {"type": "STOP_LOSS", "value": 1.5},
             ],
+        },
+        # CPR-Based Strategies
+        {
+            "name": "CPR Breakout Long",
+            "description": "Enter long when price breaks above CPR Top Central (TC) with momentum confirmation",
+            "category": "pivot",
+            "strategy_type": "cpr",
+            "entry_conditions": [
+                {"indicator": "PRICE", "operator": ">", "reference": "CPR_TC"},
+                {"indicator": "RSI", "operator": ">", "value": 50},
+            ],
+            "exit_conditions": [
+                {"type": "TAKE_PROFIT", "value": 1.5},
+                {"type": "STOP_LOSS", "value": 0.5},
+            ],
+            "notes": "Best used on narrow CPR days indicating trending conditions",
+        },
+        {
+            "name": "CPR Breakout Short",
+            "description": "Enter short when price breaks below CPR Bottom Central (BC)",
+            "category": "pivot",
+            "strategy_type": "cpr",
+            "entry_conditions": [
+                {"indicator": "PRICE", "operator": "<", "reference": "CPR_BC"},
+                {"indicator": "RSI", "operator": "<", "value": 50},
+            ],
+            "exit_conditions": [
+                {"type": "TAKE_PROFIT", "value": 1.5},
+                {"type": "STOP_LOSS", "value": 0.5},
+            ],
+            "notes": "Best used on narrow CPR days indicating trending conditions",
+        },
+        {
+            "name": "CPR Rejection Long",
+            "description": "Buy when price rejects from CPR BC (Bottom Central) with bullish candle",
+            "category": "pivot",
+            "strategy_type": "cpr",
+            "entry_conditions": [
+                {"indicator": "PRICE", "operator": ">", "reference": "CPR_BC"},
+                {"indicator": "PRICE", "operator": "<", "reference": "CPR_PIVOT"},
+            ],
+            "exit_conditions": [
+                {"type": "TAKE_PROFIT", "value": 1.0},
+                {"type": "STOP_LOSS", "value": 0.3},
+            ],
+            "notes": "Look for bullish reversal candle at BC level",
+        },
+        {
+            "name": "CPR Width Strategy",
+            "description": "Trade range on wide CPR days, trade breakout on narrow CPR days",
+            "category": "pivot",
+            "strategy_type": "cpr",
+            "entry_conditions": [
+                {
+                    "indicator": "CPR_WIDTH",
+                    "operator": "<",
+                    "value": 0.5,
+                    "unit": "percent",
+                },
+            ],
+            "exit_conditions": [
+                {"type": "TAKE_PROFIT", "value": 2.0},
+                {"type": "STOP_LOSS", "value": 1.0},
+            ],
+            "notes": "Narrow CPR (<0.5%) = trending day likely, Wide CPR (>1%) = range-bound day",
+        },
+        # Floor Pivot Strategies
+        {
+            "name": "R1 Resistance Rejection",
+            "description": "Short when price rejects from R1 resistance level",
+            "category": "pivot",
+            "strategy_type": "floor",
+            "entry_conditions": [
+                {"indicator": "PRICE", "operator": "<", "reference": "R1"},
+                {"indicator": "PREV_HIGH", "operator": ">=", "reference": "R1"},
+            ],
+            "exit_conditions": [
+                {"type": "TAKE_PROFIT", "value": 1.0},
+                {"type": "STOP_LOSS", "value": 0.5},
+            ],
+            "notes": "Enter short after price touches R1 and forms bearish candle",
+        },
+        {
+            "name": "S1 Support Bounce",
+            "description": "Long when price bounces from S1 support level",
+            "category": "pivot",
+            "strategy_type": "floor",
+            "entry_conditions": [
+                {"indicator": "PRICE", "operator": ">", "reference": "S1"},
+                {"indicator": "PREV_LOW", "operator": "<=", "reference": "S1"},
+            ],
+            "exit_conditions": [
+                {"type": "TAKE_PROFIT", "value": 1.0},
+                {"type": "STOP_LOSS", "value": 0.5},
+            ],
+            "notes": "Enter long after price touches S1 and forms bullish candle",
+        },
+        {
+            "name": "Pivot Point Breakout",
+            "description": "Trade breakout from central pivot point",
+            "category": "pivot",
+            "strategy_type": "floor",
+            "entry_conditions": [
+                {"indicator": "PRICE", "operator": ">", "reference": "PIVOT"},
+                {
+                    "indicator": "VOLUME",
+                    "operator": ">",
+                    "value": 1.5,
+                    "unit": "avg_multiple",
+                },
+            ],
+            "exit_conditions": [
+                {"type": "TAKE_PROFIT", "value": 1.5},
+                {"type": "STOP_LOSS", "value": 0.75},
+            ],
+            "notes": "Enter on breakout above pivot with volume confirmation, target R1",
+        },
+        # Fibonacci Strategies
+        {
+            "name": "Golden Zone Entry (61.8%)",
+            "description": "Buy when price retraces to 61.8-78.6% Fibonacci zone",
+            "category": "pivot",
+            "strategy_type": "fibonacci",
+            "entry_conditions": [
+                {"indicator": "PRICE", "operator": "<=", "reference": "FIB_618"},
+                {"indicator": "PRICE", "operator": ">=", "reference": "FIB_786"},
+            ],
+            "exit_conditions": [
+                {"type": "TAKE_PROFIT", "value": 2.0},
+                {"type": "STOP_LOSS", "value": 1.0},
+            ],
+            "notes": "The 61.8% level is the 'golden ratio' - strongest support/resistance",
+        },
+        {
+            "name": "50% Retracement Play",
+            "description": "Trade reversal at 50% Fibonacci retracement level",
+            "category": "pivot",
+            "strategy_type": "fibonacci",
+            "entry_conditions": [
+                {
+                    "indicator": "PRICE",
+                    "operator": "~=",
+                    "reference": "FIB_500",
+                    "tolerance": 0.5,
+                },
+            ],
+            "exit_conditions": [
+                {"type": "TAKE_PROFIT", "value": 1.5},
+                {"type": "STOP_LOSS", "value": 0.75},
+            ],
+            "notes": "Classic support/resistance at 50% level",
+        },
+        {
+            "name": "Fibonacci Extension Target",
+            "description": "Use 127.2% and 161.8% as profit targets after breakout",
+            "category": "pivot",
+            "strategy_type": "fibonacci",
+            "entry_conditions": [
+                {"indicator": "PRICE", "operator": ">", "reference": "FIB_0"},
+            ],
+            "exit_conditions": [
+                {"type": "TAKE_PROFIT", "reference": "FIB_EXT_1272"},
+                {"type": "STOP_LOSS", "value": 1.0},
+            ],
+            "notes": "After breakout above swing high, target extension levels",
+        },
+        {
+            "name": "Failed Retracement Continuation",
+            "description": "If price fails to reach 38.2%, strong trend continuation signal",
+            "category": "pivot",
+            "strategy_type": "fibonacci",
+            "entry_conditions": [
+                {"indicator": "PRICE", "operator": ">", "reference": "FIB_382"},
+                {"indicator": "RSI", "operator": ">", "value": 60},
+            ],
+            "exit_conditions": [
+                {"type": "TAKE_PROFIT", "value": 2.5},
+                {"type": "STOP_LOSS", "value": 1.0},
+            ],
+            "notes": "Shallow retracement indicates strong trend momentum",
+        },
+        # Multi-Timeframe Confluence
+        {
+            "name": "Multi-Timeframe Confluence",
+            "description": "Trade when daily and weekly pivot levels align within 0.5%",
+            "category": "pivot",
+            "strategy_type": "confluence",
+            "entry_conditions": [
+                {"indicator": "CONFLUENCE_STRENGTH", "operator": ">=", "value": 2},
+            ],
+            "exit_conditions": [
+                {"type": "TAKE_PROFIT", "value": 1.5},
+                {"type": "STOP_LOSS", "value": 0.5},
+            ],
+            "notes": "High-probability levels where multiple timeframes align",
         },
     ]
     return templates

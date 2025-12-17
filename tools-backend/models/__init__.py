@@ -6,6 +6,7 @@ from .alert import Alert, AlertRule
 from .seasonal import SeasonalEvent, SeasonalAnalysis, EventType, RecurrenceType
 from .metals import MetalsPriceSpot
 from .cot import COTReportDisaggFuturesOnly
+from .arbitrage import ArbitrageHistory, ArbitrageAlert
 
 __all__ = [
     "User",
@@ -20,4 +21,6 @@ __all__ = [
     "RecurrenceType",
     "MetalsPriceSpot",
     "COTReportDisaggFuturesOnly",
+    "ArbitrageHistory",
+    "ArbitrageAlert",
 ]

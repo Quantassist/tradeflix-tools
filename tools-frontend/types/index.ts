@@ -274,6 +274,7 @@ export type FloorPivotLevels = {
 }
 
 export type FibonacciLevels = {
+  // Retracement levels
   level_0: number
   level_236: number
   level_382: number
@@ -281,6 +282,11 @@ export type FibonacciLevels = {
   level_618: number
   level_786: number
   level_100: number
+  // Extension levels
+  ext_1272?: number
+  ext_1618?: number
+  ext_2000?: number
+  ext_2618?: number
 }
 
 export type PivotResponse = {
@@ -298,6 +304,74 @@ export type PivotResponse = {
     distance: number
     distance_percent: number
   } | null
+}
+
+// Multi-timeframe pivot types
+export type TimeframePivotData = {
+  ohlc: OHLCInput
+  ohlc_date: string
+  cpr: CPRLevels
+  floor_pivots: FloorPivotLevels
+  fibonacci: FibonacciLevels
+}
+
+export type ConfluenceLevel = {
+  name: string
+  value: number
+  timeframe: string
+}
+
+export type ConfluenceZone = {
+  value: number
+  strength: number
+  levels: ConfluenceLevel[]
+  description: string
+}
+
+export type NearestConfluence = ConfluenceZone & {
+  distance: number
+  distance_percent: number
+}
+
+export type MultiTimeframePivotResponse = {
+  symbol: string
+  exchange: string
+  current_price: number
+  timeframes: {
+    daily: TimeframePivotData
+    weekly: TimeframePivotData
+    monthly: TimeframePivotData
+  }
+  confluence_zones: ConfluenceZone[]
+  nearest_confluence: NearestConfluence | null
+  market_bias: string
+}
+
+// Pivot Accuracy Types
+export type LevelAccuracy = {
+  times_tested: number
+  times_respected: number
+  accuracy_percent: number
+  avg_rejection_distance: number
+}
+
+export type CPRStatistics = {
+  narrow_cpr_days: number
+  wide_cpr_days: number
+  normal_cpr_days: number
+  narrow_cpr_trending_accuracy: number
+  wide_cpr_range_accuracy: number
+}
+
+export type PivotAccuracyResponse = {
+  symbol: string
+  timeframe: string
+  period_analyzed: string
+  total_sessions: number
+  level_accuracy: Record<string, LevelAccuracy>
+  cpr_statistics: CPRStatistics
+  best_performing_levels: string[]
+  notes: string
 }
 
 // Arbitrage Types
@@ -383,6 +457,170 @@ export type CorrelationMatrixResponse = {
   end_date: string
   correlations: CorrelationPair[]
   matrix: Record<string, Record<string, number>>
+}
+
+// Rolling Correlation Types
+export type RollingCorrelationRequest = {
+  asset1: string
+  asset2: string
+  window_days: number
+  period_days: number
+}
+
+export type RollingCorrelationPoint = {
+  date: string
+  correlation: number
+  strength: string
+}
+
+export type RollingCorrelationResponse = {
+  asset1: string
+  asset2: string
+  window_days: number
+  period_days: number
+  data_points: RollingCorrelationPoint[]
+  current_correlation: number
+  avg_correlation: number
+  max_correlation: number
+  min_correlation: number
+}
+
+// Beta Calculation Types
+export type BetaCalculationRequest = {
+  asset: string
+  benchmark: string
+  period_days: number
+}
+
+export type BetaCalculationResponse = {
+  asset: string
+  benchmark: string
+  period_days: number
+  beta: number
+  alpha: number
+  r_squared: number
+  correlation: number
+  interpretation: string
+  volatility_ratio: number
+}
+
+// Diversification Analysis Types
+export type DiversificationAnalysisRequest = {
+  assets: string[]
+  period_days: number
+}
+
+export type DiversificationScore = {
+  portfolio_assets: string[]
+  avg_correlation: number
+  max_correlation: number
+  min_correlation: number
+  diversification_score: number
+  rating: string
+  recommendations: string[]
+}
+
+// Correlation Breakdown Types
+export type CorrelationBreakdownResponse = {
+  asset_pair: { asset1: string; asset2: string }
+  period_days: number
+  correlation: number
+  strength: string
+  direction: string
+  p_value: number
+  confidence_interval_lower: number
+  confidence_interval_upper: number
+  asset1_volatility: number
+  asset2_volatility: number
+  asset1_return: number
+  asset2_return: number
+  covariance: number
+  sample_size: number
+  interpretation: string
+}
+
+// Multi-Period Correlation Types
+export type MultiPeriodCorrelationRequest = {
+  asset1: string
+  asset2: string
+  periods: number[]
+}
+
+export type PeriodCorrelation = {
+  period_days: number
+  correlation: number
+  strength: string
+  start_date: string
+  end_date: string
+}
+
+export type MultiPeriodCorrelationResponse = {
+  asset1: string
+  asset2: string
+  periods: PeriodCorrelation[]
+  trend: string
+  interpretation: string
+}
+
+// Divergence Detection Types
+export type DivergenceRequest = {
+  asset1: string
+  asset2: string
+  period_days: number
+  lookback_days: number
+}
+
+export type DivergenceResponse = {
+  asset1: string
+  asset2: string
+  period_days: number
+  lookback_days: number
+  beta: number
+  correlation: number
+  has_divergence: boolean
+  divergence_score: number
+  z_score: number
+  expected_move: number
+  actual_move: number
+  divergence_pct: number
+  signal: string
+  interpretation: string
+}
+
+// Lead-Lag Analysis Types
+export type LeadLagResponse = {
+  asset1: string
+  asset2: string
+  leading_asset: string | null
+  lag_periods: number
+  lag_direction: number
+  correlation_at_lag: number
+  correlation_at_zero: number
+  all_lag_correlations: Record<number, number>
+  interpretation: string
+}
+
+// Trading Signals Types
+export type TradingSignal = {
+  type: string
+  signal: string
+  strength: string
+  reason: string
+}
+
+export type TradingSignalsResponse = {
+  asset1: string
+  asset2: string
+  period_days: number
+  correlation: number
+  beta: number
+  divergence: DivergenceResponse
+  lead_lag: LeadLagResponse
+  overall_signal: string
+  confidence: string
+  signals: TradingSignal[]
+  signal_count: number
+  summary: string
 }
 
 // COT Types

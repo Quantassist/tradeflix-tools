@@ -1,5 +1,5 @@
 import { apiClient } from "../api-client"
-import type { PivotRequest, PivotResponse } from "@/types"
+import type { PivotRequest, PivotResponse, MultiTimeframePivotResponse, PivotAccuracyResponse } from "@/types"
 
 export const pivotApi = {
   calculate: async (data: PivotRequest): Promise<PivotResponse> => {
@@ -20,9 +20,21 @@ export const pivotApi = {
 
   getHistorical: async (
     symbol: string,
-    days: number = 30
-  ): Promise<any> => {
-    return apiClient.get(`/pivots/historical?symbol=${symbol}&days=${days}`)
+    timeframe: string = "daily",
+    days: number = 30,
+    exchange: string = "COMEX"
+  ): Promise<PivotAccuracyResponse> => {
+    return apiClient.get(`/pivots/history?symbol=${symbol}&timeframe=${timeframe}&days=${days}&exchange=${exchange}`)
+  },
+
+  // Get multi-timeframe pivots with confluence detection
+  getMultiTimeframePivots: async (
+    symbol: string,
+    exchange: string = "COMEX"
+  ): Promise<MultiTimeframePivotResponse> => {
+    return apiClient.get(
+      `/pivots/multi-timeframe?symbol=${symbol}&exchange=${exchange}`
+    )
   },
 
   // Auto-fetch previous period OHLC data

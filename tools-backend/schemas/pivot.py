@@ -5,6 +5,7 @@ from datetime import date
 
 class OHLCInput(BaseModel):
     """Input for pivot calculation"""
+
     high: float = Field(gt=0, description="High price")
     low: float = Field(gt=0, description="Low price")
     close: float = Field(gt=0, description="Close price")
@@ -13,6 +14,7 @@ class OHLCInput(BaseModel):
 
 class CPRLevels(BaseModel):
     """Central Pivot Range levels"""
+
     pivot: float
     bc: float  # Bottom Central
     tc: float  # Top Central
@@ -23,6 +25,7 @@ class CPRLevels(BaseModel):
 
 class FloorPivotLevels(BaseModel):
     """Floor pivot points"""
+
     pivot: float
     r1: float
     r2: float
@@ -33,7 +36,9 @@ class FloorPivotLevels(BaseModel):
 
 
 class FibonacciLevels(BaseModel):
-    """Fibonacci retracement levels"""
+    """Fibonacci retracement and extension levels"""
+
+    # Retracement levels
     level_0: float
     level_236: float
     level_382: float
@@ -41,13 +46,20 @@ class FibonacciLevels(BaseModel):
     level_618: float
     level_786: float
     level_100: float
+    # Extension levels
+    ext_1272: Optional[float] = None
+    ext_1618: Optional[float] = None
+    ext_2000: Optional[float] = None
+    ext_2618: Optional[float] = None
 
 
 class PivotCalculationRequest(BaseModel):
     symbol: str = Field(description="Trading symbol (GOLD, SILVER, etc.)")
     timeframe: str = Field(description="Timeframe (daily, weekly, monthly)")
     ohlc: OHLCInput
-    auto_fetch: bool = Field(default=False, description="Auto-fetch previous period data")
+    auto_fetch: bool = Field(
+        default=False, description="Auto-fetch previous period data"
+    )
 
 
 class PivotCalculationResponse(BaseModel):

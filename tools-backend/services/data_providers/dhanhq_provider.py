@@ -61,23 +61,27 @@ class DhanHQProvider(BasePriceProvider, BaseHistoricalDataProvider):
 
     # MCX commodity security IDs for FUTCOM (Futures Commodity)
     # These are contract-specific and change with expiry. Update as needed.
-    # Format: {symbol: security_id} - security_id must be INTEGER for API calls
+    # Format: {symbol: security_id} - security_id as INTEGER
     # To find security IDs: fetch_security_list() and filter by SEM_INSTRUMENT_NAME
+    # Last updated: Dec 2025
     MCX_SECURITY_IDS = {
-        # Gold contracts (FUTCOM)
-        "GOLD": 445003,  # GOLD DEC FUT (current month)
-        "GOLDDEC": 445003,  # GOLD DEC FUT
-        "GOLDM": 445003,  # Gold Mini - alias to main contract
-        "GOLDPETAL": 445003,  # Gold Petal - alias
-        # Silver contracts (FUTCOM)
-        "SILVER": 445004,  # SILVER DEC FUT
-        "SILVERDEC": 445004,  # SILVER DEC FUT
-        "SILVERM": 445004,  # Silver Mini - alias
-        "SILVERMIC": 445004,  # Silver Micro - alias
-        # Other commodities - update with actual IDs
-        "CRUDEOIL": 445005,  # Crude Oil (update with actual ID)
-        "NATURALGAS": 445006,  # Natural Gas (update with actual ID)
-        "COPPER": 445007,  # Copper (update with actual ID)
+        # Gold contracts (FUTCOM) - GOLD-05Feb2026-FUT
+        "GOLD": 449534,
+        "GOLDFEB": 449534,
+        "GOLDM": 449534,  # Gold Mini - alias to main contract
+        "GOLDPETAL": 449534,  # Gold Petal - alias
+        # Silver contracts (FUTCOM) - SILVER-05Mar2026-FUT
+        "SILVER": 451666,
+        "SILVERMAR": 451666,
+        "SILVERM": 451666,  # Silver Mini - alias
+        "SILVERMIC": 451666,  # Silver Micro - alias
+        # Crude Oil (FUTCOM) - CRUDEOIL-18Dec2025-FUT
+        "CRUDE": 462523,
+        "CRUDEOIL": 462523,
+        # Natural Gas (FUTCOM) - NATURALGAS-26Dec2025-FUT
+        "NATURALGAS": 463007,
+        # Copper (FUTCOM) - COPPER-31Dec2025-FUT
+        "COPPER": 466015,
     }
 
     # Instrument types for MCX
@@ -112,6 +116,12 @@ class DhanHQProvider(BasePriceProvider, BaseHistoricalDataProvider):
         """Initialize the DhanHQ client"""
         try:
             from dhanhq import dhanhq
+
+            # Log client ID (masked) for debugging
+            masked_id = (
+                self.client_id[:4] + "****" if len(self.client_id) > 4 else "****"
+            )
+            logger.info(f"Initializing DhanHQ client with ID: {masked_id}")
 
             self._dhan = dhanhq(self.client_id, self.access_token)
 
@@ -161,7 +171,7 @@ class DhanHQProvider(BasePriceProvider, BaseHistoricalDataProvider):
             symbol: Commodity symbol (e.g., "GOLD", "SILVER")
 
         Returns:
-            Security ID as integer (required by DhanHQ API)
+            Security ID as integer
         """
         symbol_upper = symbol.upper()
 
@@ -171,7 +181,7 @@ class DhanHQProvider(BasePriceProvider, BaseHistoricalDataProvider):
 
         # Fall back to default mapping
         if symbol_upper in self.MCX_SECURITY_IDS:
-            return self.MCX_SECURITY_IDS[symbol_upper]
+            return int(self.MCX_SECURITY_IDS[symbol_upper])
 
         raise SymbolNotFoundError(
             self.provider_name, f"Security ID not found for symbol: {symbol}"
@@ -456,11 +466,16 @@ class DhanHQProvider(BasePriceProvider, BaseHistoricalDataProvider):
             from_date = start_date.strftime("%Y-%m-%d")
             to_date = end_date.strftime("%Y-%m-%d")
 
+            # Log the request for debugging
+            logger.debug(
+                f"Fetching historical data for {symbol} (security_id={security_id}) from {from_date} to {to_date}"
+            )
+
             result = await loop.run_in_executor(
                 None,
                 partial(
                     self._dhan.historical_daily_data,
-                    security_id=security_id,
+                    security_id=str(security_id),  # Historical API expects string
                     exchange_segment=self.MCX_SEGMENT,
                     instrument_type=self.INSTRUMENT_TYPE,
                     from_date=from_date,
@@ -468,23 +483,58 @@ class DhanHQProvider(BasePriceProvider, BaseHistoricalDataProvider):
                 ),
             )
 
-            data_points = []
-            candles = result.get("data", [])
+            logger.debug(
+                f"Historical data response type: {type(result)}, content: {str(result)[:200] if result else 'None'}"
+            )
 
-            for candle in candles:
+            # Handle error responses
+            if result is None:
+                raise DataNotAvailableError(
+                    self.provider_name, f"No data returned for {symbol}"
+                )
+
+            if isinstance(result, str):
+                raise AuthenticationError(self.provider_name, f"API error: {result}")
+
+            if not isinstance(result, dict):
+                raise ProviderError(
+                    self.provider_name, f"Unexpected response type: {type(result)}"
+                )
+
+            # Check for API error status
+            if result.get("status") == "failure" or result.get("errorCode"):
+                error_msg = result.get(
+                    "remarks", result.get("errorMessage", "Unknown error")
+                )
+                raise AuthenticationError(self.provider_name, f"API error: {error_msg}")
+
+            data_points = []
+            data = result.get("data", {})
+
+            # DhanHQ returns data as parallel arrays: open[], high[], low[], close[], volume[], timestamp[]
+            opens = data.get("open", [])
+            highs = data.get("high", [])
+            lows = data.get("low", [])
+            closes = data.get("close", [])
+            volumes = data.get("volume", [])
+            timestamps = data.get("timestamp", [])
+
+            for i in range(len(opens)):
+                # Convert timestamp (Unix epoch) to date
+                ts = timestamps[i] if i < len(timestamps) else 0
+                candle_date = datetime.fromtimestamp(ts).date() if ts else start_date
+
                 data_points.append(
                     HistoricalDataPoint(
-                        date=datetime.strptime(
-                            candle.get("start_Time", ""), "%Y-%m-%d"
-                        ).date()
-                        if isinstance(candle.get("start_Time"), str)
-                        else datetime.fromtimestamp(candle.get("start_Time", 0)).date(),
-                        open=Decimal(str(candle.get("open", 0))),
-                        high=Decimal(str(candle.get("high", 0))),
-                        low=Decimal(str(candle.get("low", 0))),
-                        close=Decimal(str(candle.get("close", 0))),
-                        volume=int(candle.get("volume", 0))
-                        if candle.get("volume")
+                        date=candle_date,
+                        open=Decimal(str(opens[i])) if i < len(opens) else Decimal("0"),
+                        high=Decimal(str(highs[i])) if i < len(highs) else Decimal("0"),
+                        low=Decimal(str(lows[i])) if i < len(lows) else Decimal("0"),
+                        close=Decimal(str(closes[i]))
+                        if i < len(closes)
+                        else Decimal("0"),
+                        volume=int(volumes[i])
+                        if i < len(volumes) and volumes[i]
                         else None,
                     )
                 )

@@ -1,6 +1,11 @@
-from fastapi import APIRouter, HTTPException, Query
-from datetime import datetime
+from fastapi import APIRouter, HTTPException, Query, Depends
+from datetime import datetime, timedelta
+from sqlalchemy.orm import Session
+from sqlalchemy import desc
+from typing import List
 import logging
+import statistics
+import math
 
 from schemas.arbitrage import (
     ArbitrageCalculationRequest,
@@ -11,6 +16,8 @@ from schemas.arbitrage import (
 )
 from services.arbitrage_service import ArbitrageService
 from services.data_providers import YahooFinanceProvider, DhanHQProvider
+from models.arbitrage import ArbitrageHistory
+from database import get_db
 from config import settings
 
 logger = logging.getLogger(__name__)
@@ -21,6 +28,84 @@ arbitrage_service = ArbitrageService()
 # COMEX Gold Futures symbol (Gold Dec 25 - GC=F)
 COMEX_GOLD_SYMBOL = "GC=F"
 COMEX_SILVER_SYMBOL = "SI=F"
+
+
+def _downsample_lttb(data: List, target_points: int) -> List:
+    """
+    Downsample data using Largest Triangle Three Buckets (LTTB) algorithm.
+    This preserves visual accuracy while reducing data points.
+
+    Args:
+        data: List of ArbitrageHistory objects (sorted by date descending)
+        target_points: Target number of points to return
+
+    Returns:
+        Downsampled list preserving chart shape
+    """
+    if len(data) <= target_points:
+        return data
+
+    # Reverse to chronological order for LTTB
+    data = list(reversed(data))
+
+    # Always keep first and last points
+    sampled = [data[0]]
+
+    # Calculate bucket size
+    bucket_size = (len(data) - 2) / (target_points - 2)
+
+    a = 0  # Index of previous selected point
+
+    for i in range(target_points - 2):
+        # Calculate bucket range
+        bucket_start = int(math.floor((i + 1) * bucket_size)) + 1
+        bucket_end = int(math.floor((i + 2) * bucket_size)) + 1
+        bucket_end = min(bucket_end, len(data) - 1)
+
+        # Calculate average point in next bucket for reference
+        avg_x = 0
+        avg_y = 0
+        next_bucket_start = int(math.floor((i + 2) * bucket_size)) + 1
+        next_bucket_end = int(math.floor((i + 3) * bucket_size)) + 1
+        next_bucket_end = min(next_bucket_end, len(data))
+
+        count = next_bucket_end - next_bucket_start
+        if count > 0:
+            for j in range(next_bucket_start, next_bucket_end):
+                avg_x += j
+                avg_y += float(data[j].premium_percent)
+            avg_x /= count
+            avg_y /= count
+
+        # Find point in current bucket with largest triangle area
+        max_area = -1
+        max_idx = bucket_start
+
+        point_a_x = a
+        point_a_y = float(data[a].premium_percent)
+
+        for j in range(bucket_start, bucket_end):
+            # Calculate triangle area
+            area = (
+                abs(
+                    (point_a_x - avg_x) * (float(data[j].premium_percent) - point_a_y)
+                    - (point_a_x - j) * (avg_y - point_a_y)
+                )
+                * 0.5
+            )
+
+            if area > max_area:
+                max_area = area
+                max_idx = j
+
+        sampled.append(data[max_idx])
+        a = max_idx
+
+    # Add last point
+    sampled.append(data[-1])
+
+    # Reverse back to descending order (newest first)
+    return list(reversed(sampled))
 
 
 @router.post("/calculate", response_model=ArbitrageCalculationResponse)
@@ -274,25 +359,161 @@ async def usdinr_sensitivity_analysis(
 @router.get("/history")
 async def get_arbitrage_history(
     symbol: str = Query(default="GOLD", description="Symbol"),
-    days: int = Query(default=30, ge=1, le=365, description="Number of days"),
+    days: int = Query(
+        default=30, ge=0, le=10000, description="Number of days (0 = all data)"
+    ),
+    max_points: int = Query(
+        default=500, ge=50, le=5000, description="Maximum data points to return"
+    ),
+    exclude_estimated: bool = Query(
+        default=True, description="Exclude estimated MCX prices (holidays)"
+    ),
+    db: Session = Depends(get_db),
 ):
     """
     Get historical arbitrage data and statistics
 
     - **symbol**: GOLD or SILVER
-    - **days**: Number of days of history
+    - **days**: Number of days of history (0 = all available data)
+    - **max_points**: Maximum number of data points to return (for performance)
+    - **exclude_estimated**: If true, excludes records where MCX price was estimated (holidays)
 
     Returns historical premium/discount data with statistics.
+    Data is downsampled using LTTB algorithm when exceeding max_points.
     """
-    # TODO: Implement database query for historical data
-    return {
-        "message": "Historical arbitrage data - to be implemented with database",
-        "symbol": symbol.upper(),
-        "days": days,
-        "note": "This will return historical premium/discount percentages, z-scores, and accuracy of signals",
-    }
+    try:
+        symbol_upper = symbol.upper()
+
+        # Build query
+        query = db.query(ArbitrageHistory).filter(
+            ArbitrageHistory.symbol == symbol_upper
+        )
+
+        # Apply date filter only if days > 0
+        if days > 0:
+            cutoff_date = datetime.now() - timedelta(days=days)
+            query = query.filter(ArbitrageHistory.recorded_at >= cutoff_date)
+
+        # Exclude estimated MCX prices (holidays) if requested
+        if exclude_estimated:
+            query = query.filter(ArbitrageHistory.mcx_source != "estimated")
+
+        # Query historical data
+        history = query.order_by(desc(ArbitrageHistory.recorded_at)).all()
+
+        if not history:
+            return {
+                "symbol": symbol_upper,
+                "days": days,
+                "data": [],
+                "statistics": None,
+                "message": "No historical data available. Data collection starts when arbitrage calculations are performed.",
+            }
+
+        # Calculate statistics on full dataset
+        premiums = [float(h.premium_percent) for h in history]
+        avg_premium = statistics.mean(premiums)
+        std_premium = statistics.stdev(premiums) if len(premiums) > 1 else 0
+        min_premium = min(premiums)
+        max_premium = max(premiums)
+
+        # Count signals
+        signal_counts = {}
+        for h in history:
+            signal_counts[h.signal] = signal_counts.get(h.signal, 0) + 1
+
+        # Downsample data if needed using LTTB-like algorithm
+        total_points = len(history)
+        if total_points > max_points:
+            history = _downsample_lttb(history, max_points)
+
+        # Format data points
+        data_points = [
+            {
+                "recorded_at": h.recorded_at.isoformat(),
+                "comex_price_usd": float(h.comex_price_usd),
+                "mcx_price_inr": float(h.mcx_price_inr),
+                "usdinr_rate": float(h.usdinr_rate),
+                "fair_value_inr": float(h.fair_value_inr),
+                "premium": float(h.premium),
+                "premium_percent": float(h.premium_percent),
+                "signal": h.signal,
+                "z_score": float(h.z_score) if h.z_score else None,
+                "percentile": float(h.percentile) if h.percentile else None,
+            }
+            for h in history
+        ]
+
+        return {
+            "symbol": symbol_upper,
+            "days": days,
+            "data_count": len(data_points),
+            "total_points": total_points,
+            "downsampled": total_points > max_points,
+            "data": data_points,
+            "statistics": {
+                "average_premium_percent": round(avg_premium, 4),
+                "std_deviation": round(std_premium, 4),
+                "min_premium_percent": round(min_premium, 4),
+                "max_premium_percent": round(max_premium, 4),
+                "signal_distribution": signal_counts,
+            },
+        }
+
+    except Exception as e:
+        logger.error(f"Error fetching arbitrage history: {e}")
+        raise HTTPException(status_code=500, detail=f"Error fetching history: {str(e)}")
+
+
+@router.post("/history/record")
+async def record_arbitrage_data(
+    symbol: str = Query(default="GOLD", description="Symbol"),
+    db: Session = Depends(get_db),
+):
+    """
+    Record current arbitrage data to history.
+    This endpoint fetches live data and stores it in the database.
+    """
+    try:
+        # Get realtime data
+        realtime_data = await get_realtime_arbitrage(symbol=symbol)
+
+        # Create history record
+        history_record = ArbitrageHistory(
+            symbol=symbol.upper(),
+            recorded_at=datetime.now(),
+            comex_price_usd=realtime_data["fair_value"]["comex_price_usd"],
+            mcx_price_inr=realtime_data["arbitrage"]["mcx_price"],
+            usdinr_rate=realtime_data["fair_value"]["usdinr_rate"],
+            fair_value_inr=realtime_data["arbitrage"]["fair_value"],
+            premium=realtime_data["arbitrage"]["premium"],
+            premium_percent=realtime_data["arbitrage"]["premium_percent"],
+            signal=realtime_data["arbitrage"]["signal"],
+            z_score=realtime_data["arbitrage"].get("z_score"),
+            percentile=realtime_data["arbitrage"].get("percentile"),
+            comex_source=realtime_data["data_sources"]["comex"],
+            mcx_source=realtime_data["data_sources"]["mcx"],
+        )
+
+        db.add(history_record)
+        db.commit()
+        db.refresh(history_record)
+
+        return {
+            "message": "Arbitrage data recorded successfully",
+            "id": history_record.id,
+            "symbol": history_record.symbol,
+            "recorded_at": history_record.recorded_at.isoformat(),
+            "premium_percent": float(history_record.premium_percent),
+        }
+
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error recording arbitrage data: {e}")
+        raise HTTPException(status_code=500, detail=f"Error recording data: {str(e)}")
 
 
 @router.get("/now")
 async def get_arbitrage_now():
-    return {"message": "Get arbitrage data - to be implemented"}
+    """Alias for /realtime endpoint"""
+    return await get_realtime_arbitrage()

@@ -13,6 +13,7 @@ from api.v1.endpoints import (
     alerts,
     seasonal_events,
     metals_prices,
+    cron,
 )
 
 api_router = APIRouter()
@@ -36,3 +37,4 @@ api_router.include_router(
 )
 api_router.include_router(cot.router, prefix="/cot", tags=["COT"])
 api_router.include_router(alerts.router, prefix="/alerts", tags=["Alerts"])
+api_router.include_router(cron.router, prefix="/cron", tags=["Cron Jobs"])

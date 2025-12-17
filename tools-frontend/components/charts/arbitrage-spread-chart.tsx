@@ -1,7 +1,7 @@
 "use client"
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { StyledCard, StyledCardHeader, StyledCardContent } from "@/components/ui/styled-card"
 import { formatCurrency } from "@/lib/utils"
 import { TrendingUp, TrendingDown, DollarSign } from "lucide-react"
 
@@ -19,7 +19,16 @@ type ArbitrageSpreadChartProps = {
   }
 }
 
-const CustomTooltip = ({ active, payload }: any) => {
+type TooltipPayload = {
+  payload: {
+    name: string
+    fill: string
+    description?: string
+  }
+  value: number
+}
+
+const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: TooltipPayload[] }) => {
   if (active && payload && payload.length) {
     const data = payload[0]
     return (
@@ -39,54 +48,54 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 export function ArbitrageSpreadChart({ fairValue, mcxPrice, premium, profitAnalysis }: ArbitrageSpreadChartProps) {
   const priceData = [
-    { 
-      name: 'Fair Value', 
-      value: fairValue, 
+    {
+      name: 'Fair Value',
+      value: fairValue,
       fill: 'url(#colorFair)',
       description: 'COMEX + Duty + Costs'
     },
-    { 
-      name: 'MCX Price', 
-      value: mcxPrice, 
+    {
+      name: 'MCX Price',
+      value: mcxPrice,
       fill: 'url(#colorMCX)',
       description: 'Current Market Price'
     },
-    { 
-      name: premium > 0 ? 'Premium' : 'Discount', 
-      value: Math.abs(premium), 
+    {
+      name: premium > 0 ? 'Premium' : 'Discount',
+      value: Math.abs(premium),
       fill: premium > 0 ? 'url(#colorProfit)' : 'url(#colorLoss)',
       description: premium > 0 ? 'Arbitrage Opportunity' : 'No Opportunity'
     },
   ]
 
   const profitData = [
-    { 
-      name: 'Gross\nProfit', 
-      value: profitAnalysis.gross_profit, 
+    {
+      name: 'Gross\nProfit',
+      value: profitAnalysis.gross_profit,
       fill: 'url(#colorProfit)',
       description: 'Before costs'
     },
-    { 
-      name: 'Brokerage', 
-      value: -profitAnalysis.brokerage, 
+    {
+      name: 'Brokerage',
+      value: -profitAnalysis.brokerage,
       fill: '#ef4444',
       description: 'Trading fees'
     },
-    { 
-      name: 'Exchange\nFees', 
-      value: -profitAnalysis.exchange_fees, 
+    {
+      name: 'Exchange\nFees',
+      value: -profitAnalysis.exchange_fees,
       fill: '#f97316',
       description: 'Exchange charges'
     },
-    { 
-      name: 'Tax', 
-      value: -profitAnalysis.tax, 
+    {
+      name: 'Tax',
+      value: -profitAnalysis.tax,
       fill: '#eab308',
       description: 'GST & duties'
     },
-    { 
-      name: 'Net\nProfit', 
-      value: profitAnalysis.net_profit, 
+    {
+      name: 'Net\nProfit',
+      value: profitAnalysis.net_profit,
       fill: profitAnalysis.net_profit > 0 ? 'url(#colorNetProfit)' : 'url(#colorNetLoss)',
       description: 'Final P&L'
     },
@@ -97,52 +106,49 @@ export function ArbitrageSpreadChart({ fairValue, mcxPrice, premium, profitAnaly
   return (
     <div className="space-y-6">
       {/* Price Comparison Chart */}
-      <Card className="shadow-xl border-2">
-        <CardHeader className="bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-2xl flex items-center gap-2">
-                <DollarSign className="h-6 w-6" />
-                Price Comparison
-              </CardTitle>
-              <CardDescription className="text-base mt-1">Fair value vs MCX price analysis</CardDescription>
-            </div>
-            {premium > 0 && (
-              <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg font-semibold">
-                <TrendingUp className="inline h-5 w-5 mr-1" />
+      <StyledCard variant="blue">
+        <StyledCardHeader
+          icon={DollarSign}
+          title="Price Comparison"
+          description="Fair value vs MCX price analysis"
+          variant="blue"
+          action={
+            premium > 0 ? (
+              <div className="bg-green-100 text-green-800 px-4 py-2 rounded-xl font-semibold flex items-center gap-1 shadow-sm">
+                <TrendingUp className="h-5 w-5" />
                 Opportunity
               </div>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="pt-6">
+            ) : null
+          }
+        />
+        <StyledCardContent>
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={priceData} margin={{ top: 30, right: 40, left: 40, bottom: 20 }}>
               <defs>
                 <linearGradient id="colorFair" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.9}/>
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.6}/>
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.9} />
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.6} />
                 </linearGradient>
                 <linearGradient id="colorMCX" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.9}/>
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.6}/>
+                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.9} />
+                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.6} />
                 </linearGradient>
                 <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.9}/>
-                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0.6}/>
+                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.9} />
+                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0.6} />
                 </linearGradient>
                 <linearGradient id="colorLoss" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.9}/>
-                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0.6}/>
+                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.9} />
+                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0.6} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis 
-                dataKey="name" 
+              <XAxis
+                dataKey="name"
                 tick={{ fontSize: 14, fontWeight: 600 }}
                 axisLine={{ stroke: '#9ca3af' }}
               />
-              <YAxis 
+              <YAxis
                 tick={{ fontSize: 12 }}
                 axisLine={{ stroke: '#9ca3af' }}
                 tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`}
@@ -152,61 +158,54 @@ export function ArbitrageSpreadChart({ fairValue, mcxPrice, premium, profitAnaly
                 {priceData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.fill} />
                 ))}
-                <LabelList 
-                  dataKey="value" 
-                  position="top" 
+                <LabelList
+                  dataKey="value"
+                  position="top"
                   formatter={(value: number) => formatCurrency(value)}
                   style={{ fontSize: 12, fontWeight: 'bold' }}
                 />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </CardContent>
-      </Card>
+        </StyledCardContent>
+      </StyledCard>
 
       {/* Profit Breakdown Chart */}
-      <Card className="shadow-xl border-2">
-        <CardHeader className={`bg-gradient-to-r ${isProfitable ? 'from-green-50 to-emerald-50' : 'from-red-50 to-orange-50'}`}>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-2xl flex items-center gap-2">
-                {isProfitable ? (
-                  <TrendingUp className="h-6 w-6 text-green-600" />
-                ) : (
-                  <TrendingDown className="h-6 w-6 text-red-600" />
-                )}
-                Profit Breakdown
-              </CardTitle>
-              <CardDescription className="text-base mt-1">Detailed profit and cost analysis</CardDescription>
-            </div>
-            <div className={`px-6 py-3 rounded-xl font-bold text-xl ${isProfitable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+      <StyledCard variant={isProfitable ? "green" : "pink"}>
+        <StyledCardHeader
+          icon={isProfitable ? TrendingUp : TrendingDown}
+          title="Profit Breakdown"
+          description="Detailed profit and cost analysis"
+          variant={isProfitable ? "green" : "pink"}
+          action={
+            <div className={`px-5 py-2.5 rounded-xl font-bold text-lg shadow-sm ${isProfitable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
               {formatCurrency(profitAnalysis.net_profit)}
             </div>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-6">
+          }
+        />
+        <StyledCardContent>
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={profitData} margin={{ top: 30, right: 40, left: 40, bottom: 60 }}>
               <defs>
                 <linearGradient id="colorNetProfit" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#16a34a" stopOpacity={0.9}/>
-                  <stop offset="95%" stopColor="#16a34a" stopOpacity={0.7}/>
+                  <stop offset="5%" stopColor="#16a34a" stopOpacity={0.9} />
+                  <stop offset="95%" stopColor="#16a34a" stopOpacity={0.7} />
                 </linearGradient>
                 <linearGradient id="colorNetLoss" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#dc2626" stopOpacity={0.9}/>
-                  <stop offset="95%" stopColor="#dc2626" stopOpacity={0.7}/>
+                  <stop offset="5%" stopColor="#dc2626" stopOpacity={0.9} />
+                  <stop offset="95%" stopColor="#dc2626" stopOpacity={0.7} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis 
-                dataKey="name" 
-                angle={0} 
-                textAnchor="middle" 
-                height={80} 
+              <XAxis
+                dataKey="name"
+                angle={0}
+                textAnchor="middle"
+                height={80}
                 tick={{ fontSize: 13, fontWeight: 600 }}
                 axisLine={{ stroke: '#9ca3af' }}
               />
-              <YAxis 
+              <YAxis
                 tick={{ fontSize: 12 }}
                 axisLine={{ stroke: '#9ca3af' }}
                 tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`}
@@ -216,9 +215,9 @@ export function ArbitrageSpreadChart({ fairValue, mcxPrice, premium, profitAnaly
                 {profitData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.fill} />
                 ))}
-                <LabelList 
-                  dataKey="value" 
-                  position="top" 
+                <LabelList
+                  dataKey="value"
+                  position="top"
                   formatter={(value: number) => formatCurrency(Math.abs(value))}
                   style={{ fontSize: 11, fontWeight: 'bold' }}
                 />
@@ -241,8 +240,8 @@ export function ArbitrageSpreadChart({ fairValue, mcxPrice, premium, profitAnaly
               <span className="text-sm font-medium">Net Result</span>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </StyledCardContent>
+      </StyledCard>
     </div>
   )
 }

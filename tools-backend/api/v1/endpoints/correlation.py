@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Query
 from datetime import date, timedelta
 from typing import List
 import logging
+import numpy as np
 
 from schemas.correlation import (
     CorrelationRequest,
@@ -16,6 +17,11 @@ from schemas.correlation import (
     DiversificationScore,
     CorrelationBreakdownResponse,
     AssetPair,
+    DivergenceRequest,
+    DivergenceResponse,
+    LeadLagResponse,
+    TradingSignal,
+    TradingSignalsResponse,
 )
 from services.correlation_service import CorrelationService
 from services.data_providers import YahooFinanceProvider, ProviderError
@@ -41,7 +47,7 @@ YAHOO_SYMBOLS = {
 
 
 async def fetch_returns(symbol: str, days: int) -> List[float]:
-    """Fetch real returns data from Yahoo Finance"""
+    """Fetch real returns data from Yahoo Finance (optimized with numpy)"""
     yahoo = YahooFinanceProvider()
     yahoo_symbol = YAHOO_SYMBOLS.get(symbol.upper(), symbol)
 
@@ -56,16 +62,19 @@ async def fetch_returns(symbol: str, days: int) -> List[float]:
         if not history.data_points or len(history.data_points) < 2:
             raise ValueError(f"Insufficient data for {symbol}")
 
-        # Calculate daily returns
-        closes = [float(dp.close) for dp in history.data_points]
-        returns = []
-        for i in range(1, len(closes)):
-            if closes[i - 1] > 0:
-                ret = (closes[i] - closes[i - 1]) / closes[i - 1]
-                returns.append(ret)
+        # Calculate daily returns using numpy (optimized)
+        closes = np.array(
+            [float(dp.close) for dp in history.data_points], dtype=np.float64
+        )
 
-        # Trim to requested days
-        return returns[-days:] if len(returns) > days else returns
+        # Vectorized return calculation: (close[i] - close[i-1]) / close[i-1]
+        returns = np.diff(closes) / closes[:-1]
+
+        # Handle any inf/nan values
+        returns = np.nan_to_num(returns, nan=0.0, posinf=0.0, neginf=0.0)
+
+        # Trim to requested days and convert to list
+        return returns[-days:].tolist() if len(returns) > days else returns.tolist()
 
     except ProviderError as e:
         logger.warning(f"Could not fetch data for {symbol}: {e}")
@@ -182,6 +191,16 @@ async def calculate_rolling_correlation(request: RollingCorrelationRequest):
         except ValueError as e:
             raise HTTPException(status_code=404, detail=str(e))
 
+        # Align returns to same length (use minimum length)
+        min_length = min(len(returns1), len(returns2))
+        if min_length < request.window_days:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Insufficient data: got {min_length} days, need at least {request.window_days} for window",
+            )
+        returns1 = returns1[-min_length:]
+        returns2 = returns2[-min_length:]
+
         # Calculate rolling correlations
         rolling_corrs = correlation_service.calculate_rolling_correlation(
             returns1, returns2, request.window_days
@@ -261,12 +280,13 @@ async def calculate_beta(request: BetaCalculationRequest):
             asset_returns, benchmark_returns
         )
 
-        # Calculate volatility ratio
-        import statistics
+        # Calculate volatility ratio using numpy (optimized)
+        asset_arr = np.array(asset_returns, dtype=np.float64)
+        benchmark_arr = np.array(benchmark_returns, dtype=np.float64)
 
-        asset_vol = statistics.stdev(asset_returns) if len(asset_returns) > 1 else 0
+        asset_vol = float(np.std(asset_arr, ddof=1)) if len(asset_arr) > 1 else 0
         benchmark_vol = (
-            statistics.stdev(benchmark_returns) if len(benchmark_returns) > 1 else 0
+            float(np.std(benchmark_arr, ddof=1)) if len(benchmark_arr) > 1 else 0
         )
         volatility_ratio = asset_vol / benchmark_vol if benchmark_vol > 0 else 0
 
@@ -439,4 +459,165 @@ async def get_correlation_breakdown(
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error calculating correlation breakdown: {str(e)}"
+        )
+
+
+@router.post("/divergence", response_model=DivergenceResponse)
+async def detect_divergence(request: DivergenceRequest):
+    """
+    Detect divergence from expected correlation relationship
+
+    - **asset1**: Primary asset (e.g., GOLD)
+    - **asset2**: Reference asset (e.g., USDINR)
+    - **period_days**: Historical period for beta calculation (30-365)
+    - **lookback_days**: Recent period to check for divergence (5-90)
+
+    Returns divergence analysis with z-score and trading signal.
+    """
+    try:
+        if request.asset1 == request.asset2:
+            raise HTTPException(status_code=400, detail="Assets must be different")
+
+        # Fetch returns
+        try:
+            returns1 = await fetch_returns(request.asset1, request.period_days)
+            returns2 = await fetch_returns(request.asset2, request.period_days)
+        except ValueError as e:
+            raise HTTPException(status_code=404, detail=str(e))
+
+        # Calculate beta
+        beta, _, _ = correlation_service.calculate_beta(returns1, returns2)
+
+        # Calculate correlation
+        correlation = correlation_service.calculate_correlation(returns1, returns2)
+
+        # Detect divergence
+        divergence = correlation_service.detect_divergence(
+            returns1, returns2, beta, request.lookback_days
+        )
+
+        return DivergenceResponse(
+            asset1=request.asset1,
+            asset2=request.asset2,
+            period_days=request.period_days,
+            lookback_days=request.lookback_days,
+            beta=round(beta, 3),
+            correlation=round(correlation, 3),
+            has_divergence=divergence["has_divergence"],
+            divergence_score=divergence["divergence_score"],
+            z_score=divergence["z_score"],
+            expected_move=divergence["expected_move"],
+            actual_move=divergence["actual_move"],
+            divergence_pct=divergence["divergence_pct"],
+            signal=divergence["signal"],
+            interpretation=divergence["interpretation"],
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error detecting divergence: {str(e)}"
+        )
+
+
+@router.post("/signals", response_model=TradingSignalsResponse)
+async def get_trading_signals(request: DivergenceRequest):
+    """
+    Get correlation-based trading signals
+
+    - **asset1**: Primary asset (e.g., GOLD)
+    - **asset2**: Reference asset (e.g., USDINR)
+    - **period_days**: Historical period for analysis (30-365)
+    - **lookback_days**: Recent period for divergence check (5-90)
+
+    Returns comprehensive trading signals including mean reversion,
+    trend following, lead-lag, and breakout confirmation signals.
+    """
+    try:
+        if request.asset1 == request.asset2:
+            raise HTTPException(status_code=400, detail="Assets must be different")
+
+        # Fetch returns
+        try:
+            returns1 = await fetch_returns(request.asset1, request.period_days)
+            returns2 = await fetch_returns(request.asset2, request.period_days)
+        except ValueError as e:
+            raise HTTPException(status_code=404, detail=str(e))
+
+        # Calculate beta and correlation
+        beta, _, _ = correlation_service.calculate_beta(returns1, returns2)
+        correlation = correlation_service.calculate_correlation(returns1, returns2)
+
+        # Detect divergence
+        divergence = correlation_service.detect_divergence(
+            returns1, returns2, beta, request.lookback_days
+        )
+
+        # Calculate lead-lag
+        lead_lag = correlation_service.calculate_lead_lag(returns1, returns2)
+
+        # Generate trading signals
+        signals = correlation_service.generate_trading_signals(
+            correlation, beta, divergence, lead_lag
+        )
+
+        # Build divergence response
+        divergence_response = DivergenceResponse(
+            asset1=request.asset1,
+            asset2=request.asset2,
+            period_days=request.period_days,
+            lookback_days=request.lookback_days,
+            beta=round(beta, 3),
+            correlation=round(correlation, 3),
+            has_divergence=divergence["has_divergence"],
+            divergence_score=divergence["divergence_score"],
+            z_score=divergence["z_score"],
+            expected_move=divergence["expected_move"],
+            actual_move=divergence["actual_move"],
+            divergence_pct=divergence["divergence_pct"],
+            signal=divergence["signal"],
+            interpretation=divergence["interpretation"],
+        )
+
+        # Build lead-lag response
+        lead_lag_response = LeadLagResponse(
+            asset1=request.asset1,
+            asset2=request.asset2,
+            leading_asset=lead_lag.get("leading_asset"),
+            lag_periods=lead_lag.get("lag_periods", 0),
+            lag_direction=lead_lag.get("lag_direction", 0),
+            correlation_at_lag=lead_lag.get("correlation_at_lag", 0),
+            correlation_at_zero=lead_lag.get("correlation_at_zero", 0),
+            all_lag_correlations=lead_lag.get("all_lag_correlations", {}),
+            interpretation=lead_lag.get("interpretation", ""),
+        )
+
+        # Build trading signals list
+        trading_signals = [
+            TradingSignal(
+                type=s["type"],
+                signal=s["signal"],
+                strength=s["strength"],
+                reason=s["reason"],
+            )
+            for s in signals.get("signals", [])
+        ]
+
+        return TradingSignalsResponse(
+            asset1=request.asset1,
+            asset2=request.asset2,
+            period_days=request.period_days,
+            correlation=round(correlation, 3),
+            beta=round(beta, 3),
+            divergence=divergence_response,
+            lead_lag=lead_lag_response,
+            overall_signal=signals.get("overall_signal", "neutral"),
+            confidence=signals.get("confidence", "low"),
+            signals=trading_signals,
+            signal_count=signals.get("signal_count", 0),
+            summary=signals.get("summary", ""),
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error generating trading signals: {str(e)}"
         )

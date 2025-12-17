@@ -1,23 +1,64 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect, useRef } from "react"
+import { StyledCard, StyledCardHeader, StyledCardContent } from "@/components/ui/styled-card"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Network, AlertCircle, Sparkles, ArrowRight, Info, TrendingUp } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Network, AlertCircle, Sparkles, ArrowRight, Info, TrendingUp, Activity, Calculator, Clock, PieChart, Zap } from "lucide-react"
 import { correlationApi } from "@/lib/api/correlation"
-import type { CorrelationMatrixResponse } from "@/types"
+import type { CorrelationMatrixResponse, RollingCorrelationResponse } from "@/types"
 import { formatNumber } from "@/lib/utils"
 import { CorrelationHeatmap } from "@/components/charts/correlation-heatmap"
+import { RollingCorrelationChart } from "@/components/charts/rolling-correlation-chart"
+import { BetaCalculator } from "@/components/correlation/beta-calculator"
+import { MultiPeriodComparison } from "@/components/correlation/multi-period-comparison"
+import { DiversificationAnalysis } from "@/components/correlation/diversification-analysis"
+import { TradingSignals } from "@/components/correlation/trading-signals"
 import { toast } from "sonner"
+
+const AVAILABLE_ASSETS = [
+  { value: "GOLD", label: "Gold" },
+  { value: "SILVER", label: "Silver" },
+  { value: "CRUDE", label: "Crude Oil" },
+  { value: "USDINR", label: "USD/INR" },
+  { value: "DXY", label: "Dollar Index" },
+  { value: "COPPER", label: "Copper" },
+  { value: "PLATINUM", label: "Platinum" },
+  { value: "NATURALGAS", label: "Natural Gas" },
+]
 
 export default function CorrelationMatrixPage() {
   const [loading, setLoading] = useState(false)
+  const [rollingLoading, setRollingLoading] = useState(false)
   const [result, setResult] = useState<CorrelationMatrixResponse | null>(null)
+  const [rollingResult, setRollingResult] = useState<RollingCorrelationResponse | null>(null)
   const [assets, setAssets] = useState("GOLD,SILVER,CRUDE,USDINR")
   const [periodDays, setPeriodDays] = useState("90")
+  const [activeTab, setActiveTab] = useState("rolling")
+  const initialLoadRef = useRef(false)
+
+  // Auto-calculate tabbed sections on page load (non-blocking)
+  // Note: Correlation matrix is NOT auto-calculated - user must click Calculate
+  useEffect(() => {
+    if (initialLoadRef.current) return
+    initialLoadRef.current = true
+
+    // Fire calculations for tabbed sections after page renders
+    const timer = setTimeout(() => {
+      // Calculate rolling correlation with defaults
+      setRollingLoading(true)
+      correlationApi.getRolling("GOLD", "USDINR", 30, 180)
+        .then(response => setRollingResult(response))
+        .catch(err => console.error("Auto-calc rolling error:", err))
+        .finally(() => setRollingLoading(false))
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -73,48 +114,56 @@ export default function CorrelationMatrixPage() {
         <div className="absolute -left-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-1 border-2 hover:border-violet-200 transition-all duration-300 hover:shadow-xl">
-          <CardHeader className="bg-gradient-to-r from-violet-50 to-purple-50 border-b">
-            <CardTitle className="flex items-center gap-2">
-              <div className="p-2 bg-violet-100 rounded-lg">
-                <Info className="h-5 w-5 text-violet-600" />
-              </div>
-              Input Parameters
-            </CardTitle>
-            <CardDescription>Enter assets and time period</CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6">
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Input Parameters - StyledCard like arbitrage */}
+        <StyledCard variant="purple">
+          <StyledCardHeader
+            icon={Info}
+            title="Input Parameters"
+            description="Enter assets and time period"
+            variant="purple"
+          />
+          <StyledCardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="assets">Assets (comma-separated)</Label>
-                <Input
-                  id="assets"
-                  placeholder="GOLD,SILVER,CRUDE,USDINR"
-                  value={assets}
-                  onChange={(e) => setAssets(e.target.value)}
-                  required
-                />
-                <p className="text-xs text-muted-foreground">
-                  Enter 2-5 asset symbols separated by commas
-                </p>
+              {/* Assets Group */}
+              <div className="p-4 rounded-xl bg-slate-50 border space-y-3">
+                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">Assets</div>
+                <div className="space-y-1">
+                  <Label htmlFor="assets" className="text-xs text-purple-600 font-medium">Assets (comma-separated)</Label>
+                  <Input
+                    id="assets"
+                    placeholder="GOLD,SILVER,CRUDE,USDINR"
+                    value={assets}
+                    onChange={(e) => setAssets(e.target.value)}
+                    required
+                    className="bg-white border-purple-200 focus:border-purple-400"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Enter 2-5 asset symbols separated by commas
+                  </p>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="period">Period (days)</Label>
-                <Input
-                  id="period"
-                  type="number"
-                  placeholder="90"
-                  value={periodDays}
-                  onChange={(e) => setPeriodDays(e.target.value)}
-                  required
-                />
+              {/* Parameters Group */}
+              <div className="p-4 rounded-xl bg-slate-50 border space-y-3">
+                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">Parameters</div>
+                <div className="space-y-1">
+                  <Label htmlFor="period" className="text-xs text-violet-600 font-medium">Period (days)</Label>
+                  <Input
+                    id="period"
+                    type="number"
+                    placeholder="90"
+                    value={periodDays}
+                    onChange={(e) => setPeriodDays(e.target.value)}
+                    required
+                    className="bg-white border-violet-200 focus:border-violet-400"
+                  />
+                </div>
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group" 
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
                 disabled={loading}
               >
                 {loading ? (
@@ -130,22 +179,18 @@ export default function CorrelationMatrixPage() {
                 )}
               </Button>
             </form>
-          </CardContent>
-        </Card>
+          </StyledCardContent>
+        </StyledCard>
 
-        <Card className="lg:col-span-2 border-2 hover:border-fuchsia-200 transition-all duration-300 hover:shadow-xl">
-          <CardHeader className="bg-gradient-to-r from-fuchsia-50 to-pink-50 border-b">
-            <CardTitle className="flex items-center gap-2">
-              <div className="p-2 bg-fuchsia-100 rounded-lg">
-                <Sparkles className="h-5 w-5 text-fuchsia-600" />
-              </div>
-              Correlation Matrix
-            </CardTitle>
-            <CardDescription>
-              {result ? `${result.assets.length} assets analyzed` : "Results will appear here after calculation"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-6">
+        {/* Correlation Matrix Results - StyledCard */}
+        <StyledCard variant="pink">
+          <StyledCardHeader
+            icon={Sparkles}
+            title="Correlation Matrix"
+            description={result ? `${result.assets.length} assets analyzed` : "Results will appear here after calculation"}
+            variant="pink"
+          />
+          <StyledCardContent>
             {result ? (
               <div className="space-y-4 animate-in slide-in-from-bottom duration-500">
                 <div className="text-sm text-muted-foreground">
@@ -202,8 +247,8 @@ export default function CorrelationMatrixPage() {
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </StyledCardContent>
+        </StyledCard>
       </div>
 
       {/* Heatmap Visualization */}
@@ -214,27 +259,204 @@ export default function CorrelationMatrixPage() {
         />
       )}
 
-      <Card className="border-2 border-indigo-100 bg-gradient-to-br from-indigo-50 to-purple-50 hover:shadow-xl transition-all duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <div className="p-2 bg-indigo-100 rounded-lg">
-              <Info className="h-5 w-5 text-indigo-600" />
+      {/* Advanced Analysis Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-5 mb-6">
+          <TabsTrigger value="rolling" className="flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            <span className="hidden sm:inline">Rolling</span>
+          </TabsTrigger>
+          <TabsTrigger value="beta" className="flex items-center gap-2">
+            <Calculator className="h-4 w-4" />
+            <span className="hidden sm:inline">Beta</span>
+          </TabsTrigger>
+          <TabsTrigger value="multiperiod" className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            <span className="hidden sm:inline">Multi-Period</span>
+          </TabsTrigger>
+          <TabsTrigger value="diversification" className="flex items-center gap-2">
+            <PieChart className="h-4 w-4" />
+            <span className="hidden sm:inline">Diversification</span>
+          </TabsTrigger>
+          <TabsTrigger value="signals" className="flex items-center gap-2">
+            <Zap className="h-4 w-4" />
+            <span className="hidden sm:inline">Signals</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="rolling" forceMount className={activeTab === "rolling" ? "space-y-6" : "hidden"}>
+          <RollingCorrelationSection
+            rollingResult={rollingResult}
+            setRollingResult={setRollingResult}
+            rollingLoading={rollingLoading}
+            setRollingLoading={setRollingLoading}
+          />
+        </TabsContent>
+
+        <TabsContent value="beta" forceMount className={activeTab === "beta" ? "" : "hidden"}>
+          <BetaCalculator />
+        </TabsContent>
+
+        <TabsContent value="multiperiod" forceMount className={activeTab === "multiperiod" ? "" : "hidden"}>
+          <MultiPeriodComparison />
+        </TabsContent>
+
+        <TabsContent value="diversification" forceMount className={activeTab === "diversification" ? "" : "hidden"}>
+          <DiversificationAnalysis />
+        </TabsContent>
+
+        <TabsContent value="signals" forceMount className={activeTab === "signals" ? "" : "hidden"}>
+          <TradingSignals />
+        </TabsContent>
+      </Tabs>
+
+      <StyledCard variant="indigo">
+        <StyledCardHeader
+          icon={Info}
+          title="About Correlation Analysis"
+          variant="indigo"
+        />
+        <StyledCardContent>
+          <div className="text-sm space-y-3">
+            <p>
+              Correlation measures how two assets move together. Values range from -1 to +1.
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+              <li>+1: Perfect positive correlation (move together)</li>
+              <li>0: No correlation (independent movement)</li>
+              <li>-1: Perfect negative correlation (move opposite)</li>
+              <li>Low correlation between assets provides better diversification</li>
+            </ul>
+          </div>
+        </StyledCardContent>
+      </StyledCard>
+    </div>
+  )
+}
+
+// Rolling Correlation Section Component
+function RollingCorrelationSection({
+  rollingResult,
+  setRollingResult,
+  rollingLoading,
+  setRollingLoading,
+}: {
+  rollingResult: RollingCorrelationResponse | null
+  setRollingResult: (result: RollingCorrelationResponse | null) => void
+  rollingLoading: boolean
+  setRollingLoading: (loading: boolean) => void
+}) {
+  const [asset1, setAsset1] = useState("GOLD")
+  const [asset2, setAsset2] = useState("USDINR")
+  const [windowDays, setWindowDays] = useState("30")
+  const [periodDays, setPeriodDays] = useState("180")
+
+  const handleCalculateRolling = async () => {
+    if (asset1 === asset2) {
+      toast.error("Please select two different assets")
+      return
+    }
+
+    setRollingLoading(true)
+    try {
+      const response = await correlationApi.getRolling(
+        asset1,
+        asset2,
+        parseInt(windowDays),
+        parseInt(periodDays)
+      )
+      setRollingResult(response)
+      toast.success("Rolling correlation calculated!")
+    } catch (error) {
+      console.error("Error calculating rolling correlation:", error)
+      toast.error("Failed to calculate. Please try again.")
+    } finally {
+      setRollingLoading(false)
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <StyledCard variant="purple">
+        <StyledCardHeader
+          icon={Activity}
+          title="Rolling Correlation Analysis"
+          description="Track how correlation changes over time between two assets"
+          variant="purple"
+        />
+        <StyledCardContent>
+          <div className="grid md:grid-cols-5 gap-4">
+            <div className="space-y-2">
+              <Label className="text-xs text-purple-600 font-medium">Asset 1</Label>
+              <Select value={asset1} onValueChange={setAsset1}>
+                <SelectTrigger className="bg-white border-purple-200 focus:border-purple-400">
+                  <SelectValue>
+                    {AVAILABLE_ASSETS.find(a => a.value === asset1)?.label || "Select asset"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {AVAILABLE_ASSETS.map((a) => (
+                    <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            About Correlation Analysis
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm space-y-3">
-          <p>
-            Correlation measures how two assets move together. Values range from -1 to +1.
-          </p>
-          <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-            <li>+1: Perfect positive correlation (move together)</li>
-            <li>0: No correlation (independent movement)</li>
-            <li>-1: Perfect negative correlation (move opposite)</li>
-            <li>Low correlation between assets provides better diversification</li>
-          </ul>
-        </CardContent>
-      </Card>
+            <div className="space-y-2">
+              <Label className="text-xs text-violet-600 font-medium">Asset 2</Label>
+              <Select value={asset2} onValueChange={setAsset2}>
+                <SelectTrigger className="bg-white border-violet-200 focus:border-violet-400">
+                  <SelectValue>
+                    {AVAILABLE_ASSETS.find(a => a.value === asset2)?.label || "Select asset"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {AVAILABLE_ASSETS.map((a) => (
+                    <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs text-slate-600 font-medium">Window (days)</Label>
+              <Input
+                type="number"
+                value={windowDays}
+                onChange={(e) => setWindowDays(e.target.value)}
+                placeholder="30"
+                className="bg-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs text-slate-600 font-medium">Period (days)</Label>
+              <Input
+                type="number"
+                value={periodDays}
+                onChange={(e) => setPeriodDays(e.target.value)}
+                placeholder="180"
+                className="bg-white"
+              />
+            </div>
+            <div className="flex items-end">
+              <Button
+                onClick={handleCalculateRolling}
+                disabled={rollingLoading}
+                className="w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700"
+              >
+                {rollingLoading ? (
+                  <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <span className="flex items-center gap-2">
+                    Calculate
+                    <ArrowRight className="h-4 w-4" />
+                  </span>
+                )}
+              </Button>
+            </div>
+          </div>
+        </StyledCardContent>
+      </StyledCard>
+
+      {rollingResult && <RollingCorrelationChart data={rollingResult} />}
     </div>
   )
 }

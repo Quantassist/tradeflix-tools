@@ -37,7 +37,7 @@ function TimeframeCard({
     return (
         <div className="group relative overflow-hidden rounded-xl border bg-white shadow-sm hover:shadow-xl transition-all duration-300">
             {/* Header with gradient */}
-            <div className={`bg-gradient-to-r ${config.gradient} p-4 text-white`}>
+            <div className={`bg-linear-to-r ${config.gradient} p-4 text-white`}>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Icon className="h-5 w-5" />
@@ -67,7 +67,7 @@ function TimeframeCard({
                         return (
                             <div key={level.label} className="flex items-center justify-between py-1 px-2 rounded hover:bg-red-50/50 transition-colors">
                                 <span className="text-red-600 font-medium text-sm w-8">{level.label}</span>
-                                <div className="flex-1 mx-2 h-1 bg-gradient-to-r from-red-200 to-red-100 rounded-full" />
+                                <div className="flex-1 mx-2 h-1 bg-linear-to-r from-red-200 to-red-100 rounded-full" />
                                 <span className="font-mono text-sm font-semibold">${formatNumber(level.value)}</span>
                                 <span className="text-red-500 text-xs ml-2 w-14 text-right">+{dist.toFixed(2)}%</span>
                             </div>
@@ -76,7 +76,7 @@ function TimeframeCard({
                 </div>
 
                 {/* CPR Zone - Highlighted */}
-                <div className="my-2 p-2 rounded-lg bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200">
+                <div className="my-2 p-2 rounded-lg bg-linear-to-r from-slate-50 to-slate-100 border border-slate-200">
                     {[
                         { label: "TC", value: data.cpr.tc },
                         { label: "Pivot", value: data.cpr.pivot },
@@ -106,7 +106,7 @@ function TimeframeCard({
                         return (
                             <div key={level.label} className="flex items-center justify-between py-1 px-2 rounded hover:bg-green-50/50 transition-colors">
                                 <span className="text-green-600 font-medium text-sm w-8">{level.label}</span>
-                                <div className="flex-1 mx-2 h-1 bg-gradient-to-r from-green-100 to-green-200 rounded-full" />
+                                <div className="flex-1 mx-2 h-1 bg-linear-to-r from-green-100 to-green-200 rounded-full" />
                                 <span className="font-mono text-sm font-semibold">${formatNumber(level.value)}</span>
                                 <span className="text-green-500 text-xs ml-2 w-14 text-right">{dist.toFixed(2)}%</span>
                             </div>
@@ -149,7 +149,7 @@ export function MultiTimeframePivots() {
                     action={
                         <Dialog>
                             <DialogTrigger asChild>
-                                <Button className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-md">
+                                <Button className="bg-linear-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-md">
                                     <BookOpen className="h-4 w-4 mr-2" />
                                     Learn How It Works
                                 </Button>
@@ -157,7 +157,7 @@ export function MultiTimeframePivots() {
                             <DialogContent className="max-w-2xl">
                                 <DialogHeader>
                                     <DialogTitle className="flex items-center gap-3 text-xl">
-                                        <div className="p-2 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg text-white">
+                                        <div className="p-2 bg-linear-to-br from-violet-500 to-purple-600 rounded-lg text-white">
                                             <Layers className="h-5 w-5" />
                                         </div>
                                         Multi-Timeframe Pivot Guide
@@ -168,17 +168,17 @@ export function MultiTimeframePivots() {
                                 <div className="space-y-6 mt-4">
                                     {/* Visual Guide Cards */}
                                     <div className="grid grid-cols-3 gap-3">
-                                        <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100">
+                                        <div className="p-4 rounded-xl bg-linear-to-br from-blue-50 to-cyan-50 border border-blue-100">
                                             <Clock className="h-6 w-6 text-blue-600 mb-2" />
                                             <h4 className="font-bold text-blue-800">Daily</h4>
                                             <p className="text-xs text-blue-600 mt-1">Intraday levels, recalculated each day</p>
                                         </div>
-                                        <div className="p-4 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-100">
+                                        <div className="p-4 rounded-xl bg-linear-to-br from-violet-50 to-purple-50 border border-violet-100">
                                             <Calendar className="h-6 w-6 text-violet-600 mb-2" />
                                             <h4 className="font-bold text-violet-800">Weekly</h4>
                                             <p className="text-xs text-violet-600 mt-1">Swing trading levels, updated weekly</p>
                                         </div>
-                                        <div className="p-4 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100">
+                                        <div className="p-4 rounded-xl bg-linear-to-br from-amber-50 to-orange-50 border border-amber-100">
                                             <CalendarDays className="h-6 w-6 text-amber-600 mb-2" />
                                             <h4 className="font-bold text-amber-800">Monthly</h4>
                                             <p className="text-xs text-amber-600 mt-1">Major levels, highest significance</p>
@@ -212,7 +212,7 @@ export function MultiTimeframePivots() {
                                     </div>
 
                                     {/* Confluence Explanation */}
-                                    <div className="p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200">
+                                    <div className="p-4 rounded-xl bg-linear-to-r from-amber-50 to-orange-50 border border-amber-200">
                                         <h4 className="font-bold text-amber-800 mb-3 flex items-center gap-2">
                                             <Zap className="h-4 w-4" />
                                             What is Confluence?
@@ -279,7 +279,7 @@ export function MultiTimeframePivots() {
                         {/* Confluence Zones Alert */}
                         {
                             data.confluence_zones.length > 0 && (
-                                <Card className="border-2 border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50">
+                                <Card className="border-2 border-amber-200 bg-linear-to-r from-amber-50 to-orange-50">
                                     <CardHeader className="pb-3">
                                         <CardTitle className="text-lg flex items-center gap-2 text-amber-700">
                                             <Zap className="h-5 w-5" />

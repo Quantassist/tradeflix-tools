@@ -12,12 +12,12 @@ type CorrelationHeatmapProps = {
 export function CorrelationHeatmap({ matrix, assets }: CorrelationHeatmapProps) {
   const getColor = (value: number) => {
     // Return gradient background based on correlation value
-    if (value === 1) return 'bg-gradient-to-br from-blue-500 to-blue-600 text-white' // Perfect correlation (self)
-    if (value > 0.7) return 'bg-gradient-to-br from-green-500 to-green-600 text-white'
-    if (value > 0.3) return 'bg-gradient-to-br from-green-300 to-green-400 text-gray-900'
-    if (value > -0.3) return 'bg-gradient-to-br from-gray-200 to-gray-300 text-gray-800'
-    if (value > -0.7) return 'bg-gradient-to-br from-red-300 to-red-400 text-gray-900'
-    return 'bg-gradient-to-br from-red-500 to-red-600 text-white'
+    if (value === 1) return 'bg-linear-to-br from-blue-500 to-blue-600 text-white' // Perfect correlation (self)
+    if (value > 0.7) return 'bg-linear-to-br from-green-500 to-green-600 text-white'
+    if (value > 0.3) return 'bg-linear-to-br from-green-300 to-green-400 text-gray-900'
+    if (value > -0.3) return 'bg-linear-to-br from-gray-200 to-gray-300 text-gray-800'
+    if (value > -0.7) return 'bg-linear-to-br from-red-300 to-red-400 text-gray-900'
+    return 'bg-linear-to-br from-red-500 to-red-600 text-white'
   }
 
   const getIntensity = (value: number) => {
@@ -34,7 +34,7 @@ export function CorrelationHeatmap({ matrix, assets }: CorrelationHeatmapProps) 
   }
 
   // Calculate statistics
-  const correlations = assets.flatMap((a1, i) => 
+  const correlations = assets.flatMap((a1, i) =>
     assets.slice(i + 1).map(a2 => ({
       pair: `${a1}-${a2}`,
       value: matrix[a1]?.[a2] ?? 0
@@ -45,7 +45,7 @@ export function CorrelationHeatmap({ matrix, assets }: CorrelationHeatmapProps) 
 
   return (
     <Card className="shadow-xl border-2">
-      <CardHeader className="bg-gradient-to-r from-cyan-50 via-blue-50 to-indigo-50">
+      <CardHeader className="bg-linear-to-r from-cyan-50 via-blue-50 to-indigo-50">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-2xl flex items-center gap-2">
@@ -73,9 +73,9 @@ export function CorrelationHeatmap({ matrix, assets }: CorrelationHeatmapProps) 
           <table className="w-full border-collapse">
             <thead>
               <tr>
-                <th className="p-3 border-2 bg-gradient-to-br from-gray-100 to-gray-200 sticky left-0 z-10"></th>
+                <th className="p-3 border-2 bg-linear-to-br from-gray-100 to-gray-200 sticky left-0 z-10"></th>
                 {assets.map((asset) => (
-                  <th key={asset} className="p-3 border-2 bg-gradient-to-br from-blue-100 to-blue-200 font-bold text-sm">
+                  <th key={asset} className="p-3 border-2 bg-linear-to-br from-blue-100 to-blue-200 font-bold text-sm">
                     {asset}
                   </th>
                 ))}
@@ -84,7 +84,7 @@ export function CorrelationHeatmap({ matrix, assets }: CorrelationHeatmapProps) 
             <tbody>
               {assets.map((asset1) => (
                 <tr key={asset1}>
-                  <td className="p-3 border-2 bg-gradient-to-br from-gray-100 to-gray-200 font-bold text-sm sticky left-0 z-10">
+                  <td className="p-3 border-2 bg-linear-to-br from-gray-100 to-gray-200 font-bold text-sm sticky left-0 z-10">
                     {asset1}
                   </td>
                   {assets.map((asset2) => {
@@ -125,42 +125,42 @@ export function CorrelationHeatmap({ matrix, assets }: CorrelationHeatmapProps) 
           <h4 className="font-semibold text-sm text-gray-700">Correlation Strength Guide:</h4>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <div className="flex flex-col items-center gap-2 p-3 rounded-lg border-2 border-green-200 bg-green-50">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-md"></div>
+              <div className="w-12 h-12 bg-linear-to-br from-green-500 to-green-600 rounded-lg shadow-md"></div>
               <div className="text-center">
                 <div className="font-bold text-sm text-green-700">Strong +</div>
                 <div className="text-xs text-gray-600">&gt; 0.7</div>
               </div>
             </div>
             <div className="flex flex-col items-center gap-2 p-3 rounded-lg border-2 border-green-100 bg-green-25">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-300 to-green-400 rounded-lg shadow-md"></div>
+              <div className="w-12 h-12 bg-linear-to-br from-green-300 to-green-400 rounded-lg shadow-md"></div>
               <div className="text-center">
                 <div className="font-bold text-sm text-green-600">Moderate +</div>
                 <div className="text-xs text-gray-600">0.3 to 0.7</div>
               </div>
             </div>
             <div className="flex flex-col items-center gap-2 p-3 rounded-lg border-2 border-gray-200 bg-gray-50">
-              <div className="w-12 h-12 bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg shadow-md"></div>
+              <div className="w-12 h-12 bg-linear-to-br from-gray-200 to-gray-300 rounded-lg shadow-md"></div>
               <div className="text-center">
                 <div className="font-bold text-sm text-gray-700">Weak</div>
                 <div className="text-xs text-gray-600">-0.3 to 0.3</div>
               </div>
             </div>
             <div className="flex flex-col items-center gap-2 p-3 rounded-lg border-2 border-red-100 bg-red-25">
-              <div className="w-12 h-12 bg-gradient-to-br from-red-300 to-red-400 rounded-lg shadow-md"></div>
+              <div className="w-12 h-12 bg-linear-to-br from-red-300 to-red-400 rounded-lg shadow-md"></div>
               <div className="text-center">
                 <div className="font-bold text-sm text-red-600">Moderate -</div>
                 <div className="text-xs text-gray-600">-0.7 to -0.3</div>
               </div>
             </div>
             <div className="flex flex-col items-center gap-2 p-3 rounded-lg border-2 border-red-200 bg-red-50">
-              <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-lg shadow-md"></div>
+              <div className="w-12 h-12 bg-linear-to-br from-red-500 to-red-600 rounded-lg shadow-md"></div>
               <div className="text-center">
                 <div className="font-bold text-sm text-red-700">Strong -</div>
                 <div className="text-xs text-gray-600">&lt; -0.7</div>
               </div>
             </div>
           </div>
-          
+
           {/* Insights */}
           <div className="mt-4 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
             <h5 className="font-semibold text-sm text-blue-900 mb-2 flex items-center gap-2">

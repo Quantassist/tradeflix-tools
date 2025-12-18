@@ -26,7 +26,7 @@ function getHeatmapConfig(level: ArbitrageLevel) {
     const configs = {
         strong_discount: {
             color: "from-green-500 to-emerald-600",
-            bgColor: "bg-gradient-to-br from-green-50 to-emerald-100",
+            bgColor: "bg-linear-to-br from-green-50 to-emerald-100",
             borderColor: "border-green-400",
             textColor: "text-green-700",
             label: "Strong Discount",
@@ -36,7 +36,7 @@ function getHeatmapConfig(level: ArbitrageLevel) {
         },
         discount: {
             color: "from-green-400 to-green-500",
-            bgColor: "bg-gradient-to-br from-green-50 to-green-100",
+            bgColor: "bg-linear-to-br from-green-50 to-green-100",
             borderColor: "border-green-300",
             textColor: "text-green-600",
             label: "Discount",
@@ -46,7 +46,7 @@ function getHeatmapConfig(level: ArbitrageLevel) {
         },
         fair: {
             color: "from-yellow-400 to-amber-500",
-            bgColor: "bg-gradient-to-br from-yellow-50 to-amber-100",
+            bgColor: "bg-linear-to-br from-yellow-50 to-amber-100",
             borderColor: "border-yellow-300",
             textColor: "text-yellow-700",
             label: "Fair Value",
@@ -56,7 +56,7 @@ function getHeatmapConfig(level: ArbitrageLevel) {
         },
         premium: {
             color: "from-orange-400 to-orange-500",
-            bgColor: "bg-gradient-to-br from-orange-50 to-orange-100",
+            bgColor: "bg-linear-to-br from-orange-50 to-orange-100",
             borderColor: "border-orange-300",
             textColor: "text-orange-600",
             label: "Premium",
@@ -66,7 +66,7 @@ function getHeatmapConfig(level: ArbitrageLevel) {
         },
         strong_premium: {
             color: "from-red-500 to-rose-600",
-            bgColor: "bg-gradient-to-br from-red-50 to-rose-100",
+            bgColor: "bg-linear-to-br from-red-50 to-rose-100",
             borderColor: "border-red-400",
             textColor: "text-red-700",
             label: "Strong Premium",
@@ -109,7 +109,7 @@ export function ArbitrageHeatmap({ premiumPercent, premium, signal, commodity = 
                 <div className={cn("rounded-2xl p-6 border-2 transition-all duration-500", config.bgColor, config.borderColor)}>
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
-                            <div className={cn("p-3 rounded-xl bg-gradient-to-br", config.color)}>
+                            <div className={cn("p-3 rounded-xl bg-linear-to-br", config.color)}>
                                 <Icon className="h-6 w-6 text-white" />
                             </div>
                             <div>

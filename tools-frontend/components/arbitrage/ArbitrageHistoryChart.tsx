@@ -280,7 +280,7 @@ export function ArbitrageHistoryChart() {
                             <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
                                 {/* Stats Cards */}
                                 <div className="lg:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-3">
-                                    <div className="p-4 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-200 shadow-sm">
+                                    <div className="p-4 rounded-xl bg-linear-to-br from-violet-50 to-purple-50 border border-violet-200 shadow-sm">
                                         <div className="flex items-center gap-2 mb-1">
                                             <div className="w-2 h-2 rounded-full bg-violet-500"></div>
                                             <p className="text-xs text-violet-600 font-medium uppercase tracking-wide">Avg Premium</p>
@@ -293,7 +293,7 @@ export function ArbitrageHistoryChart() {
                                             {data.statistics.average_premium_percent.toFixed(3)}%
                                         </p>
                                     </div>
-                                    <div className="p-4 rounded-xl bg-gradient-to-br from-slate-50 to-gray-100 border border-slate-200 shadow-sm">
+                                    <div className="p-4 rounded-xl bg-linear-to-br from-slate-50 to-gray-100 border border-slate-200 shadow-sm">
                                         <div className="flex items-center gap-2 mb-1">
                                             <div className="w-2 h-2 rounded-full bg-slate-500"></div>
                                             <p className="text-xs text-slate-600 font-medium uppercase tracking-wide">Std Deviation</p>
@@ -302,7 +302,7 @@ export function ArbitrageHistoryChart() {
                                             ±{data.statistics.std_deviation.toFixed(3)}%
                                         </p>
                                     </div>
-                                    <div className="p-4 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 shadow-sm">
+                                    <div className="p-4 rounded-xl bg-linear-to-br from-green-50 to-emerald-50 border border-green-200 shadow-sm">
                                         <div className="flex items-center gap-2 mb-1">
                                             <TrendingDown className="w-3 h-3 text-green-600" />
                                             <p className="text-xs text-green-600 font-medium uppercase tracking-wide">Min (Best Buy)</p>
@@ -311,7 +311,7 @@ export function ArbitrageHistoryChart() {
                                             {data.statistics.min_premium_percent.toFixed(3)}%
                                         </p>
                                     </div>
-                                    <div className="p-4 rounded-xl bg-gradient-to-br from-red-50 to-rose-50 border border-red-200 shadow-sm">
+                                    <div className="p-4 rounded-xl bg-linear-to-br from-red-50 to-rose-50 border border-red-200 shadow-sm">
                                         <div className="flex items-center gap-2 mb-1">
                                             <TrendingUp className="w-3 h-3 text-red-600" />
                                             <p className="text-xs text-red-600 font-medium uppercase tracking-wide">Max (Best Sell)</p>
@@ -324,7 +324,7 @@ export function ArbitrageHistoryChart() {
 
                                 {/* Signal Distribution */}
                                 {data?.statistics?.signal_distribution && (
-                                    <div className="p-4 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 shadow-sm">
+                                    <div className="p-4 rounded-xl bg-linear-to-br from-amber-50 to-orange-50 border border-amber-200 shadow-sm">
                                         <div className="flex items-center gap-2 mb-3">
                                             <BarChart3 className="w-3 h-3 text-amber-600" />
                                             <h4 className="text-xs text-amber-600 font-medium uppercase tracking-wide">Signal Distribution</h4>

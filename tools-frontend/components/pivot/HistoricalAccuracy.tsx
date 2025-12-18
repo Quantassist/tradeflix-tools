@@ -57,7 +57,7 @@ export function HistoricalAccuracy() {
                     action={
                         <Dialog>
                             <DialogTrigger asChild>
-                                <Button className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white shadow-md">
+                                <Button className="bg-linear-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white shadow-md">
                                     <BookOpen className="h-4 w-4 mr-2" />
                                     Understanding Accuracy
                                 </Button>
@@ -65,7 +65,7 @@ export function HistoricalAccuracy() {
                             <DialogContent className="max-w-2xl">
                                 <DialogHeader>
                                     <DialogTitle className="flex items-center gap-3 text-xl">
-                                        <div className="p-2 bg-gradient-to-br from-orange-500 to-amber-600 rounded-lg text-white">
+                                        <div className="p-2 bg-linear-to-br from-orange-500 to-amber-600 rounded-lg text-white">
                                             <BarChart3 className="h-5 w-5" />
                                         </div>
                                         Historical Accuracy Guide
@@ -75,7 +75,7 @@ export function HistoricalAccuracy() {
 
                                 <div className="space-y-6 mt-4">
                                     {/* What is Respected */}
-                                    <div className="p-4 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 border">
+                                    <div className="p-4 rounded-xl bg-linear-to-br from-slate-50 to-slate-100 border">
                                         <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
                                             <Target className="h-5 w-5 text-slate-600" />
                                             What Does &quot;Respected&quot; Mean?
@@ -97,17 +97,17 @@ export function HistoricalAccuracy() {
 
                                     {/* Accuracy Ratings */}
                                     <div className="grid grid-cols-3 gap-3">
-                                        <div className="p-4 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 text-center">
+                                        <div className="p-4 rounded-xl bg-linear-to-br from-green-50 to-emerald-50 border border-green-100 text-center">
                                             <div className="text-3xl font-bold text-green-600 mb-1">80%+</div>
                                             <Badge className="bg-green-100 text-green-700">Excellent</Badge>
                                             <p className="text-xs text-green-600 mt-2">High reliability level</p>
                                         </div>
-                                        <div className="p-4 rounded-xl bg-gradient-to-br from-yellow-50 to-amber-50 border border-yellow-100 text-center">
+                                        <div className="p-4 rounded-xl bg-linear-to-br from-yellow-50 to-amber-50 border border-yellow-100 text-center">
                                             <div className="text-3xl font-bold text-yellow-600 mb-1">70-79%</div>
                                             <Badge className="bg-yellow-100 text-yellow-700">Good</Badge>
                                             <p className="text-xs text-yellow-600 mt-2">Moderate reliability</p>
                                         </div>
-                                        <div className="p-4 rounded-xl bg-gradient-to-br from-red-50 to-orange-50 border border-red-100 text-center">
+                                        <div className="p-4 rounded-xl bg-linear-to-br from-red-50 to-orange-50 border border-red-100 text-center">
                                             <div className="text-3xl font-bold text-red-600 mb-1">&lt;70%</div>
                                             <Badge className="bg-red-100 text-red-700">Fair</Badge>
                                             <p className="text-xs text-red-600 mt-2">Use with caution</p>
@@ -115,7 +115,7 @@ export function HistoricalAccuracy() {
                                     </div>
 
                                     {/* CPR Types */}
-                                    <div className="p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200">
+                                    <div className="p-4 rounded-xl bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-200">
                                         <h4 className="font-bold text-blue-800 mb-3 flex items-center gap-2">
                                             <Info className="h-4 w-4" />
                                             CPR Width Categories

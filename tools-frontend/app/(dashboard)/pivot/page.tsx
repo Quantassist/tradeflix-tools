@@ -238,7 +238,7 @@ export default function PivotCalculatorPage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Modern Header with Gradient */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 via-cyan-500 to-teal-500 p-8 text-white shadow-2xl">
+      <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-blue-500 via-cyan-500 to-teal-500 p-8 text-white shadow-2xl">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10">
           <div className="flex items-center justify-between">
@@ -306,7 +306,7 @@ export default function PivotCalculatorPage() {
             action={
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white shadow-md">
+                  <Button className="bg-linear-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white shadow-md">
                     <BookOpen className="h-4 w-4 mr-2" />
                     How to Use
                   </Button>
@@ -314,7 +314,7 @@ export default function PivotCalculatorPage() {
                 <DialogContent className="max-w-lg">
                   <DialogHeader>
                     <DialogTitle className="flex items-center gap-3 text-xl">
-                      <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg text-white">
+                      <div className="p-2 bg-linear-to-br from-blue-500 to-cyan-600 rounded-lg text-white">
                         <Settings className="h-5 w-5" />
                       </div>
                       Input Parameters Guide
@@ -456,7 +456,7 @@ export default function PivotCalculatorPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
+                className="w-full bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
                 disabled={loading}
               >
                 {loading ? (
@@ -485,7 +485,7 @@ export default function PivotCalculatorPage() {
             action={
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-md">
+                  <Button className="bg-linear-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-md">
                     <BookOpen className="h-4 w-4 mr-2" />
                     Understanding Levels
                   </Button>
@@ -493,7 +493,7 @@ export default function PivotCalculatorPage() {
                 <DialogContent className="max-w-2xl">
                   <DialogHeader>
                     <DialogTitle className="flex items-center gap-3 text-xl">
-                      <div className="p-2 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-lg text-white">
+                      <div className="p-2 bg-linear-to-br from-teal-500 to-emerald-600 rounded-lg text-white">
                         <Sparkles className="h-5 w-5" />
                       </div>
                       Pivot Levels Guide
@@ -502,15 +502,15 @@ export default function PivotCalculatorPage() {
                   </DialogHeader>
                   <div className="space-y-4 mt-4">
                     <div className="grid grid-cols-3 gap-3">
-                      <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100">
+                      <div className="p-4 rounded-xl bg-linear-to-br from-blue-50 to-cyan-50 border border-blue-100">
                         <h4 className="font-bold text-blue-800 mb-2">CPR</h4>
                         <p className="text-xs text-blue-700">Central Pivot Range - defines the day&apos;s bias. Narrow CPR = trending, Wide CPR = ranging.</p>
                       </div>
-                      <div className="p-4 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-100">
+                      <div className="p-4 rounded-xl bg-linear-to-br from-purple-50 to-violet-50 border border-purple-100">
                         <h4 className="font-bold text-purple-800 mb-2">Floor Pivots</h4>
                         <p className="text-xs text-purple-700">Classic S1-S3 and R1-R3 levels. Most widely used by institutional traders.</p>
                       </div>
-                      <div className="p-4 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100">
+                      <div className="p-4 rounded-xl bg-linear-to-br from-amber-50 to-orange-50 border border-amber-100">
                         <h4 className="font-bold text-amber-800 mb-2">Fibonacci</h4>
                         <p className="text-xs text-amber-700">Retracement levels. 61.8% (Golden Zone) is the most significant level.</p>
                       </div>
@@ -745,7 +745,7 @@ export default function PivotCalculatorPage() {
             ) : (
               <div className="flex h-64 items-center justify-center text-center">
                 <div className="text-muted-foreground animate-pulse">
-                  <div className="p-4 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                  <div className="p-4 bg-linear-to-br from-blue-100 to-cyan-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
                     <Calculator className="h-10 w-10 text-blue-600" />
                   </div>
                   <p className="text-lg font-medium">Enter values and calculate</p>

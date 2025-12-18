@@ -102,7 +102,7 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
                 action={
                     <Dialog>
                         <DialogTrigger asChild>
-                            <Button className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-md">
+                            <Button className="bg-linear-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-md">
                                 <BookOpen className="h-4 w-4 mr-2" />
                                 How to Use
                             </Button>
@@ -110,7 +110,7 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
                         <DialogContent className="max-w-2xl">
                             <DialogHeader>
                                 <DialogTitle className="flex items-center gap-2">
-                                    <div className="p-2 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg text-white">
+                                    <div className="p-2 bg-linear-to-br from-violet-500 to-purple-600 rounded-lg text-white">
                                         <RefreshCcw className="h-4 w-4" />
                                     </div>
                                     Intraday Recalculation Guide
@@ -119,7 +119,7 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
                             </DialogHeader>
                             <div className="space-y-4 mt-4 text-sm">
                                 {/* What is it */}
-                                <div className="p-4 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-100">
+                                <div className="p-4 rounded-xl bg-linear-to-br from-violet-50 to-purple-50 border border-violet-100">
                                     <h4 className="font-bold text-violet-800 mb-2 flex items-center gap-2">
                                         <Lightbulb className="h-4 w-4" />
                                         What is Intraday Recalculation?

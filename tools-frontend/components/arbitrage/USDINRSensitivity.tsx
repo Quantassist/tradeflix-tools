@@ -160,7 +160,7 @@ export function USDINRSensitivity({ initialComexPrice = 2650, initialUsdinr = 84
 
                     <Button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700"
+                        className="w-full bg-linear-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700"
                         disabled={loading}
                     >
                         {loading ? (
@@ -184,8 +184,8 @@ export function USDINRSensitivity({ initialComexPrice = 2650, initialUsdinr = 84
                         <div className={cn(
                             "rounded-xl p-6 border-2",
                             result.analysis.fair_value_change > 0
-                                ? "bg-gradient-to-br from-red-50 to-orange-50 border-red-200"
-                                : "bg-gradient-to-br from-green-50 to-emerald-50 border-green-200"
+                                ? "bg-linear-to-br from-red-50 to-orange-50 border-red-200"
+                                : "bg-linear-to-br from-green-50 to-emerald-50 border-green-200"
                         )}>
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2">

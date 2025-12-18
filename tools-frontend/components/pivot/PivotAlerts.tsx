@@ -136,7 +136,7 @@ export function PivotAlerts({ pivotData }: PivotAlertsProps) {
                         </Badge>
                         <Dialog>
                             <DialogTrigger asChild>
-                                <Button className="bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white shadow-md">
+                                <Button className="bg-linear-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white shadow-md">
                                     <BookOpen className="h-4 w-4 mr-2" />
                                     Alert Guide
                                 </Button>
@@ -144,7 +144,7 @@ export function PivotAlerts({ pivotData }: PivotAlertsProps) {
                             <DialogContent className="max-w-lg">
                                 <DialogHeader>
                                     <DialogTitle className="flex items-center gap-2">
-                                        <div className="p-2 bg-gradient-to-br from-rose-500 to-pink-600 rounded-lg text-white">
+                                        <div className="p-2 bg-linear-to-br from-rose-500 to-pink-600 rounded-lg text-white">
                                             <BellRing className="h-4 w-4" />
                                         </div>
                                         Pivot Alerts Guide

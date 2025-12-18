@@ -29,47 +29,47 @@ const gradientConfig: Record<GradientVariant, { bar: string; icon: string; iconB
     purple: {
         bar: "from-purple-500 via-pink-500 to-orange-500",
         icon: "from-purple-500 to-pink-600",
-        iconBg: "bg-gradient-to-br",
+        iconBg: "bg-linear-to-br",
     },
     blue: {
         bar: "from-blue-500 via-cyan-500 to-teal-500",
         icon: "from-blue-500 to-cyan-600",
-        iconBg: "bg-gradient-to-br",
+        iconBg: "bg-linear-to-br",
     },
     green: {
         bar: "from-teal-500 via-emerald-500 to-green-500",
         icon: "from-teal-500 to-emerald-600",
-        iconBg: "bg-gradient-to-br",
+        iconBg: "bg-linear-to-br",
     },
     orange: {
         bar: "from-orange-500 via-amber-500 to-yellow-500",
         icon: "from-orange-500 to-amber-600",
-        iconBg: "bg-gradient-to-br",
+        iconBg: "bg-linear-to-br",
     },
     teal: {
         bar: "from-teal-500 via-cyan-500 to-blue-500",
         icon: "from-teal-500 to-cyan-600",
-        iconBg: "bg-gradient-to-br",
+        iconBg: "bg-linear-to-br",
     },
     pink: {
         bar: "from-pink-500 via-rose-500 to-red-500",
         icon: "from-pink-500 to-rose-600",
-        iconBg: "bg-gradient-to-br",
+        iconBg: "bg-linear-to-br",
     },
     amber: {
         bar: "from-amber-500 via-orange-500 to-red-500",
         icon: "from-amber-500 to-orange-600",
-        iconBg: "bg-gradient-to-br",
+        iconBg: "bg-linear-to-br",
     },
     indigo: {
         bar: "from-indigo-500 via-purple-500 to-pink-500",
         icon: "from-indigo-500 to-purple-600",
-        iconBg: "bg-gradient-to-br",
+        iconBg: "bg-linear-to-br",
     },
     slate: {
         bar: "from-slate-500 via-gray-500 to-zinc-500",
         icon: "from-slate-500 to-gray-600",
-        iconBg: "bg-gradient-to-br",
+        iconBg: "bg-linear-to-br",
     },
 }
 
@@ -96,7 +96,7 @@ function StyledCard({
             {...props}
         >
             {showGradientBar && (
-                <div className={cn("h-1.5 bg-gradient-to-r", config.bar)} />
+                <div className={cn("h-1.5 bg-linear-to-r", config.bar)} />
             )}
             {children}
         </div>

@@ -143,7 +143,7 @@ export function BetaCalculator() {
                         <Button
                             onClick={handleCalculate}
                             disabled={loading}
-                            className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
+                            className="w-full bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
                         >
                             {loading ? (
                                 <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

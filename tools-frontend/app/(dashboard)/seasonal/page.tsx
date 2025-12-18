@@ -154,7 +154,7 @@ export default function SeasonalTrendsPage() {
       {/* Modern Header with Gradient */}
       <motion.div
         variants={itemVariants}
-        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-green-500 to-teal-500 p-8 md:p-10 text-white shadow-2xl"
+        className="relative overflow-hidden rounded-3xl bg-linear-to-br from-emerald-600 via-green-500 to-teal-500 p-8 md:p-10 text-white shadow-2xl"
       >
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
@@ -191,7 +191,7 @@ export default function SeasonalTrendsPage() {
 
       {/* Global Analysis Controls - Sticky Header */}
       <motion.div variants={itemVariants} className="sticky -top-6 z-50 -mx-6 px-6 pt-6 pb-2 bg-background">
-        <Card className="border-2 border-emerald-300 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 shadow-lg backdrop-blur-sm">
+        <Card className="border-2 border-emerald-300 bg-linear-to-r from-emerald-50 via-teal-50 to-cyan-50 shadow-lg backdrop-blur-sm">
           <CardContent className="py-4">
             <div className="flex flex-wrap gap-4 items-center justify-between">
               <div className="flex flex-wrap gap-4 items-center">
@@ -332,7 +332,7 @@ export default function SeasonalTrendsPage() {
       <motion.div variants={itemVariants}>
         <Card className="border-2 border-emerald-200/60 shadow-lg overflow-hidden">
           <CardHeader
-            className="bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 cursor-pointer hover:from-emerald-100 hover:via-green-100 hover:to-teal-100 transition-all duration-300"
+            className="bg-linear-to-r from-emerald-50 via-green-50 to-teal-50 cursor-pointer hover:from-emerald-100 hover:via-green-100 hover:to-teal-100 transition-all duration-300"
             onClick={() => setEventsExpanded(!eventsExpanded)}
           >
             <div className="flex items-center justify-between">
@@ -433,7 +433,7 @@ export default function SeasonalTrendsPage() {
                             transition={{ delay: idx * 0.05 }}
                           >
                             <Card className="h-full border border-gray-200 hover:border-emerald-300 transition-colors duration-300 overflow-hidden">
-                              <CardHeader className="bg-gradient-to-r from-gray-50 via-emerald-50/50 to-green-50/50 border-b py-3">
+                              <CardHeader className="bg-linear-to-r from-gray-50 via-emerald-50/50 to-green-50/50 border-b py-3">
                                 <CardTitle className="text-base flex items-center gap-2">
                                   <span className="text-xl">{eventIcon}</span>
                                   <span className="font-semibold">{event.name}</span>
@@ -543,7 +543,7 @@ export default function SeasonalTrendsPage() {
       {/* About Section */}
       <motion.div variants={itemVariants}>
         <Card className="border border-gray-200 shadow-sm overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50">
+          <CardHeader className="bg-linear-to-r from-slate-50 to-gray-50">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-slate-100 rounded-lg">
                 <Info className="h-5 w-5 text-slate-600" />

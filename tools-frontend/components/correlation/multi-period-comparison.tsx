@@ -142,7 +142,7 @@ export function MultiPeriodComparison() {
                         <Button
                             onClick={handleCalculate}
                             disabled={loading}
-                            className="w-full bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600"
+                            className="w-full bg-linear-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600"
                         >
                             {loading ? (
                                 <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -172,7 +172,7 @@ export function MultiPeriodComparison() {
                                         key={period.period_days}
                                         className="relative overflow-hidden rounded-xl border-2 bg-white shadow-sm hover:shadow-lg transition-all"
                                     >
-                                        <div className={`h-1.5 bg-gradient-to-r ${colors[index]}`} />
+                                        <div className={`h-1.5 bg-linear-to-r ${colors[index]}`} />
                                         <div className="p-4">
                                             <div className="flex items-center gap-2 mb-2">
                                                 <Calendar className="h-4 w-4 text-slate-400" />
@@ -184,8 +184,8 @@ export function MultiPeriodComparison() {
                                                 {period.correlation > 0 ? "+" : ""}{formatNumber(period.correlation, 3)}
                                             </div>
                                             <Badge className={`mt-2 ${period.strength === "strong" ? "bg-green-100 text-green-700" :
-                                                    period.strength === "moderate" ? "bg-blue-100 text-blue-700" :
-                                                        "bg-gray-100 text-gray-700"
+                                                period.strength === "moderate" ? "bg-blue-100 text-blue-700" :
+                                                    "bg-gray-100 text-gray-700"
                                                 }`}>
                                                 {period.strength.replace("_", " ")}
                                             </Badge>
@@ -193,8 +193,8 @@ export function MultiPeriodComparison() {
                                             <div className="mt-3 h-2 bg-slate-100 rounded-full overflow-hidden">
                                                 <div
                                                     className={`h-full rounded-full transition-all ${period.correlation > 0.5 ? "bg-green-500" :
-                                                            period.correlation > 0 ? "bg-green-300" :
-                                                                period.correlation > -0.5 ? "bg-red-300" : "bg-red-500"
+                                                        period.correlation > 0 ? "bg-green-300" :
+                                                            period.correlation > -0.5 ? "bg-red-300" : "bg-red-500"
                                                         }`}
                                                     style={{ width: `${((period.correlation + 1) / 2) * 100}%` }}
                                                 />
@@ -207,8 +207,8 @@ export function MultiPeriodComparison() {
 
                         {/* Trend Summary */}
                         <div className={`p-5 rounded-xl border-2 ${result.trend === "strengthening" ? "bg-green-50 border-green-200" :
-                                result.trend === "weakening" ? "bg-red-50 border-red-200" :
-                                    "bg-indigo-50 border-indigo-200"
+                            result.trend === "weakening" ? "bg-red-50 border-red-200" :
+                                "bg-indigo-50 border-indigo-200"
                             }`}>
                             <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-3">

@@ -290,7 +290,7 @@ export function MultiCommodityTracker() {
 
                 {/* Cross-Commodity Analysis */}
                 {!refreshing && commodities.filter((c) => !c.error).length >= 2 && (
-                    <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200">
+                    <div className="mt-6 p-4 rounded-xl bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-200">
                         <h4 className="font-medium text-sm mb-2">Cross-Commodity Analysis</h4>
                         <p className="text-sm text-muted-foreground">
                             {(() => {

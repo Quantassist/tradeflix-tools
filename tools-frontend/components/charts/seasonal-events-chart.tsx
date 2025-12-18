@@ -151,7 +151,7 @@ export function SeasonalEventsChart({ events }: SeasonalEventsChartProps) {
     <div className="space-y-6">
       {/* Monthly Distribution Chart */}
       <Card className="shadow-xl border-2">
-        <CardHeader className="bg-gradient-to-r from-orange-50 via-amber-50 to-yellow-50">
+        <CardHeader className="bg-linear-to-r from-orange-50 via-amber-50 to-yellow-50">
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-2xl flex items-center gap-2">
@@ -228,7 +228,7 @@ export function SeasonalEventsChart({ events }: SeasonalEventsChartProps) {
       {/* Top Events Chart */}
       {topEvents.length > 0 && (
         <Card className="shadow-xl border-2">
-          <CardHeader className="bg-gradient-to-r from-purple-50 via-pink-50 to-rose-50">
+          <CardHeader className="bg-linear-to-r from-purple-50 via-pink-50 to-rose-50">
             <CardTitle className="text-2xl flex items-center gap-2">
               <TrendingUp className="h-6 w-6 text-purple-600" />
               Top Seasonal Events by Impact

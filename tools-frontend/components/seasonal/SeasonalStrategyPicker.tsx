@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { CardContent } from "@/components/ui/card"
+import { StyledCard, StyledCardHeader } from "@/components/ui/styled-card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -14,8 +15,10 @@ import {
     Building2,
     Sun,
     ArrowRight,
-    Info
+    Info,
+    BookOpen
 } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import {
     Tooltip,
     TooltipContent,
@@ -384,29 +387,65 @@ export function SeasonalStrategyPicker() {
     }
 
     return (
-        <Card className="border-slate-200">
-            <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                            <Play className="h-5 w-5 text-indigo-600" />
-                            Seasonal Strategy Backtester
-                        </CardTitle>
-                        <CardDescription className="mt-1">
-                            Test pre-built seasonal trading strategies against historical data
-                        </CardDescription>
+        <StyledCard variant="indigo">
+            <StyledCardHeader
+                icon={Play}
+                title="Seasonal Strategy Backtester"
+                description="Test pre-built seasonal trading strategies against historical data"
+                variant="indigo"
+                action={
+                    <div className="flex items-center gap-2">
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button className="bg-linear-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-md">
+                                    <BookOpen className="h-4 w-4 mr-2" />
+                                    Learn How It Works
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                    <DialogTitle className="flex items-center gap-3 text-xl">
+                                        <div className="p-2 bg-linear-to-br from-indigo-500 to-purple-600 rounded-lg text-white">
+                                            <Play className="h-5 w-5" />
+                                        </div>
+                                        Strategy Backtester Guide
+                                    </DialogTitle>
+                                    <DialogDescription>Test seasonal trading strategies with historical data</DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4 mt-4">
+                                    <div className="p-4 rounded-xl bg-linear-to-br from-indigo-50 to-purple-50 border border-indigo-100">
+                                        <h4 className="font-bold text-indigo-800 mb-2 flex items-center gap-2">
+                                            <Info className="h-4 w-4" />
+                                            What is Strategy Backtesting?
+                                        </h4>
+                                        <p className="text-sm text-indigo-700">
+                                            Backtesting allows you to test trading strategies against historical data to see
+                                            how they would have performed in the past.
+                                        </p>
+                                    </div>
+                                    <div className="p-4 rounded-xl bg-slate-50 border">
+                                        <h4 className="font-bold text-slate-800 mb-2">Pre-built Strategies</h4>
+                                        <ul className="text-sm text-slate-600 space-y-2">
+                                            <li>• <strong>Festival Strategies</strong>: Trade around Diwali, Akshaya Tritiya, etc.</li>
+                                            <li>• <strong>Monthly Strategies</strong>: Exploit monthly seasonal patterns</li>
+                                            <li>• <strong>Economic Strategies</strong>: Trade around budget, FOMC meetings</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => router.push("/backtest")}
+                            className="text-xs"
+                        >
+                            Open Full Backtester
+                            <ArrowRight className="ml-1 h-3 w-3" />
+                        </Button>
                     </div>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => router.push("/backtest")}
-                        className="text-xs"
-                    >
-                        Open Full Backtester
-                        <ArrowRight className="ml-1 h-3 w-3" />
-                    </Button>
-                </div>
-            </CardHeader>
+                }
+            />
             <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {SEASONAL_STRATEGIES.map((strategy) => (
@@ -496,7 +535,7 @@ export function SeasonalStrategyPicker() {
                     ))}
                 </div>
             </CardContent>
-        </Card>
+        </StyledCard>
     )
 }
 

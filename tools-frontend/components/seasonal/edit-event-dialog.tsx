@@ -435,7 +435,7 @@ export function EditEventDialog({ event, open, onOpenChange, onEventUpdated }: E
                     <Button
                         onClick={handleSubmit}
                         disabled={loading || !formData.name?.trim()}
-                        className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700"
+                        className="bg-linear-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700"
                     >
                         {loading ? (
                             <>

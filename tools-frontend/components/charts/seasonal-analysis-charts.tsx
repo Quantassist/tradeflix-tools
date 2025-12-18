@@ -2,9 +2,12 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from "recharts"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
+import { StyledCard, StyledCardHeader } from "@/components/ui/styled-card"
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, TrendingUp, BarChart3, Loader2, AlertCircle, Award, Target, Sparkles, ArrowUpRight, ArrowDownRight } from "lucide-react"
+import { Calendar, TrendingUp, BarChart3, Loader2, AlertCircle, Award, Target, Sparkles, ArrowUpRight, ArrowDownRight, BookOpen, Info } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { AdvancedEventDropdown } from "@/components/ui/advanced-event-dropdown"
 import { metalsPricesApi, MonthlySeasonality, SeasonalEventAnalysis, MetalType, CurrencyType } from "@/lib/api/metals-prices"
 import { toast } from "sonner"
@@ -360,16 +363,54 @@ export function SeasonalAnalysisCharts({
             {/* Trading Insights */}
             {insights.length > 0 && (
                 <motion.div variants={itemVariants}>
-                    <Card className="border border-gray-200 shadow-sm overflow-hidden">
-                        <CardHeader className="bg-gradient-to-r from-violet-50 via-purple-50 to-fuchsia-50 pb-4">
-                            <CardTitle className="text-xl flex items-center gap-2">
-                                <Sparkles className="h-5 w-5 text-violet-600" />
-                                Trading Insights
-                            </CardTitle>
-                            <CardDescription>
-                                Key observations based on {yearsBack} years of historical data
-                            </CardDescription>
-                        </CardHeader>
+                    <StyledCard variant="purple">
+                        <StyledCardHeader
+                            icon={Sparkles}
+                            title="Trading Insights"
+                            description={`Key observations based on ${yearsBack >= 1 ? `${yearsBack} years` : `${Math.round(yearsBack * 12)} months`} of historical data`}
+                            variant="purple"
+                            action={
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button className="bg-linear-to-r from-violet-500 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-700 text-white shadow-md">
+                                            <BookOpen className="h-4 w-4 mr-2" />
+                                            Learn How It Works
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="max-w-2xl">
+                                        <DialogHeader>
+                                            <DialogTitle className="flex items-center gap-3 text-xl">
+                                                <div className="p-2 bg-linear-to-br from-violet-500 to-fuchsia-600 rounded-lg text-white">
+                                                    <Sparkles className="h-5 w-5" />
+                                                </div>
+                                                Trading Insights Guide
+                                            </DialogTitle>
+                                            <DialogDescription>Understanding AI-generated trading insights</DialogDescription>
+                                        </DialogHeader>
+                                        <div className="space-y-4 mt-4">
+                                            <div className="p-4 rounded-xl bg-linear-to-br from-violet-50 to-fuchsia-50 border border-violet-100">
+                                                <h4 className="font-bold text-violet-800 mb-2 flex items-center gap-2">
+                                                    <Info className="h-4 w-4" />
+                                                    What are Trading Insights?
+                                                </h4>
+                                                <p className="text-sm text-violet-700">
+                                                    These are automatically generated observations based on historical seasonal patterns,
+                                                    highlighting the most significant bullish and bearish trends.
+                                                </p>
+                                            </div>
+                                            <div className="p-4 rounded-xl bg-slate-50 border">
+                                                <h4 className="font-bold text-slate-800 mb-2">Insight Types</h4>
+                                                <ul className="text-sm text-slate-600 space-y-2">
+                                                    <li>• <strong className="text-emerald-600">Bullish (Green)</strong>: Historically positive patterns</li>
+                                                    <li>• <strong className="text-red-600">Bearish (Red)</strong>: Historically negative patterns</li>
+                                                    <li>• <strong className="text-gray-600">Neutral (Gray)</strong>: Informational observations</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
+                            }
+                        />
                         <CardContent className="pt-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <AnimatePresence>
@@ -400,7 +441,7 @@ export function SeasonalAnalysisCharts({
                                 </AnimatePresence>
                             </div>
                         </CardContent>
-                    </Card>
+                    </StyledCard>
                 </motion.div>
             )}
 
@@ -408,7 +449,7 @@ export function SeasonalAnalysisCharts({
             {bestMonth && worstMonth && (
                 <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <motion.div variants={cardHoverVariants} initial="rest" whileHover="hover">
-                        <Card className="border border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50/50 h-full shadow-sm">
+                        <Card className="border border-emerald-200 bg-linear-to-br from-emerald-50 to-green-50/50 h-full shadow-sm">
                             <CardContent className="pt-6">
                                 <div className="flex items-center gap-4">
                                     <div className="p-3 bg-emerald-100 rounded-xl">
@@ -424,7 +465,7 @@ export function SeasonalAnalysisCharts({
                         </Card>
                     </motion.div>
                     <motion.div variants={cardHoverVariants} initial="rest" whileHover="hover">
-                        <Card className="border border-red-200 bg-gradient-to-br from-red-50 to-rose-50/50 h-full shadow-sm">
+                        <Card className="border border-red-200 bg-linear-to-br from-red-50 to-rose-50/50 h-full shadow-sm">
                             <CardContent className="pt-6">
                                 <div className="flex items-center gap-4">
                                     <div className="p-3 bg-red-100 rounded-xl">
@@ -440,7 +481,7 @@ export function SeasonalAnalysisCharts({
                         </Card>
                     </motion.div>
                     <motion.div variants={cardHoverVariants} initial="rest" whileHover="hover">
-                        <Card className="border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50/50 h-full shadow-sm">
+                        <Card className="border border-blue-200 bg-linear-to-br from-blue-50 to-indigo-50/50 h-full shadow-sm">
                             <CardContent className="pt-6">
                                 <div className="flex items-center gap-4">
                                     <div className="p-3 bg-blue-100 rounded-xl">
@@ -461,65 +502,106 @@ export function SeasonalAnalysisCharts({
             )}
 
             {/* Monthly Seasonality Chart */}
-            {processedMonthlyData.length > 0 && (
+            {(processedMonthlyData.length > 0 || loading) && (
                 <motion.div variants={itemVariants}>
-                    <Card className="shadow-sm border border-gray-200 overflow-hidden">
-                        <CardHeader className="bg-gradient-to-r from-amber-50 via-orange-50 to-yellow-50">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <CardTitle className="text-xl flex items-center gap-2">
-                                        <Calendar className="h-5 w-5 text-amber-600" />
-                                        Monthly Seasonality - {selectedMetal}
-                                    </CardTitle>
-                                    <CardDescription className="mt-1">
-                                        Average monthly returns based on {yearsBack} years of historical data
-                                    </CardDescription>
-                                </div>
-                                <Badge variant="outline" className="text-base px-3 py-1 bg-white/80">
-                                    {selectedCurrency}
-                                </Badge>
-                            </div>
-                        </CardHeader>
+                    <StyledCard variant="orange">
+                        <StyledCardHeader
+                            icon={Calendar}
+                            title={`Monthly Seasonality - ${selectedMetal}${loading ? ' (Loading...)' : ''}`}
+                            description={`Average monthly returns based on ${yearsBack >= 1 ? `${yearsBack} years` : `${Math.round(yearsBack * 12)} months`} of historical data`}
+                            variant="orange"
+                            action={
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button className="bg-linear-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md">
+                                            <BookOpen className="h-4 w-4 mr-2" />
+                                            Learn How It Works
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="max-w-2xl">
+                                        <DialogHeader>
+                                            <DialogTitle className="flex items-center gap-3 text-xl">
+                                                <div className="p-2 bg-linear-to-br from-amber-500 to-orange-600 rounded-lg text-white">
+                                                    <Calendar className="h-5 w-5" />
+                                                </div>
+                                                Monthly Seasonality Guide
+                                            </DialogTitle>
+                                            <DialogDescription>Understanding seasonal patterns in precious metals</DialogDescription>
+                                        </DialogHeader>
+                                        <div className="space-y-4 mt-4">
+                                            <div className="p-4 rounded-xl bg-linear-to-br from-amber-50 to-orange-50 border border-amber-100">
+                                                <h4 className="font-bold text-amber-800 mb-2 flex items-center gap-2">
+                                                    <Info className="h-4 w-4" />
+                                                    What is Monthly Seasonality?
+                                                </h4>
+                                                <p className="text-sm text-amber-700">
+                                                    Monthly seasonality shows the average price change for each month based on historical data.
+                                                    Positive months (green) historically show gains, while negative months (red) show losses.
+                                                </p>
+                                            </div>
+                                            <div className="p-4 rounded-xl bg-slate-50 border">
+                                                <h4 className="font-bold text-slate-800 mb-2">How to Use This Data</h4>
+                                                <ul className="text-sm text-slate-600 space-y-2">
+                                                    <li>• <strong>Green bars</strong> indicate historically bullish months</li>
+                                                    <li>• <strong>Red bars</strong> indicate historically bearish months</li>
+                                                    <li>• <strong>Win rate %</strong> shows how often the month was positive</li>
+                                                    <li>• Use this to time entries and exits around seasonal patterns</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
+                            }
+                        />
                         <CardContent className="pt-6">
-                            <ResponsiveContainer width="100%" height={400}>
-                                <BarChart data={processedMonthlyData} margin={{ top: 30, right: 40, left: 40, bottom: 20 }}>
-                                    <defs>
-                                        <linearGradient id="colorPositive" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.9} />
-                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0.6} />
-                                        </linearGradient>
-                                        <linearGradient id="colorNegative" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#ef4444" stopOpacity={0.9} />
-                                            <stop offset="95%" stopColor="#ef4444" stopOpacity={0.6} />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
-                                    <XAxis
-                                        dataKey="month_name"
-                                        tick={{ fontSize: 12, fontWeight: 500, fill: '#6b7280' }}
-                                        axisLine={{ stroke: '#d1d5db' }}
-                                        tickLine={false}
-                                    />
-                                    <YAxis
-                                        tick={{ fontSize: 11, fill: '#6b7280' }}
-                                        axisLine={{ stroke: '#d1d5db' }}
-                                        tickLine={false}
-                                        tickFormatter={(value) => `${value.toFixed(1)}%`}
-                                    />
-                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
-                                    <Bar dataKey="avg_return" radius={[8, 8, 0, 0]} maxBarSize={60}>
-                                        {processedMonthlyData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                                        ))}
-                                        <LabelList
-                                            dataKey="win_rate"
-                                            position="top"
-                                            formatter={(value: number) => `${value.toFixed(0)}%`}
-                                            style={{ fontSize: 10, fill: '#9ca3af', fontWeight: 500 }}
+                            {loading ? (
+                                <div className="flex items-center justify-center h-[400px]">
+                                    <div className="text-center">
+                                        <Loader2 className="h-8 w-8 animate-spin text-amber-600 mx-auto mb-2" />
+                                        <p className="text-sm text-gray-500">Loading seasonality data...</p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <ResponsiveContainer width="100%" height={400}>
+                                    <BarChart data={processedMonthlyData} margin={{ top: 30, right: 40, left: 40, bottom: 20 }}>
+                                        <defs>
+                                            <linearGradient id="colorPositive" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.9} />
+                                                <stop offset="95%" stopColor="#10b981" stopOpacity={0.6} />
+                                            </linearGradient>
+                                            <linearGradient id="colorNegative" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#ef4444" stopOpacity={0.9} />
+                                                <stop offset="95%" stopColor="#ef4444" stopOpacity={0.6} />
+                                            </linearGradient>
+                                        </defs>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                                        <XAxis
+                                            dataKey="month_name"
+                                            tick={{ fontSize: 12, fontWeight: 500, fill: '#6b7280' }}
+                                            axisLine={{ stroke: '#d1d5db' }}
+                                            tickLine={false}
                                         />
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
+                                        <YAxis
+                                            tick={{ fontSize: 11, fill: '#6b7280' }}
+                                            axisLine={{ stroke: '#d1d5db' }}
+                                            tickLine={false}
+                                            tickFormatter={(value) => `${value.toFixed(1)}%`}
+                                        />
+                                        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
+                                        <Bar dataKey="avg_return" radius={[8, 8, 0, 0]} maxBarSize={60}>
+                                            {processedMonthlyData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.fill} />
+                                            ))}
+                                            <LabelList
+                                                dataKey="win_rate"
+                                                position="top"
+                                                formatter={(value: number) => `${value.toFixed(0)}%`}
+                                                style={{ fontSize: 10, fill: '#9ca3af', fontWeight: 500 }}
+                                            />
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            )}
 
                             {/* Legend */}
                             <div className="flex justify-center gap-8 mt-4 flex-wrap">
@@ -533,28 +615,21 @@ export function SeasonalAnalysisCharts({
                                 </div>
                             </div>
                         </CardContent>
-                    </Card>
+                    </StyledCard>
                 </motion.div>
             )}
 
             {/* Top Events by Impact */}
             {eventsData.length > 0 && (
                 <motion.div variants={itemVariants}>
-                    <Card className="shadow-sm border border-gray-200 overflow-hidden">
-                        <CardHeader className="bg-gradient-to-r from-purple-50 via-pink-50 to-rose-50">
-                            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-                                {/* Title */}
-                                <div>
-                                    <CardTitle className="text-xl flex items-center gap-2">
-                                        <TrendingUp className="h-5 w-5 text-purple-600" />
-                                        Major Events Impact Analysis
-                                    </CardTitle>
-                                    <CardDescription className="mt-1">
-                                        Historical price impact around major events (±{daysWindow} days) • {processedEventsData.length} events selected
-                                    </CardDescription>
-                                </div>
-                                {/* Event Selector - Right aligned */}
-                                <div className="flex-shrink-0">
+                    <StyledCard variant="purple">
+                        <StyledCardHeader
+                            icon={TrendingUp}
+                            title="Major Events Impact Analysis"
+                            description={`Historical price impact around major events (±${daysWindow} days) • ${processedEventsData.length} events selected`}
+                            variant="purple"
+                            action={
+                                <div className="flex items-center gap-2">
                                     <AdvancedEventDropdown
                                         events={eventsData.map(e => ({
                                             name: e.name,
@@ -565,24 +640,64 @@ export function SeasonalAnalysisCharts({
                                         onSelectionChange={setSelectedMajorEvents}
                                         placeholder="Add event..."
                                     />
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <Button className="bg-linear-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-md">
+                                                <BookOpen className="h-4 w-4 mr-2" />
+                                                Learn How It Works
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="max-w-2xl">
+                                            <DialogHeader>
+                                                <DialogTitle className="flex items-center gap-3 text-xl">
+                                                    <div className="p-2 bg-linear-to-br from-purple-500 to-pink-600 rounded-lg text-white">
+                                                        <TrendingUp className="h-5 w-5" />
+                                                    </div>
+                                                    Event Impact Analysis Guide
+                                                </DialogTitle>
+                                                <DialogDescription>Understanding how events affect precious metal prices</DialogDescription>
+                                            </DialogHeader>
+                                            <div className="space-y-4 mt-4">
+                                                <div className="p-4 rounded-xl bg-linear-to-br from-purple-50 to-pink-50 border border-purple-100">
+                                                    <h4 className="font-bold text-purple-800 mb-2 flex items-center gap-2">
+                                                        <Info className="h-4 w-4" />
+                                                        What is Event Impact Analysis?
+                                                    </h4>
+                                                    <p className="text-sm text-purple-700">
+                                                        This analysis shows how precious metal prices historically react around major events like festivals,
+                                                        economic announcements, and holidays within a specified window (±{daysWindow} days).
+                                                    </p>
+                                                </div>
+                                                <div className="p-4 rounded-xl bg-slate-50 border">
+                                                    <h4 className="font-bold text-slate-800 mb-2">Key Metrics Explained</h4>
+                                                    <ul className="text-sm text-slate-600 space-y-2">
+                                                        <li>• <strong>Avg Change</strong>: Average price movement around the event</li>
+                                                        <li>• <strong>Win Rate</strong>: Percentage of times price moved positively</li>
+                                                        <li>• <strong>Best/Worst</strong>: Maximum gain and loss recorded</li>
+                                                        <li>• <strong>Years</strong>: Number of historical occurrences analyzed</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </DialogContent>
+                                    </Dialog>
                                 </div>
+                            }
+                        />
+                        {/* Selected Events Tags */}
+                        {selectedMajorEvents.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 px-6 pb-2">
+                                {selectedMajorEvents.map((name) => (
+                                    <Badge
+                                        key={name}
+                                        variant="secondary"
+                                        className="text-xs cursor-pointer hover:bg-red-100 hover:text-red-700 transition-colors"
+                                        onClick={() => toggleEventSelection(name)}
+                                    >
+                                        {name} ×
+                                    </Badge>
+                                ))}
                             </div>
-                            {/* Selected Events Tags */}
-                            {selectedMajorEvents.length > 0 && (
-                                <div className="flex flex-wrap gap-1.5 mt-3">
-                                    {selectedMajorEvents.map((name) => (
-                                        <Badge
-                                            key={name}
-                                            variant="secondary"
-                                            className="text-xs cursor-pointer hover:bg-red-100 hover:text-red-700 transition-colors"
-                                            onClick={() => toggleEventSelection(name)}
-                                        >
-                                            {name} ×
-                                        </Badge>
-                                    ))}
-                                </div>
-                            )}
-                        </CardHeader>
+                        )}
                         <CardContent className="pt-6">
                             {/* Loading State */}
                             {loading && (
@@ -607,7 +722,7 @@ export function SeasonalAnalysisCharts({
                                     <motion.div
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200"
+                                        className="p-4 bg-linear-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200"
                                     >
                                         <p className="text-xs text-purple-600 font-medium mb-1">Avg Event Return</p>
                                         <p className={`text-2xl font-bold ${majorEventsStats.avgReturn >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
@@ -620,7 +735,7 @@ export function SeasonalAnalysisCharts({
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.1 }}
-                                        className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
+                                        className="p-4 bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
                                     >
                                         <p className="text-xs text-blue-600 font-medium mb-1">Avg Win Rate</p>
                                         <p className="text-2xl font-bold text-blue-600">
@@ -633,7 +748,7 @@ export function SeasonalAnalysisCharts({
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.2 }}
-                                        className="p-4 bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl border border-emerald-200"
+                                        className="p-4 bg-linear-to-br from-emerald-50 to-green-50 rounded-xl border border-emerald-200"
                                     >
                                         <div className="flex items-center gap-1 mb-1">
                                             <Sparkles className="h-3 w-3 text-emerald-600" />
@@ -651,7 +766,7 @@ export function SeasonalAnalysisCharts({
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.3 }}
-                                        className="p-4 bg-gradient-to-br from-red-50 to-rose-50 rounded-xl border border-red-200"
+                                        className="p-4 bg-linear-to-br from-red-50 to-rose-50 rounded-xl border border-red-200"
                                     >
                                         <div className="flex items-center gap-1 mb-1">
                                             <ArrowDownRight className="h-3 w-3 text-red-600" />
@@ -805,38 +920,74 @@ export function SeasonalAnalysisCharts({
                                 </table>
                             </div>
                         </CardContent>
-                    </Card>
+                    </StyledCard>
                 </motion.div>
             )}
 
             {/* Year-wise Performance Chart */}
             {eventsData.length > 0 && (
                 <motion.div variants={itemVariants}>
-                    <Card className="shadow-sm border border-gray-200 overflow-hidden">
-                        <CardHeader className="bg-gradient-to-r from-indigo-50 via-blue-50 to-cyan-50">
-                            <div className="flex items-center justify-between flex-wrap gap-4">
-                                <div>
-                                    <CardTitle className="text-xl flex items-center gap-2">
-                                        <BarChart3 className="h-5 w-5 text-indigo-600" />
-                                        Year-wise Performance Analysis
-                                    </CardTitle>
-                                    <CardDescription className="mt-1">
-                                        {selectedMetal}&apos;s Performance ({selectedCurrency}): ±{daysWindow} days Pre and Post Event
-                                    </CardDescription>
+                    <StyledCard variant="indigo">
+                        <StyledCardHeader
+                            icon={BarChart3}
+                            title="Year-wise Performance Analysis"
+                            description={`${selectedMetal}'s Performance (${selectedCurrency}): ±${daysWindow} days Pre and Post Event`}
+                            variant="indigo"
+                            action={
+                                <div className="flex items-center gap-2">
+                                    <AdvancedEventDropdown
+                                        events={eventsData.map(e => ({
+                                            name: e.name,
+                                            value: e.avg_price_change,
+                                            type: e.event_type
+                                        }))}
+                                        selectedEvents={selectedEventForChart ? [selectedEventForChart] : (eventsData[0] ? [eventsData[0].name] : [])}
+                                        onSelectionChange={(events) => setSelectedEventForChart(events[0] || "")}
+                                        placeholder="Select event..."
+                                        singleSelect
+                                    />
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <Button className="bg-linear-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-md">
+                                                <BookOpen className="h-4 w-4 mr-2" />
+                                                Learn How It Works
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="max-w-2xl">
+                                            <DialogHeader>
+                                                <DialogTitle className="flex items-center gap-3 text-xl">
+                                                    <div className="p-2 bg-linear-to-br from-indigo-500 to-purple-600 rounded-lg text-white">
+                                                        <BarChart3 className="h-5 w-5" />
+                                                    </div>
+                                                    Year-wise Performance Guide
+                                                </DialogTitle>
+                                                <DialogDescription>Understanding historical event performance by year</DialogDescription>
+                                            </DialogHeader>
+                                            <div className="space-y-4 mt-4">
+                                                <div className="p-4 rounded-xl bg-linear-to-br from-indigo-50 to-purple-50 border border-indigo-100">
+                                                    <h4 className="font-bold text-indigo-800 mb-2 flex items-center gap-2">
+                                                        <Info className="h-4 w-4" />
+                                                        What is Year-wise Performance?
+                                                    </h4>
+                                                    <p className="text-sm text-indigo-700">
+                                                        This chart shows how prices moved before (Pre) and after (Post) a specific event
+                                                        for each historical year, helping identify consistent patterns.
+                                                    </p>
+                                                </div>
+                                                <div className="p-4 rounded-xl bg-slate-50 border">
+                                                    <h4 className="font-bold text-slate-800 mb-2">Reading the Chart</h4>
+                                                    <ul className="text-sm text-slate-600 space-y-2">
+                                                        <li>• <strong>Pre-Event (Blue)</strong>: Price change in days leading up to the event</li>
+                                                        <li>• <strong>Post-Event (Purple)</strong>: Price change in days after the event</li>
+                                                        <li>• Consistent patterns across years suggest reliable trading opportunities</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </DialogContent>
+                                    </Dialog>
                                 </div>
-                                <AdvancedEventDropdown
-                                    events={eventsData.map(e => ({
-                                        name: e.name,
-                                        value: e.avg_price_change,
-                                        type: e.event_type
-                                    }))}
-                                    selectedEvents={selectedEventForChart ? [selectedEventForChart] : (eventsData[0] ? [eventsData[0].name] : [])}
-                                    onSelectionChange={(events) => setSelectedEventForChart(events[0] || "")}
-                                    placeholder="Select event..."
-                                    singleSelect
-                                />
-                            </div>
-                        </CardHeader>
+                            }
+                        />
                         <CardContent className="pt-6">
                             {(() => {
                                 const selectedEvent = eventsData.find(e => e.name === (selectedEventForChart || eventsData[0]?.name))
@@ -952,7 +1103,7 @@ export function SeasonalAnalysisCharts({
                                 </div>
                             </div>
                         </CardContent>
-                    </Card>
+                    </StyledCard>
                 </motion.div>
             )}
         </motion.div>

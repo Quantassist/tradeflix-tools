@@ -1,11 +1,14 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
+import { StyledCard, StyledCardHeader } from "@/components/ui/styled-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Loader2, DollarSign, Building2, Globe, FileText, Info } from "lucide-react"
+import { Loader2, DollarSign, Building2, Globe, FileText, Info, BookOpen } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { metalsPricesApi, SeasonalEventAnalysis, MetalType, CurrencyType } from "@/lib/api/metals-prices"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
@@ -127,62 +130,92 @@ export function EconomicEventsAnalysis({
     }))
 
     return (
-        <Card className="border-2 border-indigo-200/60 shadow-lg overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-indigo-50 via-blue-50 to-violet-50">
-                <div className="flex items-center justify-between flex-wrap gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="p-2.5 bg-indigo-100 rounded-xl">
-                            <Building2 className="h-5 w-5 text-indigo-600" />
-                        </div>
-                        <div>
-                            <CardTitle className="text-lg font-semibold">Economic Events Deep Analysis</CardTitle>
-                            <CardDescription className="flex items-center gap-2 mt-0.5">
-                                <Badge variant="secondary" className="text-xs">
-                                    {economicEvents.length} economic events
-                                </Badge>
-                                <span className="text-xs text-gray-500">FOMC, Budget, Policy impacts</span>
-                            </CardDescription>
-                        </div>
-                    </div>
-
+        <StyledCard variant="indigo">
+            <StyledCardHeader
+                icon={Building2}
+                title="Economic Events Deep Analysis"
+                description={`${economicEvents.length} economic events • FOMC, Budget, Policy impacts`}
+                variant="indigo"
+                action={
                     <div className="flex items-center gap-2 flex-wrap">
-                        <Select value={metal} onValueChange={(v) => setMetal(v as MetalType)}>
-                            <SelectTrigger className="w-28 h-9 text-sm">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="GOLD">Gold</SelectItem>
-                                <SelectItem value="SILVER">Silver</SelectItem>
-                                <SelectItem value="PLATINUM">Platinum</SelectItem>
-                                <SelectItem value="PALLADIUM">Palladium</SelectItem>
-                            </SelectContent>
-                        </Select>
-
-                        <Select value={currency} onValueChange={(v) => setCurrency(v as CurrencyType)}>
-                            <SelectTrigger className="w-20 h-9 text-sm">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="INR">INR</SelectItem>
-                                <SelectItem value="USD">USD</SelectItem>
-                            </SelectContent>
-                        </Select>
-
-                        <Select value={yearsBack.toString()} onValueChange={(v) => setYearsBack(parseInt(v))}>
-                            <SelectTrigger className="w-24 h-9 text-sm">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="5">5 Years</SelectItem>
-                                <SelectItem value="10">10 Years</SelectItem>
-                                <SelectItem value="15">15 Years</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button className="bg-linear-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white shadow-md">
+                                    <BookOpen className="h-4 w-4 mr-2" />
+                                    Learn How It Works
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                    <DialogTitle className="flex items-center gap-3 text-xl">
+                                        <div className="p-2 bg-linear-to-br from-indigo-500 to-violet-600 rounded-lg text-white">
+                                            <Building2 className="h-5 w-5" />
+                                        </div>
+                                        Economic Events Guide
+                                    </DialogTitle>
+                                    <DialogDescription>Understanding how economic events affect precious metals</DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4 mt-4">
+                                    <div className="p-4 rounded-xl bg-linear-to-br from-indigo-50 to-violet-50 border border-indigo-100">
+                                        <h4 className="font-bold text-indigo-800 mb-2 flex items-center gap-2">
+                                            <Info className="h-4 w-4" />
+                                            What are Economic Events?
+                                        </h4>
+                                        <p className="text-sm text-indigo-700">
+                                            Economic events include FOMC meetings, budget announcements, policy changes, and macro releases
+                                            that can significantly impact precious metal prices.
+                                        </p>
+                                    </div>
+                                    <div className="p-4 rounded-xl bg-slate-50 border">
+                                        <h4 className="font-bold text-slate-800 mb-2">Event Categories</h4>
+                                        <ul className="text-sm text-slate-600 space-y-2">
+                                            <li>• <strong>FOMC Meetings</strong>: Federal Reserve interest rate decisions</li>
+                                            <li>• <strong>Budget Events</strong>: Government budget announcements</li>
+                                            <li>• <strong>Policy Events</strong>: Major policy changes affecting markets</li>
+                                            <li>• <strong>Macro Releases</strong>: GDP, inflation, employment data</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
                     </div>
-                </div>
-            </CardHeader>
+                }
+            />
+            <CardContent className="pt-4">
+                <div className="flex items-center gap-2 flex-wrap mb-4">
+                    <Select value={metal} onValueChange={(v) => setMetal(v as MetalType)}>
+                        <SelectTrigger className="w-28 h-9 text-sm">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="GOLD">Gold</SelectItem>
+                            <SelectItem value="SILVER">Silver</SelectItem>
+                            <SelectItem value="PLATINUM">Platinum</SelectItem>
+                            <SelectItem value="PALLADIUM">Palladium</SelectItem>
+                        </SelectContent>
+                    </Select>
 
-            <CardContent className="pt-6">
+                    <Select value={currency} onValueChange={(v) => setCurrency(v as CurrencyType)}>
+                        <SelectTrigger className="w-20 h-9 text-sm">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="INR">INR</SelectItem>
+                            <SelectItem value="USD">USD</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    <Select value={yearsBack.toString()} onValueChange={(v) => setYearsBack(parseInt(v))}>
+                        <SelectTrigger className="w-24 h-9 text-sm">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="5">5 Years</SelectItem>
+                            <SelectItem value="10">10 Years</SelectItem>
+                            <SelectItem value="15">15 Years</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
                 {loading ? (
                     <div className="flex items-center justify-center py-16">
                         <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
@@ -357,6 +390,6 @@ export function EconomicEventsAnalysis({
                     </div>
                 )}
             </CardContent>
-        </Card>
+        </StyledCard>
     )
 }

@@ -160,7 +160,7 @@ export function DiversificationAnalysis() {
                         <Button
                             onClick={handleCalculate}
                             disabled={loading || selectedAssets.length < 2}
-                            className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600"
+                            className="bg-linear-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600"
                         >
                             {loading ? (
                                 <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -180,7 +180,7 @@ export function DiversificationAnalysis() {
                         <div className="flex justify-center py-4">
                             <div className="relative">
                                 {/* Outer ring with gradient */}
-                                <div className={`w-36 h-36 rounded-full bg-gradient-to-br ${getScoreGradient(result.diversification_score)} p-1`}>
+                                <div className={`w-36 h-36 rounded-full bg-linear-to-br ${getScoreGradient(result.diversification_score)} p-1`}>
                                     <div className="w-full h-full rounded-full bg-white flex flex-col items-center justify-center">
                                         <span className={`text-4xl font-bold ${getScoreColor(result.diversification_score)}`}>
                                             {formatNumber(result.diversification_score, 0)}

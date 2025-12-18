@@ -92,7 +92,7 @@ export default function ArbitrageCalculatorPage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Modern Header with Gradient */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 p-8 text-white shadow-2xl">
+      <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-purple-500 via-pink-500 to-orange-500 p-8 text-white shadow-2xl">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-3">
@@ -237,7 +237,7 @@ export default function ArbitrageCalculatorPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
+                className="w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
                 disabled={loading}
               >
                 {loading ? (
@@ -269,10 +269,10 @@ export default function ArbitrageCalculatorPage() {
               <div className="space-y-6 animate-in slide-in-from-bottom duration-500">
                 {/* Modern Signal Status with Gradient */}
                 <div className={`rounded-2xl border-2 p-6 shadow-lg transition-all duration-300 hover:scale-[1.02] ${result.arbitrage.signal.includes("long")
-                  ? "border-green-300 bg-gradient-to-br from-green-50 to-emerald-50"
+                  ? "border-green-300 bg-linear-to-br from-green-50 to-emerald-50"
                   : result.arbitrage.signal.includes("short")
-                    ? "border-red-300 bg-gradient-to-br from-red-50 to-rose-50"
-                    : "border-gray-300 bg-gradient-to-br from-gray-50 to-slate-50"
+                    ? "border-red-300 bg-linear-to-br from-red-50 to-rose-50"
+                    : "border-gray-300 bg-linear-to-br from-gray-50 to-slate-50"
                   }`}>
                   <div className="flex items-center gap-2 mb-2">
                     {result.arbitrage.signal.includes("long") ? (
@@ -290,7 +290,7 @@ export default function ArbitrageCalculatorPage() {
                 </div>
 
                 {/* Modern Recommendation Card */}
-                <div className="rounded-2xl border-2 border-blue-200 p-5 bg-gradient-to-br from-blue-50 to-cyan-50 shadow-md hover:shadow-lg transition-all duration-300">
+                <div className="rounded-2xl border-2 border-blue-200 p-5 bg-linear-to-br from-blue-50 to-cyan-50 shadow-md hover:shadow-lg transition-all duration-300">
                   <div className="text-sm font-medium mb-1">Recommendation</div>
                   <p className="text-sm">{result.recommendation}</p>
                   <div className="mt-2">
@@ -302,21 +302,21 @@ export default function ArbitrageCalculatorPage() {
 
                 {/* Modern Price Comparison with Gradients */}
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center p-4 rounded-xl border-2 border-purple-100 bg-gradient-to-r from-purple-50 to-pink-50 hover:shadow-md transition-all duration-300">
+                  <div className="flex justify-between items-center p-4 rounded-xl border-2 border-purple-100 bg-linear-to-r from-purple-50 to-pink-50 hover:shadow-md transition-all duration-300">
                     <span className="text-sm font-semibold text-purple-900">MCX Price</span>
                     <span className="font-mono font-bold text-lg text-purple-700">
                       {formatCurrency(result.arbitrage.mcx_price)}
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-center p-4 rounded-xl border-2 border-blue-100 bg-gradient-to-r from-blue-50 to-cyan-50 hover:shadow-md transition-all duration-300">
+                  <div className="flex justify-between items-center p-4 rounded-xl border-2 border-blue-100 bg-linear-to-r from-blue-50 to-cyan-50 hover:shadow-md transition-all duration-300">
                     <span className="text-sm font-semibold text-blue-900">Fair Value</span>
                     <span className="font-mono font-bold text-lg text-blue-700">
                       {formatCurrency(result.arbitrage.fair_value)}
                     </span>
                   </div>
 
-                  <div className={`flex justify-between items-center p-4 rounded-xl border-2 bg-gradient-to-r hover:shadow-md transition-all duration-300 ${result.arbitrage.premium > 0
+                  <div className={`flex justify-between items-center p-4 rounded-xl border-2 bg-linear-to-r hover:shadow-md transition-all duration-300 ${result.arbitrage.premium > 0
                     ? "border-green-200 from-green-50 to-emerald-50"
                     : "border-red-200 from-red-50 to-rose-50"
                     }`}>
@@ -393,7 +393,7 @@ export default function ArbitrageCalculatorPage() {
             ) : (
               <div className="flex h-64 items-center justify-center text-center">
                 <div className="text-muted-foreground animate-pulse">
-                  <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                  <div className="p-4 bg-linear-to-br from-purple-100 to-pink-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
                     <AlertCircle className="h-10 w-10 text-purple-600" />
                   </div>
                   <p className="text-lg font-medium">Enter values and calculate</p>

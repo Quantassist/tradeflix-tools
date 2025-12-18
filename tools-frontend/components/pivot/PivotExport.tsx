@@ -154,7 +154,7 @@ export function PivotExport({ pivotData }: PivotExportProps) {
 
     return (
         <Card className="border-2 hover:shadow-lg transition-all">
-            <CardHeader className="bg-gradient-to-r from-cyan-50 to-sky-50 border-b">
+            <CardHeader className="bg-linear-to-r from-cyan-50 to-sky-50 border-b">
                 <CardTitle className="flex items-center gap-2">
                     <div className="p-2 bg-cyan-100 rounded-lg">
                         <Download className="h-5 w-5 text-cyan-600" />

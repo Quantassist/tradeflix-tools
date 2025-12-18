@@ -218,7 +218,7 @@ export function SignalDetectionPanel({ pivotData, currentPrice }: SignalDetectio
                 action={
                     <Dialog>
                         <DialogTrigger asChild>
-                            <Button size="sm" className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-sm">
+                            <Button size="sm" className="bg-linear-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-sm">
                                 <BookOpen className="h-3 w-3 mr-1" />
                                 Guide
                             </Button>
@@ -226,7 +226,7 @@ export function SignalDetectionPanel({ pivotData, currentPrice }: SignalDetectio
                         <DialogContent className="max-w-md">
                             <DialogHeader>
                                 <DialogTitle className="flex items-center gap-2">
-                                    <div className="p-2 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg text-white">
+                                    <div className="p-2 bg-linear-to-br from-amber-500 to-orange-600 rounded-lg text-white">
                                         <Zap className="h-4 w-4" />
                                     </div>
                                     Signal Detection Guide

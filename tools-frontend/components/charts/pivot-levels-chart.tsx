@@ -45,13 +45,13 @@ export function PivotLevelsChart({ cpr, floorPivots, currentPrice }: PivotLevels
   return (
     <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
       {/* Top gradient bar */}
-      <div className="h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
+      <div className="h-2 bg-linear-to-r from-blue-500 via-purple-500 to-pink-500" />
 
       <div className="p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl text-white shadow-lg">
+            <div className="p-3 bg-linear-to-br from-blue-500 to-purple-600 rounded-xl text-white shadow-lg">
               <BarChart3 className="h-6 w-6" />
             </div>
             <div>
@@ -63,7 +63,7 @@ export function PivotLevelsChart({ cpr, floorPivots, currentPrice }: PivotLevels
           {/* Help Button */}
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-md">
+              <Button className="bg-linear-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-md">
                 <BookOpen className="h-4 w-4 mr-2" />
                 Reading the Chart
               </Button>
@@ -71,7 +71,7 @@ export function PivotLevelsChart({ cpr, floorPivots, currentPrice }: PivotLevels
             <DialogContent className="max-w-lg">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg text-white">
+                  <div className="p-2 bg-linear-to-br from-blue-500 to-purple-600 rounded-lg text-white">
                     <BarChart3 className="h-4 w-4" />
                   </div>
                   Chart Reading Guide

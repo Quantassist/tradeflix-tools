@@ -77,7 +77,7 @@ export function RollingCorrelationChart({ data }: RollingCorrelationChartProps) 
 
     return (
         <Card className="shadow-xl border-2">
-            <CardHeader className="bg-gradient-to-r from-purple-50 via-violet-50 to-indigo-50">
+            <CardHeader className="bg-linear-to-r from-purple-50 via-violet-50 to-indigo-50">
                 <div className="flex items-center justify-between">
                     <div>
                         <CardTitle className="text-2xl flex items-center gap-2">

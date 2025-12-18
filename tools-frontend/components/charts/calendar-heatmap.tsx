@@ -1,10 +1,12 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { CardContent } from "@/components/ui/card"
+import { StyledCard, StyledCardHeader } from "@/components/ui/styled-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { Calendar, Loader2, TrendingUp, TrendingDown, Info } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Calendar, Loader2, TrendingUp, TrendingDown, Info, BookOpen } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { metalsPricesApi, CalendarHeatmapDay, MetalType, CurrencyType } from "@/lib/api/metals-prices"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
@@ -128,64 +130,92 @@ export function CalendarHeatmap({
     }
 
     return (
-        <Card className="border-2 border-amber-200/60 shadow-lg overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-amber-50 via-orange-50 to-yellow-50">
-                <div className="flex items-center justify-between flex-wrap gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="p-2.5 bg-amber-100 rounded-xl">
-                            <Calendar className="h-5 w-5 text-amber-600" />
-                        </div>
-                        <div>
-                            <CardTitle className="text-lg font-semibold">Interactive Calendar Heatmap</CardTitle>
-                            <CardDescription className="flex items-center gap-2 mt-0.5">
-                                <Badge variant="secondary" className="text-xs">
-                                    {heatmapData.length} days analyzed
-                                </Badge>
-                                <span className="text-xs text-gray-500">Daily return patterns</span>
-                            </CardDescription>
-                        </div>
-                    </div>
+        <StyledCard variant="amber">
+            <StyledCardHeader
+                icon={Calendar}
+                title="Interactive Calendar Heatmap"
+                description={`${heatmapData.length} days analyzed • Daily return patterns`}
+                variant="amber"
+                action={
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button className="bg-linear-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md">
+                                <BookOpen className="h-4 w-4 mr-2" />
+                                Learn How It Works
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                            <DialogHeader>
+                                <DialogTitle className="flex items-center gap-3 text-xl">
+                                    <div className="p-2 bg-linear-to-br from-amber-500 to-orange-600 rounded-lg text-white">
+                                        <Calendar className="h-5 w-5" />
+                                    </div>
+                                    Calendar Heatmap Guide
+                                </DialogTitle>
+                                <DialogDescription>Understanding daily seasonal patterns</DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 mt-4">
+                                <div className="p-4 rounded-xl bg-linear-to-br from-amber-50 to-orange-50 border border-amber-100">
+                                    <h4 className="font-bold text-amber-800 mb-2 flex items-center gap-2">
+                                        <Info className="h-4 w-4" />
+                                        What is the Calendar Heatmap?
+                                    </h4>
+                                    <p className="text-sm text-amber-700">
+                                        This heatmap shows the average daily return for each calendar day based on historical data.
+                                        It helps identify which specific days of the year tend to be bullish or bearish.
+                                    </p>
+                                </div>
+                                <div className="p-4 rounded-xl bg-slate-50 border">
+                                    <h4 className="font-bold text-slate-800 mb-2">Color Legend</h4>
+                                    <ul className="text-sm text-slate-600 space-y-2">
+                                        <li>• <strong className="text-emerald-600">Green shades</strong>: Positive average returns</li>
+                                        <li>• <strong className="text-red-600">Red shades</strong>: Negative average returns</li>
+                                        <li>• Darker colors indicate stronger returns</li>
+                                        <li>• Click any day to see detailed statistics</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+                }
+            />
+            <CardContent className="pt-4">
+                {/* Controls */}
+                <div className="flex items-center gap-2 flex-wrap mb-4">
+                    <Select value={metal} onValueChange={(v) => setMetal(v as MetalType)}>
+                        <SelectTrigger className="w-28 h-9 text-sm">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="GOLD">Gold</SelectItem>
+                            <SelectItem value="SILVER">Silver</SelectItem>
+                            <SelectItem value="PLATINUM">Platinum</SelectItem>
+                            <SelectItem value="PALLADIUM">Palladium</SelectItem>
+                        </SelectContent>
+                    </Select>
 
-                    {/* Controls */}
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <Select value={metal} onValueChange={(v) => setMetal(v as MetalType)}>
-                            <SelectTrigger className="w-28 h-9 text-sm">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="GOLD">Gold</SelectItem>
-                                <SelectItem value="SILVER">Silver</SelectItem>
-                                <SelectItem value="PLATINUM">Platinum</SelectItem>
-                                <SelectItem value="PALLADIUM">Palladium</SelectItem>
-                            </SelectContent>
-                        </Select>
+                    <Select value={currency} onValueChange={(v) => setCurrency(v as CurrencyType)}>
+                        <SelectTrigger className="w-20 h-9 text-sm">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="INR">INR</SelectItem>
+                            <SelectItem value="USD">USD</SelectItem>
+                        </SelectContent>
+                    </Select>
 
-                        <Select value={currency} onValueChange={(v) => setCurrency(v as CurrencyType)}>
-                            <SelectTrigger className="w-20 h-9 text-sm">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="INR">INR</SelectItem>
-                                <SelectItem value="USD">USD</SelectItem>
-                            </SelectContent>
-                        </Select>
-
-                        <Select value={yearsBack.toString()} onValueChange={(v) => setYearsBack(parseInt(v))}>
-                            <SelectTrigger className="w-24 h-9 text-sm">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="5">5 Years</SelectItem>
-                                <SelectItem value="10">10 Years</SelectItem>
-                                <SelectItem value="15">15 Years</SelectItem>
-                                <SelectItem value="20">20 Years</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <Select value={yearsBack.toString()} onValueChange={(v) => setYearsBack(parseInt(v))}>
+                        <SelectTrigger className="w-24 h-9 text-sm">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="5">5 Years</SelectItem>
+                            <SelectItem value="10">10 Years</SelectItem>
+                            <SelectItem value="15">15 Years</SelectItem>
+                            <SelectItem value="20">20 Years</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
-            </CardHeader>
-
-            <CardContent className="pt-6">
                 {loading ? (
                     <div className="flex items-center justify-center py-16">
                         <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
@@ -203,7 +233,7 @@ export function CalendarHeatmap({
                                 <motion.div
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200"
+                                    className="p-4 bg-linear-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200"
                                 >
                                     <p className="text-xs text-amber-600 font-medium mb-1">Avg Daily Return</p>
                                     <p className={`text-xl font-bold ${stats.avgReturn >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
@@ -215,7 +245,7 @@ export function CalendarHeatmap({
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.1 }}
-                                    className="p-4 bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl border border-emerald-200"
+                                    className="p-4 bg-linear-to-br from-emerald-50 to-green-50 rounded-xl border border-emerald-200"
                                 >
                                     <p className="text-xs text-emerald-600 font-medium mb-1">Best Day</p>
                                     <p className="text-xl font-bold text-emerald-600">
@@ -228,7 +258,7 @@ export function CalendarHeatmap({
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.2 }}
-                                    className="p-4 bg-gradient-to-br from-red-50 to-rose-50 rounded-xl border border-red-200"
+                                    className="p-4 bg-linear-to-br from-red-50 to-rose-50 rounded-xl border border-red-200"
                                 >
                                     <p className="text-xs text-red-600 font-medium mb-1">Worst Day</p>
                                     <p className="text-xl font-bold text-red-600">
@@ -241,7 +271,7 @@ export function CalendarHeatmap({
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.3 }}
-                                    className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
+                                    className="p-4 bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
                                 >
                                     <p className="text-xs text-blue-600 font-medium mb-1">Positive Days</p>
                                     <p className="text-xl font-bold text-blue-600">
@@ -358,7 +388,7 @@ export function CalendarHeatmap({
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200"
+                                className="p-4 bg-linear-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200"
                             >
                                 <div className="flex items-start justify-between">
                                     <div>
@@ -415,6 +445,6 @@ export function CalendarHeatmap({
                     </div>
                 )}
             </CardContent>
-        </Card>
+        </StyledCard>
     )
 }

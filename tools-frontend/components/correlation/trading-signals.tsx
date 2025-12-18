@@ -162,7 +162,7 @@ export function TradingSignals() {
                         <Input type="number" value={lookbackDays} onChange={(e) => setLookbackDays(e.target.value)} className="bg-white" />
                     </div>
                     <div className="flex items-end">
-                        <Button onClick={handleCalculate} disabled={loading} className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">
+                        <Button onClick={handleCalculate} disabled={loading} className="w-full bg-linear-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600">
                             {loading ? (
                                 <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (

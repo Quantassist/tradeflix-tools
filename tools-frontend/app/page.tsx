@@ -134,7 +134,7 @@ export default function Home() {
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-linear-to-br from-blue-600 to-purple-600">
                 <TrendingUp className="h-5 w-5 text-white" />
               </div>
               <span className="text-xl font-bold text-gray-900">
@@ -168,7 +168,7 @@ export default function Home() {
             <div className="hidden md:flex items-center gap-3">
               {session?.user ? (
                 <Link href="/dashboard">
-                  <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                  <Button className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
                     Go to Dashboard
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -181,7 +181,7 @@ export default function Home() {
                     </Button>
                   </Link>
                   <Link href="/sign-in?tab=sign-up">
-                    <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                    <Button className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
                       Get Started
                     </Button>
                   </Link>
@@ -230,7 +230,7 @@ export default function Home() {
                 <div className="flex flex-col gap-2 pt-4 border-t">
                   {session?.user ? (
                     <Link href="/dashboard">
-                      <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600">
+                      <Button className="w-full bg-linear-to-r from-blue-600 to-purple-600">
                         Go to Dashboard
                       </Button>
                     </Link>
@@ -242,7 +242,7 @@ export default function Home() {
                         </Button>
                       </Link>
                       <Link href="/sign-in?tab=sign-up">
-                        <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600">
+                        <Button className="w-full bg-linear-to-r from-blue-600 to-purple-600">
                           Get Started
                         </Button>
                       </Link>
@@ -270,7 +270,7 @@ export default function Home() {
             {/* Main Heading */}
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 text-gray-900 leading-tight">
               Trade Smarter with
-              <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <span className="block bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                 Data-Driven Insights
               </span>
             </h1>
@@ -286,7 +286,7 @@ export default function Home() {
               <Link href={session?.user ? "/dashboard" : "/sign-in?tab=sign-up"}>
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-6 rounded-xl shadow-lg shadow-blue-500/25"
+                  className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-6 rounded-xl shadow-lg shadow-blue-500/25"
                 >
                   {session?.user ? "Go to Dashboard" : "Get Started Free"}
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -349,7 +349,7 @@ export default function Home() {
               >
                 <CardHeader className="pb-4">
                   <div
-                    className={`w-12 h-12 bg-gradient-to-br ${tool.gradient} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
+                    className={`w-12 h-12 bg-linear-to-br ${tool.gradient} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
                   >
                     <tool.icon className="h-6 w-6 text-white" />
                   </div>
@@ -372,7 +372,7 @@ export default function Home() {
                   </ul>
                   <Link href={tool.href}>
                     <Button
-                      className={`w-full bg-gradient-to-r ${tool.gradient}`}
+                      className={`w-full bg-linear-to-r ${tool.gradient}`}
                     >
                       Try Now
                       <ArrowRight className="ml-2 h-4 w-4" />
@@ -400,7 +400,7 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6 rounded-2xl border border-gray-100 hover:shadow-lg transition-shadow">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-14 h-14 bg-linear-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <Zap className="h-7 w-7 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -411,7 +411,7 @@ export default function Home() {
               </p>
             </div>
             <div className="text-center p-6 rounded-2xl border border-gray-100 hover:shadow-lg transition-shadow">
-              <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-14 h-14 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <Shield className="h-7 w-7 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -422,7 +422,7 @@ export default function Home() {
               </p>
             </div>
             <div className="text-center p-6 rounded-2xl border border-gray-100 hover:shadow-lg transition-shadow">
-              <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-14 h-14 bg-linear-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <Target className="h-7 w-7 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -433,7 +433,7 @@ export default function Home() {
               </p>
             </div>
             <div className="text-center p-6 rounded-2xl border border-gray-100 hover:shadow-lg transition-shadow">
-              <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-14 h-14 bg-linear-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mx-auto mb-4">
                 <LineChart className="h-7 w-7 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -448,7 +448,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600">
+      <section className="py-20 px-4 bg-linear-to-br from-blue-600 via-purple-600 to-pink-600">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white">
             Ready to Trade Smarter?
@@ -475,7 +475,7 @@ export default function Home() {
           <div className="grid md:grid-cols-4 gap-12">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-linear-to-br from-blue-500 to-purple-600">
                   <TrendingUp className="h-5 w-5 text-white" />
                 </div>
                 <span className="text-lg font-bold text-white">Bullion Brain</span>

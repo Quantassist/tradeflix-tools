@@ -313,7 +313,7 @@ export function AddEventDialog({ onEventCreated }: AddEventDialogProps) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
+                <Button className="bg-linear-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Event
                 </Button>
@@ -730,7 +730,7 @@ export function AddEventDialog({ onEventCreated }: AddEventDialogProps) {
                     <Button
                         onClick={handleSubmit}
                         disabled={loading || !formData.name.trim()}
-                        className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700"
+                        className="bg-linear-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700"
                     >
                         {loading ? (
                             <>

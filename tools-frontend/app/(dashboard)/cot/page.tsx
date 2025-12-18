@@ -796,7 +796,7 @@ function InterpretationGuideButton({ tabKey }: { tabKey: keyof typeof tabInterpr
         <Button
           variant="outline"
           size="sm"
-          className="gap-2 bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-200 hover:from-indigo-100 hover:to-purple-100 text-indigo-700 font-medium"
+          className="gap-2 bg-linear-to-r from-indigo-50 to-purple-50 border-indigo-200 hover:from-indigo-100 hover:to-purple-100 text-indigo-700 font-medium"
         >
           <BookOpen className="h-4 w-4" />
           Interpretation Guide
@@ -804,7 +804,7 @@ function InterpretationGuideButton({ tabKey }: { tabKey: keyof typeof tabInterpr
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden p-0">
         {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-6 py-5 text-white">
+        <div className="bg-linear-to-r from-indigo-600 via-purple-600 to-pink-600 px-6 py-5 text-white">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-white flex items-center gap-3">
               <div className="p-2 bg-white/20 rounded-lg">
@@ -824,7 +824,7 @@ function InterpretationGuideButton({ tabKey }: { tabKey: keyof typeof tabInterpr
           <div className="space-y-6">
             {guide.sections.map((section, sIdx) => (
               <div key={sIdx} className={`rounded-xl border-2 ${bgColorMap[section.color]} overflow-hidden`}>
-                <div className={`px-4 py-3 bg-gradient-to-r ${colorMap[section.color]} text-white font-semibold flex items-center gap-2`}>
+                <div className={`px-4 py-3 bg-linear-to-r ${colorMap[section.color]} text-white font-semibold flex items-center gap-2`}>
                   <span className="text-xl">{section.icon}</span>
                   {section.title}
                 </div>
@@ -875,7 +875,7 @@ function InterpretationGuideButton({ tabKey }: { tabKey: keyof typeof tabInterpr
 
           {/* Pro Tips */}
           <div className="mt-6 rounded-xl border-2 border-amber-200 bg-amber-50 overflow-hidden">
-            <div className="px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold flex items-center gap-2">
+            <div className="px-4 py-3 bg-linear-to-r from-amber-500 to-orange-500 text-white font-semibold flex items-center gap-2">
               <Sparkles className="h-5 w-5" />
               Pro Tips
             </div>
@@ -912,7 +912,7 @@ function HelpButton({ helpKey }: { helpKey: keyof typeof helpContent }) {
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border border-blue-200/50 shadow-sm transition-all duration-200 hover:scale-105"
+          className="h-7 w-7 rounded-full bg-linear-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border border-blue-200/50 shadow-sm transition-all duration-200 hover:scale-105"
         >
           <HelpCircle className="h-4 w-4 text-blue-600" />
           <span className="sr-only">Help</span>
@@ -920,7 +920,7 @@ function HelpButton({ helpKey }: { helpKey: keyof typeof helpContent }) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg p-0 overflow-hidden border-0 shadow-2xl">
         {/* Header with gradient */}
-        <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-6 py-5">
+        <div className="bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600 px-6 py-5">
           <DialogHeader className="text-white">
             <DialogTitle className="flex items-center gap-3 text-xl font-semibold text-white">
               <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -940,10 +940,10 @@ function HelpButton({ helpKey }: { helpKey: keyof typeof helpContent }) {
             {content.items.map((item, index) => (
               <div
                 key={index}
-                className="group p-4 rounded-xl bg-gradient-to-br from-slate-50 to-gray-50 border border-slate-200/80 hover:border-blue-300 hover:shadow-md transition-all duration-200"
+                className="group p-4 rounded-xl bg-linear-to-br from-slate-50 to-gray-50 border border-slate-200/80 hover:border-blue-300 hover:shadow-md transition-all duration-200"
               >
                 <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white text-xs font-bold shadow-sm">
                     {index + 1}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -961,7 +961,7 @@ function HelpButton({ helpKey }: { helpKey: keyof typeof helpContent }) {
         </div>
 
         {/* Footer with tip */}
-        <div className="px-6 py-4 bg-gradient-to-r from-amber-50 to-orange-50 border-t border-amber-200/50">
+        <div className="px-6 py-4 bg-linear-to-r from-amber-50 to-orange-50 border-t border-amber-200/50">
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0 p-1.5 bg-amber-100 rounded-lg">
               <Sparkles className="h-4 w-4 text-amber-600" />
@@ -1142,7 +1142,7 @@ export default function COTReportPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 p-8 text-white shadow-2xl">
+      <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-orange-500 via-amber-500 to-yellow-500 p-8 text-white shadow-2xl">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-3">
@@ -1168,7 +1168,7 @@ export default function COTReportPage() {
       <div className="grid gap-6 lg:grid-cols-4">
         {/* Input Card */}
         <Card className="border-2 hover:border-orange-200 transition-all duration-300">
-          <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b pb-4">
+          <CardHeader className="bg-linear-to-r from-orange-50 to-amber-50 border-b pb-4">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Info className="h-5 w-5 text-orange-600" />
               Analysis Parameters
@@ -1221,7 +1221,7 @@ export default function COTReportPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700"
+                className="w-full bg-linear-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700"
                 disabled={loading}
               >
                 {loading ? (
@@ -1242,7 +1242,7 @@ export default function COTReportPage() {
 
         {/* Trading Signal Card */}
         <Card className="lg:col-span-3 border-2">
-          <CardHeader className="bg-gradient-to-r from-yellow-50 to-amber-50 border-b pb-4">
+          <CardHeader className="bg-linear-to-r from-yellow-50 to-amber-50 border-b pb-4">
             <CardTitle className="flex items-center justify-between text-lg">
               <div className="flex items-center gap-2">
                 <Target className="h-5 w-5 text-yellow-600" />
@@ -1577,7 +1577,7 @@ export default function COTReportPage() {
                 <CardContent>
                   <div className="space-y-4">
                     {/* Visual Gauge */}
-                    <div className="relative h-8 bg-gradient-to-r from-green-500 via-gray-300 to-red-500 rounded-full overflow-hidden">
+                    <div className="relative h-8 bg-linear-to-r from-green-500 via-gray-300 to-red-500 rounded-full overflow-hidden">
                       <div
                         className="absolute top-0 h-full w-1 bg-black shadow-lg transition-all duration-500"
                         style={{ left: `${result.managed_money_sentiment.percentile}%` }}
@@ -1642,7 +1642,7 @@ export default function COTReportPage() {
                 <CardContent>
                   <div className="space-y-4">
                     {/* Visual Gauge - Inverted interpretation for commercials */}
-                    <div className="relative h-8 bg-gradient-to-r from-red-500 via-gray-300 to-green-500 rounded-full overflow-hidden">
+                    <div className="relative h-8 bg-linear-to-r from-red-500 via-gray-300 to-green-500 rounded-full overflow-hidden">
                       <div
                         className="absolute top-0 h-full w-1 bg-black shadow-lg transition-all duration-500"
                         style={{ left: `${result.producer_merchant_sentiment.percentile}%` }}

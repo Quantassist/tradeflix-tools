@@ -91,7 +91,7 @@ export default function CorrelationMatrixPage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Modern Header with Gradient */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 p-8 text-white shadow-2xl">
+      <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-violet-500 via-purple-500 to-fuchsia-500 p-8 text-white shadow-2xl">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-3">
@@ -163,7 +163,7 @@ export default function CorrelationMatrixPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
+                className="w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
                 disabled={loading}
               >
                 {loading ? (
@@ -239,7 +239,7 @@ export default function CorrelationMatrixPage() {
             ) : (
               <div className="flex h-64 items-center justify-center">
                 <div className="text-center text-muted-foreground animate-pulse">
-                  <div className="p-4 bg-gradient-to-br from-violet-100 to-fuchsia-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                  <div className="p-4 bg-linear-to-br from-violet-100 to-fuchsia-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
                     <AlertCircle className="h-10 w-10 text-violet-600" />
                   </div>
                   <p className="text-lg font-medium">Enter assets and calculate</p>
@@ -440,7 +440,7 @@ function RollingCorrelationSection({
               <Button
                 onClick={handleCalculateRolling}
                 disabled={rollingLoading}
-                className="w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700"
+                className="w-full bg-linear-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700"
               >
                 {rollingLoading ? (
                   <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

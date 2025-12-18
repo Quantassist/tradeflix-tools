@@ -1,10 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { CardContent } from "@/components/ui/card"
+import { StyledCard, StyledCardHeader } from "@/components/ui/styled-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { TrendingUp, TrendingDown, Loader2, AlertTriangle, Shield, Info, BarChart3 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { TrendingUp, TrendingDown, Loader2, AlertTriangle, Shield, Info, BarChart3, BookOpen } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { metalsPricesApi, RecessionIndicatorsResponse, MetalType, CurrencyType } from "@/lib/api/metals-prices"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
@@ -80,51 +82,81 @@ export function RecessionIndicators({
         })) || []
 
     return (
-        <Card className="border-2 border-rose-200/60 shadow-lg overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-rose-50 via-red-50 to-pink-50">
-                <div className="flex items-center justify-between flex-wrap gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="p-2.5 bg-rose-100 rounded-xl">
-                            <AlertTriangle className="h-5 w-5 text-rose-600" />
-                        </div>
-                        <div>
-                            <CardTitle className="text-lg font-semibold">Recession & Crisis Indicators</CardTitle>
-                            <CardDescription className="flex items-center gap-2 mt-0.5">
-                                <Badge variant="secondary" className="text-xs">
-                                    {data?.summary.periods_with_data || 0} periods analyzed
-                                </Badge>
-                                <span className="text-xs text-gray-500">Historical crisis performance</span>
-                            </CardDescription>
-                        </div>
-                    </div>
-
+        <StyledCard variant="pink">
+            <StyledCardHeader
+                icon={AlertTriangle}
+                title="Recession & Crisis Indicators"
+                description={`${data?.summary.periods_with_data || 0} periods analyzed • Historical crisis performance`}
+                variant="pink"
+                action={
                     <div className="flex items-center gap-2 flex-wrap">
-                        <Select value={metal} onValueChange={(v) => setMetal(v as MetalType)}>
-                            <SelectTrigger className="w-28 h-9 text-sm">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="GOLD">Gold</SelectItem>
-                                <SelectItem value="SILVER">Silver</SelectItem>
-                                <SelectItem value="PLATINUM">Platinum</SelectItem>
-                                <SelectItem value="PALLADIUM">Palladium</SelectItem>
-                            </SelectContent>
-                        </Select>
-
-                        <Select value={currency} onValueChange={(v) => setCurrency(v as CurrencyType)}>
-                            <SelectTrigger className="w-20 h-9 text-sm">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="INR">INR</SelectItem>
-                                <SelectItem value="USD">USD</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button className="bg-linear-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white shadow-md">
+                                    <BookOpen className="h-4 w-4 mr-2" />
+                                    Learn How It Works
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                    <DialogTitle className="flex items-center gap-3 text-xl">
+                                        <div className="p-2 bg-linear-to-br from-rose-500 to-pink-600 rounded-lg text-white">
+                                            <AlertTriangle className="h-5 w-5" />
+                                        </div>
+                                        Recession & Crisis Guide
+                                    </DialogTitle>
+                                    <DialogDescription>Understanding how precious metals perform during economic crises</DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4 mt-4">
+                                    <div className="p-4 rounded-xl bg-linear-to-br from-rose-50 to-pink-50 border border-rose-100">
+                                        <h4 className="font-bold text-rose-800 mb-2 flex items-center gap-2">
+                                            <Shield className="h-4 w-4" />
+                                            Gold as a Safe Haven
+                                        </h4>
+                                        <p className="text-sm text-rose-700">
+                                            During economic crises and recessions, gold historically acts as a safe haven asset,
+                                            often appreciating when other assets decline.
+                                        </p>
+                                    </div>
+                                    <div className="p-4 rounded-xl bg-slate-50 border">
+                                        <h4 className="font-bold text-slate-800 mb-2">Crisis Types Analyzed</h4>
+                                        <ul className="text-sm text-slate-600 space-y-2">
+                                            <li>• <strong>Global Crisis</strong>: Worldwide economic downturns (2008, 2020)</li>
+                                            <li>• <strong>US Recession</strong>: US-specific economic contractions</li>
+                                            <li>• <strong>Financial Crisis</strong>: Banking and market crashes</li>
+                                            <li>• <strong>Trade Wars</strong>: International trade conflicts</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
                     </div>
-                </div>
-            </CardHeader>
+                }
+            />
+            <CardContent className="pt-4">
+                <div className="flex items-center gap-2 flex-wrap mb-4">
+                    <Select value={metal} onValueChange={(v) => setMetal(v as MetalType)}>
+                        <SelectTrigger className="w-28 h-9 text-sm">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="GOLD">Gold</SelectItem>
+                            <SelectItem value="SILVER">Silver</SelectItem>
+                            <SelectItem value="PLATINUM">Platinum</SelectItem>
+                            <SelectItem value="PALLADIUM">Palladium</SelectItem>
+                        </SelectContent>
+                    </Select>
 
-            <CardContent className="pt-6">
+                    <Select value={currency} onValueChange={(v) => setCurrency(v as CurrencyType)}>
+                        <SelectTrigger className="w-20 h-9 text-sm">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="INR">INR</SelectItem>
+                            <SelectItem value="USD">USD</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
                 {loading ? (
                     <div className="flex items-center justify-center py-16">
                         <Loader2 className="h-8 w-8 animate-spin text-rose-500" />
@@ -141,7 +173,7 @@ export function RecessionIndicators({
                             <motion.div
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="p-4 bg-gradient-to-br from-rose-50 to-red-50 rounded-xl border border-rose-200"
+                                className="p-4 bg-linear-to-br from-rose-50 to-red-50 rounded-xl border border-rose-200"
                             >
                                 <div className="flex items-center gap-2 mb-1">
                                     <Shield className="h-4 w-4 text-rose-600" />
@@ -159,7 +191,7 @@ export function RecessionIndicators({
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 }}
-                                className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
+                                className="p-4 bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
                             >
                                 <div className="flex items-center gap-2 mb-1">
                                     <BarChart3 className="h-4 w-4 text-blue-600" />
@@ -175,7 +207,7 @@ export function RecessionIndicators({
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.2 }}
-                                className="p-4 bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl border border-emerald-200"
+                                className="p-4 bg-linear-to-br from-emerald-50 to-green-50 rounded-xl border border-emerald-200"
                             >
                                 <div className="flex items-center gap-2 mb-1">
                                     <TrendingUp className="h-4 w-4 text-emerald-600" />
@@ -193,7 +225,7 @@ export function RecessionIndicators({
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.3 }}
-                                className="p-4 bg-gradient-to-br from-red-50 to-rose-50 rounded-xl border border-red-200"
+                                className="p-4 bg-linear-to-br from-red-50 to-rose-50 rounded-xl border border-red-200"
                             >
                                 <div className="flex items-center gap-2 mb-1">
                                     <TrendingDown className="h-4 w-4 text-red-600" />
@@ -322,6 +354,6 @@ export function RecessionIndicators({
                     </div>
                 )}
             </CardContent>
-        </Card>
+        </StyledCard>
     )
 }

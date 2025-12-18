@@ -5,12 +5,14 @@ import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     Area, ReferenceLine, Legend
 } from "recharts"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { CardContent } from "@/components/ui/card"
+import { StyledCard, StyledCardHeader } from "@/components/ui/styled-card"
+import { Button } from "@/components/ui/button"
 import {
     Bell, TrendingUp, TrendingDown, Activity, AlertTriangle,
-    CheckCircle, Loader2
+    CheckCircle, Loader2, BookOpen, Info
 } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { AdvancedEventDropdown } from "@/components/ui/advanced-event-dropdown"
 import {
     metalsPricesApi,
@@ -145,18 +147,53 @@ export function SeasonalAdvancedCharts({
             )}
             {/* Upcoming Alerts Section - Compact Grid Layout */}
             {alerts.length > 0 && (
-                <Card className="border-2 border-blue-200">
-                    <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 pb-3">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <Bell className="h-5 w-5 text-blue-600" />
-                                <CardTitle className="text-lg">Upcoming Event Alerts</CardTitle>
-                            </div>
-                            <Badge variant="secondary" className="text-xs">
-                                {alerts.length} events in next 60 days
-                            </Badge>
-                        </div>
-                    </CardHeader>
+                <StyledCard variant="blue">
+                    <StyledCardHeader
+                        icon={Bell}
+                        title="Upcoming Event Alerts"
+                        description={`${alerts.length} events in next 60 days`}
+                        variant="blue"
+                        action={
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button className="bg-linear-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md">
+                                        <BookOpen className="h-4 w-4 mr-2" />
+                                        Learn How It Works
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-2xl">
+                                    <DialogHeader>
+                                        <DialogTitle className="flex items-center gap-3 text-xl">
+                                            <div className="p-2 bg-linear-to-br from-blue-500 to-indigo-600 rounded-lg text-white">
+                                                <Bell className="h-5 w-5" />
+                                            </div>
+                                            Upcoming Alerts Guide
+                                        </DialogTitle>
+                                        <DialogDescription>Stay ahead with event-based trading alerts</DialogDescription>
+                                    </DialogHeader>
+                                    <div className="space-y-4 mt-4">
+                                        <div className="p-4 rounded-xl bg-linear-to-br from-blue-50 to-indigo-50 border border-blue-100">
+                                            <h4 className="font-bold text-blue-800 mb-2 flex items-center gap-2">
+                                                <Info className="h-4 w-4" />
+                                                What are Event Alerts?
+                                            </h4>
+                                            <p className="text-sm text-blue-700">
+                                                Event alerts notify you of upcoming seasonal events that historically impact
+                                                precious metal prices, helping you prepare trading strategies in advance.
+                                            </p>
+                                        </div>
+                                        <div className="p-4 rounded-xl bg-slate-50 border">
+                                            <h4 className="font-bold text-slate-800 mb-2">Alert Types</h4>
+                                            <ul className="text-sm text-slate-600 space-y-2">
+                                                <li>• <strong className="text-green-600">Opportunity (Green)</strong>: Historically bullish events</li>
+                                                <li>• <strong className="text-amber-600">Caution (Amber)</strong>: Events with mixed or bearish history</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+                        }
+                    />
                     <CardContent className="pt-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                             {alerts.map((alert, idx) => (
@@ -192,81 +229,117 @@ export function SeasonalAdvancedCharts({
                             ))}
                         </div>
                     </CardContent>
-                </Card>
+                </StyledCard>
             )}
 
             {/* Event Trajectory Chart */}
-            <Card className="border-2 border-purple-200">
-                <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
-                    <div className="flex items-center justify-between">
+            <StyledCard variant="purple">
+                <StyledCardHeader
+                    icon={Activity}
+                    title="Event-Relative Performance"
+                    description={`Cumulative returns from -${daysWindow} to +${daysWindow} days around event`}
+                    variant="purple"
+                    action={
                         <div className="flex items-center gap-2">
-                            <Activity className="h-5 w-5 text-purple-600" />
-                            <div>
-                                <CardTitle className="text-lg">Event-Relative Performance</CardTitle>
-                                <CardDescription>
-                                    Cumulative returns from -{daysWindow} to +{daysWindow} days around event
-                                </CardDescription>
-                            </div>
+                            <AdvancedEventDropdown
+                                events={events.map(e => ({
+                                    name: e.name,
+                                    value: e.avg_price_change,
+                                    type: e.event_type
+                                }))}
+                                selectedEvents={selectedEvent ? [selectedEvent.name] : []}
+                                onSelectionChange={(selected) => {
+                                    if (selected.length > 0 && selected[0] !== selectedEvent?.name) {
+                                        const event = events.find(e => e.name === selected[0])
+                                        if (event) setSelectedEvent(event)
+                                    }
+                                }}
+                                placeholder="Select event..."
+                                singleSelect
+                            />
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button className="bg-linear-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-md">
+                                        <BookOpen className="h-4 w-4 mr-2" />
+                                        Learn How It Works
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-2xl">
+                                    <DialogHeader>
+                                        <DialogTitle className="flex items-center gap-3 text-xl">
+                                            <div className="p-2 bg-linear-to-br from-purple-500 to-pink-600 rounded-lg text-white">
+                                                <Activity className="h-5 w-5" />
+                                            </div>
+                                            Event Trajectory Guide
+                                        </DialogTitle>
+                                        <DialogDescription>Understanding price movement patterns around events</DialogDescription>
+                                    </DialogHeader>
+                                    <div className="space-y-4 mt-4">
+                                        <div className="p-4 rounded-xl bg-linear-to-br from-purple-50 to-pink-50 border border-purple-100">
+                                            <h4 className="font-bold text-purple-800 mb-2 flex items-center gap-2">
+                                                <Info className="h-4 w-4" />
+                                                What is Event Trajectory?
+                                            </h4>
+                                            <p className="text-sm text-purple-700">
+                                                This chart shows the average cumulative price change from days before to days after
+                                                a specific event, with confidence bands showing historical variability.
+                                            </p>
+                                        </div>
+                                        <div className="p-4 rounded-xl bg-slate-50 border">
+                                            <h4 className="font-bold text-slate-800 mb-2">Reading the Chart</h4>
+                                            <ul className="text-sm text-slate-600 space-y-2">
+                                                <li>• <strong>Blue Line</strong>: Average cumulative return across all years</li>
+                                                <li>• <strong>Shaded Area</strong>: Upper and lower confidence bands</li>
+                                                <li>• <strong>Day 0</strong>: The event date (vertical reference line)</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
                         </div>
-                        <AdvancedEventDropdown
-                            events={events.map(e => ({
-                                name: e.name,
-                                value: e.avg_price_change,
-                                type: e.event_type
-                            }))}
-                            selectedEvents={selectedEvent ? [selectedEvent.name] : []}
-                            onSelectionChange={(selected) => {
-                                if (selected.length > 0 && selected[0] !== selectedEvent?.name) {
-                                    const event = events.find(e => e.name === selected[0])
-                                    if (event) setSelectedEvent(event)
-                                }
-                            }}
-                            placeholder="Select event..."
-                            singleSelect
-                        />
-                    </div>
-                </CardHeader>
+                    }
+                />
                 <CardContent className="pt-4">
                     {trajectoryLoading ? (
                         <div className="flex items-center justify-center h-64">
                             <Loader2 className="h-6 w-6 animate-spin text-purple-600" />
                         </div>
                     ) : trajectory.length > 0 ? (
-                        <div className="h-80">
-                            <ResponsiveContainer width="100%" height="100%">
+                        <>
+                            <ResponsiveContainer width="100%" height={300}>
                                 <LineChart data={trajectory} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                                     <defs>
-                                        <linearGradient id="colorBand" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.2} />
-                                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                                        <linearGradient id="bandGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                                            <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.05} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                                     <XAxis
                                         dataKey="day"
-                                        tickFormatter={(v) => v === 0 ? "Event" : v > 0 ? `+${v}` : v}
-                                        tick={{ fontSize: 12 }}
+                                        tick={{ fontSize: 11 }}
+                                        tickFormatter={(value) => value === 0 ? "Event" : value > 0 ? `+${value}` : value}
                                     />
                                     <YAxis
-                                        tickFormatter={(v) => `${v.toFixed(1)}%`}
-                                        tick={{ fontSize: 12 }}
+                                        tick={{ fontSize: 11 }}
+                                        tickFormatter={(value) => `${value.toFixed(1)}%`}
                                     />
                                     <Tooltip content={<TrajectoryTooltip />} />
                                     <Legend />
-                                    <ReferenceLine x={0} stroke="#8b5cf6" strokeWidth={2} strokeDasharray="5 5" label="Event" />
+                                    <ReferenceLine x={0} stroke="#6366f1" strokeWidth={2} strokeDasharray="5 5" />
                                     <ReferenceLine y={0} stroke="#9ca3af" strokeDasharray="3 3" />
                                     <Area
                                         type="monotone"
                                         dataKey="upper_band"
                                         stroke="none"
-                                        fill="url(#colorBand)"
+                                        fill="url(#bandGradient)"
                                         name="Upper Band"
                                     />
                                     <Area
                                         type="monotone"
                                         dataKey="lower_band"
                                         stroke="none"
-                                        fill="url(#colorBand)"
+                                        fill="url(#bandGradient)"
                                         name="Lower Band"
                                     />
                                     <Line
@@ -274,50 +347,83 @@ export function SeasonalAdvancedCharts({
                                         dataKey="avg_return"
                                         stroke="#8b5cf6"
                                         strokeWidth={3}
-                                        dot={{ fill: "#8b5cf6", strokeWidth: 2 }}
+                                        dot={false}
                                         name="Avg Return"
                                     />
                                 </LineChart>
                             </ResponsiveContainer>
-                        </div>
+                            {selectedEvent && (
+                                <div className="grid grid-cols-4 gap-3 mt-4">
+                                    <div className="p-3 rounded-lg bg-purple-50 text-center">
+                                        <p className="text-xs text-muted-foreground">Avg Change</p>
+                                        <p className={`text-lg font-bold ${selectedEvent.avg_price_change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                            {selectedEvent.avg_price_change >= 0 ? '+' : ''}{selectedEvent.avg_price_change.toFixed(2)}%
+                                        </p>
+                                    </div>
+                                    <div className="p-3 rounded-lg bg-blue-50 text-center">
+                                        <p className="text-xs text-muted-foreground">Win Rate</p>
+                                        <p className="text-lg font-bold text-blue-600">{selectedEvent.win_rate.toFixed(0)}%</p>
+                                    </div>
+                                    <div className="p-3 rounded-lg bg-green-50 text-center">
+                                        <p className="text-xs text-muted-foreground">Best Return</p>
+                                        <p className="text-lg font-bold text-green-600">+{selectedEvent.best_return.toFixed(2)}%</p>
+                                    </div>
+                                    <div className="p-3 rounded-lg bg-red-50 text-center">
+                                        <p className="text-xs text-muted-foreground">Worst Return</p>
+                                        <p className="text-lg font-bold text-red-600">{selectedEvent.worst_return.toFixed(2)}%</p>
+                                    </div>
+                                </div>
+                            )}
+                        </>
                     ) : (
                         <div className="flex items-center justify-center h-64 text-muted-foreground">
                             Select an event to view its trajectory
                         </div>
                     )}
-                    {selectedEvent && (
-                        <div className="mt-4 grid grid-cols-4 gap-4">
-                            <div className="p-3 rounded-lg bg-purple-50 text-center">
-                                <p className="text-xs text-muted-foreground">Avg Change</p>
-                                <p className={`text-lg font-bold ${selectedEvent.avg_price_change >= 0 ? "text-green-600" : "text-red-600"}`}>
-                                    {selectedEvent.avg_price_change >= 0 ? "+" : ""}{selectedEvent.avg_price_change.toFixed(2)}%
-                                </p>
-                            </div>
-                            <div className="p-3 rounded-lg bg-purple-50 text-center">
-                                <p className="text-xs text-muted-foreground">Win Rate</p>
-                                <p className="text-lg font-bold text-purple-600">{selectedEvent.win_rate.toFixed(0)}%</p>
-                            </div>
-                            <div className="p-3 rounded-lg bg-green-50 text-center">
-                                <p className="text-xs text-muted-foreground">Best Return</p>
-                                <p className="text-lg font-bold text-green-600">+{selectedEvent.best_return.toFixed(2)}%</p>
-                            </div>
-                            <div className="p-3 rounded-lg bg-red-50 text-center">
-                                <p className="text-xs text-muted-foreground">Worst Return</p>
-                                <p className="text-lg font-bold text-red-600">{selectedEvent.worst_return.toFixed(2)}%</p>
-                            </div>
-                        </div>
-                    )}
                 </CardContent>
-            </Card>
+            </StyledCard>
 
             {/* Trading Insights */}
-            <Card className="border-2 border-orange-200">
-                <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50">
-                    <div className="flex items-center gap-2">
-                        <TrendingUp className="h-5 w-5 text-orange-600" />
-                        <CardTitle className="text-lg">Trading Insights</CardTitle>
-                    </div>
-                </CardHeader>
+            <StyledCard variant="orange">
+                <StyledCardHeader
+                    icon={TrendingUp}
+                    title="Trading Insights"
+                    description="Best and worst performing events analysis"
+                    variant="orange"
+                    action={
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button className="bg-linear-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white shadow-md">
+                                    <BookOpen className="h-4 w-4 mr-2" />
+                                    Learn How It Works
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                    <DialogTitle className="flex items-center gap-3 text-xl">
+                                        <div className="p-2 bg-linear-to-br from-orange-500 to-amber-600 rounded-lg text-white">
+                                            <TrendingUp className="h-5 w-5" />
+                                        </div>
+                                        Trading Insights Guide
+                                    </DialogTitle>
+                                    <DialogDescription>Quick reference for event-based trading decisions</DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4 mt-4">
+                                    <div className="p-4 rounded-xl bg-linear-to-br from-orange-50 to-amber-50 border border-orange-100">
+                                        <h4 className="font-bold text-orange-800 mb-2 flex items-center gap-2">
+                                            <Info className="h-4 w-4" />
+                                            What are Trading Insights?
+                                        </h4>
+                                        <p className="text-sm text-orange-700">
+                                            A quick summary of the best and worst performing events, most reliable events by win rate,
+                                            and most volatile events to help inform your trading decisions.
+                                        </p>
+                                    </div>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+                    }
+                />
                 <CardContent className="pt-4">
                     <div className="grid md:grid-cols-2 gap-4">
                         {/* Best Events */}
@@ -385,7 +491,7 @@ export function SeasonalAdvancedCharts({
                         </div>
                     </div>
                 </CardContent>
-            </Card>
+            </StyledCard>
         </div>
     )
 }

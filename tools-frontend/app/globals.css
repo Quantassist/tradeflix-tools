@@ -116,7 +116,13 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Prevent body scroll when dashboard layout is active */
+body:has(.dashboard-layout) {
+  overflow: hidden;
 }

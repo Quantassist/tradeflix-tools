@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calculator, Minus, Sparkles, ArrowRight, Target, RefreshCw, HelpCircle, Download, FileText, ImageIcon, Share2, BookOpen, Settings, TrendingUp, TrendingDown } from "lucide-react"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Calculator, Minus, Sparkles, ArrowRight, Target, RefreshCw, HelpCircle, Download, FileText, ImageIcon, Share2, BookOpen, Settings, TrendingUp, TrendingDown, ChevronDown, Layers, BarChart2 } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { pivotApi } from "@/lib/api/pivot"
@@ -170,6 +171,7 @@ function ExportModalContent({ pivotData }: { pivotData: PivotResponse }) {
 export default function PivotCalculatorPage() {
   const [loading, setLoading] = useState(false)
   const [autoFetchLoading, setAutoFetchLoading] = useState(false)
+  const [guideOpen, setGuideOpen] = useState(false)
   const [result, setResult] = useState<PivotResponse | null>(null)
   const [formData, setFormData] = useState({
     symbol: "GOLD",
@@ -294,6 +296,102 @@ export default function PivotCalculatorPage() {
         <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
         <div className="absolute -left-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
       </div>
+
+      {/* Understanding Pivot Points - Progressive Disclosure */}
+      <Collapsible open={guideOpen} onOpenChange={setGuideOpen}>
+        <CollapsibleTrigger asChild>
+          <button className="w-full group">
+            <div className="relative overflow-hidden rounded-xl bg-linear-to-r from-blue-50 via-cyan-50 to-teal-50 dark:from-blue-950/30 dark:via-cyan-950/30 dark:to-teal-950/30 border border-blue-200/50 dark:border-blue-800/50 p-4 transition-all duration-300 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-linear-to-br from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/25">
+                    <BookOpen className="h-5 w-5" />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-semibold text-foreground flex items-center gap-2">
+                      Understanding Pivot Points
+                      <Badge variant="outline" className="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700">
+                        Guide
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      Learn about CPR, Floor Pivots, and Fibonacci levels for intraday trading
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
+                    {guideOpen ? "Hide Guide" : "Show Guide"}
+                  </span>
+                  <ChevronDown className={`h-5 w-5 text-blue-600 dark:text-blue-400 transition-transform duration-300 ${guideOpen ? "rotate-180" : ""}`} />
+                </div>
+              </div>
+            </div>
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-up-2 data-[state=open]:slide-down-2">
+          <div className="mt-4 rounded-xl border border-blue-200/50 dark:border-blue-800/50 bg-white dark:bg-slate-900 p-6 shadow-sm">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="relative overflow-hidden p-4 rounded-xl bg-linear-to-br from-cyan-50 to-blue-50 dark:from-cyan-950/30 dark:to-blue-950/30 border border-cyan-200/50 dark:border-cyan-800/50">
+                <div className="absolute top-0 right-0 w-12 h-12 bg-cyan-500/10 rounded-full -mr-3 -mt-3" />
+                <div className="relative">
+                  <div className="font-semibold text-cyan-800 dark:text-cyan-300 flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-lg bg-cyan-100 dark:bg-cyan-900/50">
+                      <Target className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                    </div>
+                    CPR (Central Pivot)
+                  </div>
+                  <p className="text-sm text-cyan-700 dark:text-cyan-400 leading-relaxed">
+                    TC, Pivot, BC - Key zone for intraday trend direction and reversals.
+                  </p>
+                </div>
+              </div>
+              <div className="relative overflow-hidden p-4 rounded-xl bg-linear-to-br from-purple-50 to-violet-50 dark:from-purple-950/30 dark:to-violet-950/30 border border-purple-200/50 dark:border-purple-800/50">
+                <div className="absolute top-0 right-0 w-12 h-12 bg-purple-500/10 rounded-full -mr-3 -mt-3" />
+                <div className="relative">
+                  <div className="font-semibold text-purple-800 dark:text-purple-300 flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-lg bg-purple-100 dark:bg-purple-900/50">
+                      <Layers className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    Floor Pivots
+                  </div>
+                  <p className="text-sm text-purple-700 dark:text-purple-400 leading-relaxed">
+                    R1-R3 resistance, S1-S3 support - Classic support/resistance levels.
+                  </p>
+                </div>
+              </div>
+              <div className="relative overflow-hidden p-4 rounded-xl bg-linear-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200/50 dark:border-amber-800/50">
+                <div className="absolute top-0 right-0 w-12 h-12 bg-amber-500/10 rounded-full -mr-3 -mt-3" />
+                <div className="relative">
+                  <div className="font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/50">
+                      <BarChart2 className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    Fibonacci Levels
+                  </div>
+                  <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+                    38.2%, 50%, 61.8% - Golden ratio retracement for precision entries.
+                  </p>
+                </div>
+              </div>
+              <div className="relative overflow-hidden p-4 rounded-xl bg-linear-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 border border-emerald-200/50 dark:border-emerald-800/50">
+                <div className="absolute top-0 right-0 w-12 h-12 bg-emerald-500/10 rounded-full -mr-3 -mt-3" />
+                <div className="relative">
+                  <div className="font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/50">
+                      <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    Trading Strategy
+                  </div>
+                  <p className="text-sm text-emerald-700 dark:text-emerald-400 leading-relaxed">
+                    Buy near support, sell near resistance with proper stop losses.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Modern Input Form with consistent header */}

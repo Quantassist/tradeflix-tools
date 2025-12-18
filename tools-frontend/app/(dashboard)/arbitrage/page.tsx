@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Sparkles, ArrowRight, Info, RefreshCw } from "lucide-react"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { DollarSign, TrendingUp, TrendingDown, AlertCircle, Sparkles, ArrowRight, Info, RefreshCw, BookOpen, ChevronDown, Calculator, Scale } from "lucide-react"
 import { arbitrageApi } from "@/lib/api/arbitrage"
 import type { ArbitrageResponse } from "@/types"
 import { formatCurrency, formatNumber, formatPercent } from "@/lib/utils"
@@ -17,6 +18,7 @@ import { toast } from "sonner"
 export default function ArbitrageCalculatorPage() {
   const [loading, setLoading] = useState(false)
   const [autoFetchLoading, setAutoFetchLoading] = useState(false)
+  const [guideOpen, setGuideOpen] = useState(false)
   const [result, setResult] = useState<ArbitrageResponse | null>(null)
   const [formData, setFormData] = useState({
     comex_price_usd: "",
@@ -114,6 +116,102 @@ export default function ArbitrageCalculatorPage() {
         <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
         <div className="absolute -left-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
       </div>
+
+      {/* Understanding Arbitrage - Progressive Disclosure */}
+      <Collapsible open={guideOpen} onOpenChange={setGuideOpen}>
+        <CollapsibleTrigger asChild>
+          <button className="w-full group">
+            <div className="relative overflow-hidden rounded-xl bg-linear-to-r from-emerald-50 via-teal-50 to-cyan-50 dark:from-emerald-950/30 dark:via-teal-950/30 dark:to-cyan-950/30 border border-emerald-200/50 dark:border-emerald-800/50 p-4 transition-all duration-300 hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-700">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-linear-to-br from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/25">
+                    <BookOpen className="h-5 w-5" />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-semibold text-foreground flex items-center gap-2">
+                      Understanding Arbitrage Trading
+                      <Badge variant="outline" className="text-xs bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700">
+                        Guide
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      Learn how arbitrage opportunities work between COMEX and MCX markets
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors">
+                    {guideOpen ? "Hide Guide" : "Show Guide"}
+                  </span>
+                  <ChevronDown className={`h-5 w-5 text-emerald-600 dark:text-emerald-400 transition-transform duration-300 ${guideOpen ? "rotate-180" : ""}`} />
+                </div>
+              </div>
+            </div>
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-up-2 data-[state=open]:slide-down-2">
+          <div className="mt-4 rounded-xl border border-emerald-200/50 dark:border-emerald-800/50 bg-white dark:bg-slate-900 p-6 shadow-sm">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="relative overflow-hidden p-4 rounded-xl bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200/50 dark:border-blue-800/50">
+                <div className="absolute top-0 right-0 w-12 h-12 bg-blue-500/10 rounded-full -mr-3 -mt-3" />
+                <div className="relative">
+                  <div className="font-semibold text-blue-800 dark:text-blue-300 flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/50">
+                      <Calculator className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    Fair Value
+                  </div>
+                  <p className="text-sm text-blue-700 dark:text-blue-400 leading-relaxed">
+                    (Intl Price × FX Rate) + Duty + Transport Cost
+                  </p>
+                </div>
+              </div>
+              <div className="relative overflow-hidden p-4 rounded-xl bg-linear-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200/50 dark:border-amber-800/50">
+                <div className="absolute top-0 right-0 w-12 h-12 bg-amber-500/10 rounded-full -mr-3 -mt-3" />
+                <div className="relative">
+                  <div className="font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/50">
+                      <Scale className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    Premium
+                  </div>
+                  <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+                    Domestic Price - Fair Value = Premium/Discount
+                  </p>
+                </div>
+              </div>
+              <div className="relative overflow-hidden p-4 rounded-xl bg-linear-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 border border-emerald-200/50 dark:border-emerald-800/50">
+                <div className="absolute top-0 right-0 w-12 h-12 bg-emerald-500/10 rounded-full -mr-3 -mt-3" />
+                <div className="relative">
+                  <div className="font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/50">
+                      <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    Positive Premium
+                  </div>
+                  <p className="text-sm text-emerald-700 dark:text-emerald-400 leading-relaxed">
+                    Domestic market is expensive - consider selling MCX
+                  </p>
+                </div>
+              </div>
+              <div className="relative overflow-hidden p-4 rounded-xl bg-linear-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30 border border-red-200/50 dark:border-red-800/50">
+                <div className="absolute top-0 right-0 w-12 h-12 bg-red-500/10 rounded-full -mr-3 -mt-3" />
+                <div className="relative">
+                  <div className="font-semibold text-red-800 dark:text-red-300 flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/50">
+                      <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
+                    </div>
+                    Negative Premium
+                  </div>
+                  <p className="text-sm text-red-700 dark:text-red-400 leading-relaxed">
+                    Import opportunity - domestic market is cheaper
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Modern Input Form */}
@@ -437,27 +535,6 @@ export default function ArbitrageCalculatorPage() {
       {/* Historical Arbitrage Data */}
       <ArbitrageHistoryChart />
 
-      {/* Modern Info Card */}
-      <StyledCard variant="indigo">
-        <StyledCardHeader
-          icon={Info}
-          title="About Arbitrage Trading"
-          variant="indigo"
-        />
-        <StyledCardContent>
-          <div className="space-y-3 text-sm">
-            <p>
-              Arbitrage is the simultaneous purchase and sale of the same asset in different markets to profit from price differences.
-            </p>
-            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-              <li>Fair Value = (International Price × Exchange Rate) + Import Duty + Transport Cost</li>
-              <li>Premium = Domestic Price - Fair Value</li>
-              <li>Positive premium indicates domestic market is expensive</li>
-              <li>Negative premium indicates import opportunity</li>
-            </ul>
-          </div>
-        </StyledCardContent>
-      </StyledCard>
     </div>
   )
 }

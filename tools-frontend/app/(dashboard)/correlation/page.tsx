@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Network, AlertCircle, Sparkles, ArrowRight, Info, TrendingUp, Activity, Calculator, Clock, PieChart, Zap } from "lucide-react"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Network, AlertCircle, Sparkles, ArrowRight, Info, TrendingUp, Activity, Calculator, Clock, PieChart, Zap, BookOpen, ChevronDown, ArrowUpDown, GitBranch, Scale } from "lucide-react"
 import { correlationApi } from "@/lib/api/correlation"
 import type { CorrelationMatrixResponse, RollingCorrelationResponse } from "@/types"
 import { formatNumber } from "@/lib/utils"
@@ -39,6 +40,7 @@ export default function CorrelationMatrixPage() {
   const [assets, setAssets] = useState("GOLD,SILVER,CRUDE,USDINR")
   const [periodDays, setPeriodDays] = useState("90")
   const [activeTab, setActiveTab] = useState("rolling")
+  const [guideOpen, setGuideOpen] = useState(false)
   const initialLoadRef = useRef(false)
 
   // Auto-calculate tabbed sections on page load (non-blocking)
@@ -113,6 +115,102 @@ export default function CorrelationMatrixPage() {
         <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
         <div className="absolute -left-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
       </div>
+
+      {/* Understanding Correlation - Progressive Disclosure */}
+      <Collapsible open={guideOpen} onOpenChange={setGuideOpen}>
+        <CollapsibleTrigger asChild>
+          <button className="w-full group">
+            <div className="relative overflow-hidden rounded-xl bg-linear-to-r from-violet-50 via-purple-50 to-fuchsia-50 dark:from-violet-950/30 dark:via-purple-950/30 dark:to-fuchsia-950/30 border border-violet-200/50 dark:border-violet-800/50 p-4 transition-all duration-300 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-700">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-linear-to-br from-violet-500 to-purple-500 text-white shadow-lg shadow-violet-500/25">
+                    <BookOpen className="h-5 w-5" />
+                  </div>
+                  <div className="text-left">
+                    <div className="font-semibold text-foreground flex items-center gap-2">
+                      Understanding Correlation Analysis
+                      <Badge variant="outline" className="text-xs bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 border-violet-300 dark:border-violet-700">
+                        Guide
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      Learn how correlation values help build diversified portfolios
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-violet-600 dark:text-violet-400 group-hover:text-violet-700 dark:group-hover:text-violet-300 transition-colors">
+                    {guideOpen ? "Hide Guide" : "Show Guide"}
+                  </span>
+                  <ChevronDown className={`h-5 w-5 text-violet-600 dark:text-violet-400 transition-transform duration-300 ${guideOpen ? "rotate-180" : ""}`} />
+                </div>
+              </div>
+            </div>
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-up-2 data-[state=open]:slide-down-2">
+          <div className="mt-4 rounded-xl border border-violet-200/50 dark:border-violet-800/50 bg-white dark:bg-slate-900 p-6 shadow-sm">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="relative overflow-hidden p-4 rounded-xl bg-linear-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 border border-emerald-200/50 dark:border-emerald-800/50">
+                <div className="absolute top-0 right-0 w-12 h-12 bg-emerald-500/10 rounded-full -mr-3 -mt-3" />
+                <div className="relative">
+                  <div className="font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/50">
+                      <ArrowUpDown className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    +1 Correlation
+                  </div>
+                  <p className="text-sm text-emerald-700 dark:text-emerald-400 leading-relaxed">
+                    Perfect positive - assets move together in the same direction.
+                  </p>
+                </div>
+              </div>
+              <div className="relative overflow-hidden p-4 rounded-xl bg-linear-to-br from-slate-50 to-gray-50 dark:from-slate-900/30 dark:to-gray-900/30 border border-slate-200/50 dark:border-slate-700/50">
+                <div className="absolute top-0 right-0 w-12 h-12 bg-slate-500/10 rounded-full -mr-3 -mt-3" />
+                <div className="relative">
+                  <div className="font-semibold text-slate-800 dark:text-slate-300 flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800">
+                      <GitBranch className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                    </div>
+                    0 Correlation
+                  </div>
+                  <p className="text-sm text-slate-700 dark:text-slate-400 leading-relaxed">
+                    No relationship - assets move independently of each other.
+                  </p>
+                </div>
+              </div>
+              <div className="relative overflow-hidden p-4 rounded-xl bg-linear-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30 border border-red-200/50 dark:border-red-800/50">
+                <div className="absolute top-0 right-0 w-12 h-12 bg-red-500/10 rounded-full -mr-3 -mt-3" />
+                <div className="relative">
+                  <div className="font-semibold text-red-800 dark:text-red-300 flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/50">
+                      <ArrowUpDown className="h-4 w-4 text-red-600 dark:text-red-400 rotate-90" />
+                    </div>
+                    -1 Correlation
+                  </div>
+                  <p className="text-sm text-red-700 dark:text-red-400 leading-relaxed">
+                    Perfect negative - assets move in opposite directions.
+                  </p>
+                </div>
+              </div>
+              <div className="relative overflow-hidden p-4 rounded-xl bg-linear-to-br from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30 border border-violet-200/50 dark:border-violet-800/50">
+                <div className="absolute top-0 right-0 w-12 h-12 bg-violet-500/10 rounded-full -mr-3 -mt-3" />
+                <div className="relative">
+                  <div className="font-semibold text-violet-800 dark:text-violet-300 flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-lg bg-violet-100 dark:bg-violet-900/50">
+                      <Scale className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                    </div>
+                    Diversification
+                  </div>
+                  <p className="text-sm text-violet-700 dark:text-violet-400 leading-relaxed">
+                    Low correlation between assets provides better risk reduction.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Input Parameters - StyledCard like arbitrage */}
@@ -261,26 +359,51 @@ export default function CorrelationMatrixPage() {
 
       {/* Advanced Analysis Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 mb-6">
-          <TabsTrigger value="rolling" className="flex items-center gap-2">
-            <Activity className="h-4 w-4" />
-            <span className="hidden sm:inline">Rolling</span>
+        <TabsList className="grid w-full grid-cols-5 h-14 p-1.5 bg-linear-to-r from-slate-100 to-slate-50 dark:from-slate-800 dark:to-slate-900 rounded-xl border shadow-sm mb-6">
+          <TabsTrigger
+            value="rolling"
+            className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-md data-[state=active]:text-violet-600 dark:data-[state=active]:text-violet-400 font-medium transition-all duration-200 h-full"
+          >
+            <div className="flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              <span className="hidden sm:inline">Rolling</span>
+            </div>
           </TabsTrigger>
-          <TabsTrigger value="beta" className="flex items-center gap-2">
-            <Calculator className="h-4 w-4" />
-            <span className="hidden sm:inline">Beta</span>
+          <TabsTrigger
+            value="beta"
+            className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-md data-[state=active]:text-violet-600 dark:data-[state=active]:text-violet-400 font-medium transition-all duration-200 h-full"
+          >
+            <div className="flex items-center gap-2">
+              <Calculator className="h-4 w-4" />
+              <span className="hidden sm:inline">Beta</span>
+            </div>
           </TabsTrigger>
-          <TabsTrigger value="multiperiod" className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            <span className="hidden sm:inline">Multi-Period</span>
+          <TabsTrigger
+            value="multiperiod"
+            className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-md data-[state=active]:text-violet-600 dark:data-[state=active]:text-violet-400 font-medium transition-all duration-200 h-full"
+          >
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              <span className="hidden sm:inline">Multi-Period</span>
+            </div>
           </TabsTrigger>
-          <TabsTrigger value="diversification" className="flex items-center gap-2">
-            <PieChart className="h-4 w-4" />
-            <span className="hidden sm:inline">Diversification</span>
+          <TabsTrigger
+            value="diversification"
+            className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-md data-[state=active]:text-violet-600 dark:data-[state=active]:text-violet-400 font-medium transition-all duration-200 h-full"
+          >
+            <div className="flex items-center gap-2">
+              <PieChart className="h-4 w-4" />
+              <span className="hidden sm:inline">Diversification</span>
+            </div>
           </TabsTrigger>
-          <TabsTrigger value="signals" className="flex items-center gap-2">
-            <Zap className="h-4 w-4" />
-            <span className="hidden sm:inline">Signals</span>
+          <TabsTrigger
+            value="signals"
+            className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-md data-[state=active]:text-violet-600 dark:data-[state=active]:text-violet-400 font-medium transition-all duration-200 h-full"
+          >
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4" />
+              <span className="hidden sm:inline">Signals</span>
+            </div>
           </TabsTrigger>
         </TabsList>
 
@@ -310,26 +433,6 @@ export default function CorrelationMatrixPage() {
         </TabsContent>
       </Tabs>
 
-      <StyledCard variant="indigo">
-        <StyledCardHeader
-          icon={Info}
-          title="About Correlation Analysis"
-          variant="indigo"
-        />
-        <StyledCardContent>
-          <div className="text-sm space-y-3">
-            <p>
-              Correlation measures how two assets move together. Values range from -1 to +1.
-            </p>
-            <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-              <li>+1: Perfect positive correlation (move together)</li>
-              <li>0: No correlation (independent movement)</li>
-              <li>-1: Perfect negative correlation (move opposite)</li>
-              <li>Low correlation between assets provides better diversification</li>
-            </ul>
-          </div>
-        </StyledCardContent>
-      </StyledCard>
     </div>
   )
 }

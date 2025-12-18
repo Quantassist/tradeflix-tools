@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, AlertCircle, Pencil, Trash2, ChevronDown, RefreshCw, Info, Zap } from "lucide-react"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Calendar, AlertCircle, Pencil, Trash2, ChevronDown, RefreshCw, Zap, BookOpen } from "lucide-react"
 import { seasonalEventsApi, SeasonalEvent } from "@/lib/api/seasonal-events"
 import { formatPercent } from "@/lib/utils"
 import { toast } from "sonner"
@@ -75,6 +76,7 @@ export default function SeasonalTrendsPage() {
   const [selectedCommodity, setSelectedCommodity] = useState<string>("all")
   const [selectedYear, setSelectedYear] = useState<string>("all")
   const [eventsExpanded, setEventsExpanded] = useState(false)
+  const [guideOpen, setGuideOpen] = useState(false)
 
   // Shared settings state for analysis components
   const [analysisSettings, setAnalysisSettings] = useState({
@@ -187,6 +189,96 @@ export default function SeasonalTrendsPage() {
         <div className="absolute -right-20 -bottom-20 w-60 h-60 bg-white/10 rounded-full blur-3xl"></div>
         <div className="absolute -left-20 -top-20 w-60 h-60 bg-emerald-300/20 rounded-full blur-3xl"></div>
         <div className="absolute right-10 top-10 w-20 h-20 bg-yellow-300/20 rounded-full blur-2xl"></div>
+      </motion.div>
+
+      {/* Understanding Seasonal Trading - Progressive Disclosure */}
+      <motion.div variants={itemVariants}>
+        <Collapsible open={guideOpen} onOpenChange={setGuideOpen}>
+          <CollapsibleTrigger asChild>
+            <button className="w-full group">
+              <div className="relative overflow-hidden rounded-xl bg-linear-to-r from-emerald-50 via-teal-50 to-cyan-50 dark:from-emerald-950/30 dark:via-teal-950/30 dark:to-cyan-950/30 border border-emerald-200/50 dark:border-emerald-800/50 p-4 transition-all duration-300 hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-700">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-linear-to-br from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/25">
+                      <BookOpen className="h-5 w-5" />
+                    </div>
+                    <div className="text-left">
+                      <div className="font-semibold text-foreground flex items-center gap-2">
+                        Understanding Seasonal Trading
+                        <Badge variant="outline" className="text-xs bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700">
+                          Guide
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-0.5">
+                        Learn how seasonal patterns and events affect commodity prices
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors">
+                      {guideOpen ? "Hide Guide" : "Show Guide"}
+                    </span>
+                    <ChevronDown className={`h-5 w-5 text-emerald-600 dark:text-emerald-400 transition-transform duration-300 ${guideOpen ? "rotate-180" : ""}`} />
+                  </div>
+                </div>
+              </div>
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-up-2 data-[state=open]:slide-down-2">
+            <div className="mt-4 rounded-xl border border-emerald-200/50 dark:border-emerald-800/50 bg-white dark:bg-slate-900 p-6 shadow-sm">
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="relative overflow-hidden p-4 rounded-xl bg-linear-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200/50 dark:border-amber-800/50">
+                  <div className="absolute top-0 right-0 w-12 h-12 bg-amber-500/10 rounded-full -mr-3 -mt-3" />
+                  <div className="relative">
+                    <div className="font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-2 mb-2">
+                      <span className="text-xl">🪔</span>
+                      Festival Demand
+                    </div>
+                    <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
+                      Diwali and Dhanteras typically increase gold demand in India
+                    </p>
+                  </div>
+                </div>
+                <div className="relative overflow-hidden p-4 rounded-xl bg-linear-to-br from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/30 border border-pink-200/50 dark:border-pink-800/50">
+                  <div className="absolute top-0 right-0 w-12 h-12 bg-pink-500/10 rounded-full -mr-3 -mt-3" />
+                  <div className="relative">
+                    <div className="font-semibold text-pink-800 dark:text-pink-300 flex items-center gap-2 mb-2">
+                      <span className="text-xl">💒</span>
+                      Wedding Season
+                    </div>
+                    <p className="text-sm text-pink-700 dark:text-pink-400 leading-relaxed">
+                      Wedding season affects gold and silver prices significantly
+                    </p>
+                  </div>
+                </div>
+                <div className="relative overflow-hidden p-4 rounded-xl bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200/50 dark:border-green-800/50">
+                  <div className="absolute top-0 right-0 w-12 h-12 bg-green-500/10 rounded-full -mr-3 -mt-3" />
+                  <div className="relative">
+                    <div className="font-semibold text-green-800 dark:text-green-300 flex items-center gap-2 mb-2">
+                      <span className="text-xl">🌾</span>
+                      Harvest Cycles
+                    </div>
+                    <p className="text-sm text-green-700 dark:text-green-400 leading-relaxed">
+                      Harvest cycles impact agricultural commodity prices
+                    </p>
+                  </div>
+                </div>
+                <div className="relative overflow-hidden p-4 rounded-xl bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200/50 dark:border-blue-800/50">
+                  <div className="absolute top-0 right-0 w-12 h-12 bg-blue-500/10 rounded-full -mr-3 -mt-3" />
+                  <div className="relative">
+                    <div className="font-semibold text-blue-800 dark:text-blue-300 flex items-center gap-2 mb-2">
+                      <span className="text-xl">📊</span>
+                      Tax Planning
+                    </div>
+                    <p className="text-sm text-blue-700 dark:text-blue-400 leading-relaxed">
+                      Year-end tax planning affects precious metals demand
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </motion.div>
 
       {/* Global Analysis Controls - Sticky Header */}
@@ -537,44 +629,6 @@ export default function SeasonalTrendsPage() {
               </motion.div>
             )}
           </AnimatePresence>
-        </Card>
-      </motion.div>
-
-      {/* About Section */}
-      <motion.div variants={itemVariants}>
-        <Card className="border border-gray-200 shadow-sm overflow-hidden">
-          <CardHeader className="bg-linear-to-r from-slate-50 to-gray-50">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-slate-100 rounded-lg">
-                <Info className="h-5 w-5 text-slate-600" />
-              </div>
-              <CardTitle className="text-lg">About Seasonal Trading</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-5">
-            <p className="text-gray-600 leading-relaxed mb-4">
-              Seasonal trading exploits recurring patterns in commodity prices based on calendar events,
-              festivals, harvest cycles, and economic calendars.
-            </p>
-            <div className="grid md:grid-cols-2 gap-3">
-              {[
-                { icon: "🪔", text: "Diwali and Dhanteras typically increase gold demand in India" },
-                { icon: "💒", text: "Wedding season affects gold and silver prices" },
-                { icon: "🌾", text: "Harvest cycles impact agricultural commodity prices" },
-                { icon: "📊", text: "Year-end tax planning affects precious metals" }
-              ].map((item, idx) => (
-                <motion.div
-                  key={idx}
-                  className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100"
-                  whileHover={{ scale: 1.02, backgroundColor: "#f0fdf4" }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <span className="text-xl">{item.icon}</span>
-                  <span className="text-sm text-gray-600">{item.text}</span>
-                </motion.div>
-              ))}
-            </div>
-          </CardContent>
         </Card>
       </motion.div>
 

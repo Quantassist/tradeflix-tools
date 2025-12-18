@@ -506,22 +506,81 @@ async def compare_commodities(request: COTComparisonRequest):
 # ============================================================================
 
 
-def get_commodity_filter(commodity: str):
-    """Generate filter conditions for commodity search"""
-    commodity_upper = commodity.upper()
+def get_commodity_market_filter(commodity: str) -> dict:
+    """
+    Get the exact market name pattern for a commodity.
+    This ensures we don't mix different contract sizes (e.g., GOLD vs MICRO GOLD).
 
-    # Common commodity mappings
-    commodity_patterns = {
-        "GOLD": ["GOLD", "GC"],
-        "SILVER": ["SILVER", "SI"],
-        "CRUDE": ["CRUDE OIL", "CL", "WTI"],
-        "COPPER": ["COPPER", "HG"],
-        "PLATINUM": ["PLATINUM", "PL"],
-        "PALLADIUM": ["PALLADIUM", "PA"],
-        "NATURAL GAS": ["NATURAL GAS", "NG"],
+    Returns:
+        dict with 'commodity_name' (exact match) and 'market_pattern' (LIKE pattern for market name)
+    """
+    commodity_upper = commodity.upper().strip()
+
+    # Mapping of user-friendly names to exact database values
+    # Each entry has: commodity_name (exact), market_pattern (for Market_and_Exchange_Names LIKE)
+    commodity_mappings = {
+        # Main contracts
+        "GOLD": {"commodity_name": "GOLD", "market_pattern": "GOLD - %"},
+        "SILVER": {"commodity_name": "SILVER", "market_pattern": "SILVER - %"},
+        "CRUDE": {
+            "commodity_name": "CRUDE OIL, LIGHT SWEET",
+            "market_pattern": "CRUDE OIL%",
+        },
+        "COPPER": {"commodity_name": "COPPER", "market_pattern": "COPPER - %"},
+        "PLATINUM": {"commodity_name": "PLATINUM", "market_pattern": "PLATINUM - %"},
+        "PALLADIUM": {"commodity_name": "PALLADIUM", "market_pattern": "PALLADIUM - %"},
+        "NATURAL GAS": {
+            "commodity_name": "NATURAL GAS",
+            "market_pattern": "NATURAL GAS - %",
+        },
+        # Micro contracts - separate categories (only include those with data)
+        "MICRO GOLD": {"commodity_name": "GOLD", "market_pattern": "MICRO GOLD - %"},
     }
 
-    return commodity_patterns.get(commodity_upper, [commodity_upper])
+    return commodity_mappings.get(
+        commodity_upper,
+        {"commodity_name": commodity_upper, "market_pattern": f"{commodity_upper}%"},
+    )
+
+
+def build_cot_query(db: Session, commodity: str, weeks: int):
+    """
+    Build a query for COT data with exact market matching.
+    Uses market name pattern to distinguish between main and micro contracts.
+
+    Args:
+        db: Database session
+        commodity: Commodity name (e.g., GOLD, MICRO GOLD, SILVER)
+        weeks: Number of weeks to fetch
+
+    Returns:
+        List of COTReportDisaggFuturesOnly records
+    """
+    filter_config = get_commodity_market_filter(commodity)
+
+    # Query with exact market pattern match
+    query = db.query(COTReportDisaggFuturesOnly).filter(
+        func.upper(COTReportDisaggFuturesOnly.Commodity_Name)
+        == filter_config["commodity_name"].upper(),
+        func.upper(COTReportDisaggFuturesOnly.Market_and_Exchange_Names).like(
+            filter_config["market_pattern"].upper()
+        ),
+    )
+
+    query = query.order_by(desc(COTReportDisaggFuturesOnly.Report_Date_as_YYYY_MM_DD))
+    reports = query.limit(weeks).all()
+
+    # Fallback: if no results with exact match, try broader commodity name search
+    if not reports:
+        query = db.query(COTReportDisaggFuturesOnly).filter(
+            COTReportDisaggFuturesOnly.Commodity_Name.ilike(f"%{commodity}%")
+        )
+        query = query.order_by(
+            desc(COTReportDisaggFuturesOnly.Report_Date_as_YYYY_MM_DD)
+        )
+        reports = query.limit(weeks).all()
+
+    return reports
 
 
 def calculate_cot_index(current: int, min_val: int, max_val: int) -> float:
@@ -636,33 +695,8 @@ async def get_disagg_cot_analysis(
     sentiment gauges, and trading signals.
     """
     try:
-        # Get commodity patterns
-        patterns = get_commodity_filter(commodity)
-
-        # Query historical data
-        query = (
-            db.query(COTReportDisaggFuturesOnly)
-            .filter(
-                func.upper(COTReportDisaggFuturesOnly.Commodity_Name).in_(
-                    [p.upper() for p in patterns]
-                )
-            )
-            .order_by(desc(COTReportDisaggFuturesOnly.Report_Date_as_YYYY_MM_DD))
-        )
-
-        # Limit to requested weeks
-        reports = query.limit(weeks).all()
-
-        if not reports:
-            # Try broader search
-            query = (
-                db.query(COTReportDisaggFuturesOnly)
-                .filter(
-                    COTReportDisaggFuturesOnly.Commodity_Name.ilike(f"%{commodity}%")
-                )
-                .order_by(desc(COTReportDisaggFuturesOnly.Report_Date_as_YYYY_MM_DD))
-            )
-            reports = query.limit(weeks).all()
+        # Query historical data using helper function (excludes micro/mini contracts)
+        reports = build_cot_query(db, commodity, weeks)
 
         if not reports:
             raise HTTPException(
@@ -1024,29 +1058,8 @@ async def get_disagg_historical(
     Returns time series of positions for all trader categories.
     """
     try:
-        patterns = get_commodity_filter(commodity)
-
-        query = (
-            db.query(COTReportDisaggFuturesOnly)
-            .filter(
-                func.upper(COTReportDisaggFuturesOnly.Commodity_Name).in_(
-                    [p.upper() for p in patterns]
-                )
-            )
-            .order_by(desc(COTReportDisaggFuturesOnly.Report_Date_as_YYYY_MM_DD))
-        )
-
-        reports = query.limit(weeks).all()
-
-        if not reports:
-            query = (
-                db.query(COTReportDisaggFuturesOnly)
-                .filter(
-                    COTReportDisaggFuturesOnly.Commodity_Name.ilike(f"%{commodity}%")
-                )
-                .order_by(desc(COTReportDisaggFuturesOnly.Report_Date_as_YYYY_MM_DD))
-            )
-            reports = query.limit(weeks).all()
+        # Query historical data using helper function (excludes micro/mini contracts)
+        reports = build_cot_query(db, commodity, weeks)
 
         if not reports:
             raise HTTPException(
@@ -1140,29 +1153,8 @@ async def get_chart_data(
     Returns time series data formatted for charts (net positions and long/short).
     """
     try:
-        patterns = get_commodity_filter(commodity)
-
-        query = (
-            db.query(COTReportDisaggFuturesOnly)
-            .filter(
-                func.upper(COTReportDisaggFuturesOnly.Commodity_Name).in_(
-                    [p.upper() for p in patterns]
-                )
-            )
-            .order_by(desc(COTReportDisaggFuturesOnly.Report_Date_as_YYYY_MM_DD))
-        )
-
-        reports = query.limit(weeks).all()
-
-        if not reports:
-            query = (
-                db.query(COTReportDisaggFuturesOnly)
-                .filter(
-                    COTReportDisaggFuturesOnly.Commodity_Name.ilike(f"%{commodity}%")
-                )
-                .order_by(desc(COTReportDisaggFuturesOnly.Report_Date_as_YYYY_MM_DD))
-            )
-            reports = query.limit(weeks).all()
+        # Query historical data using helper function (excludes micro/mini contracts)
+        reports = build_cot_query(db, commodity, weeks)
 
         if not reports:
             raise HTTPException(
@@ -1247,29 +1239,8 @@ async def get_extreme_alerts(
     Identifies when any trader category is at extreme percentiles.
     """
     try:
-        patterns = get_commodity_filter(commodity)
-
-        query = (
-            db.query(COTReportDisaggFuturesOnly)
-            .filter(
-                func.upper(COTReportDisaggFuturesOnly.Commodity_Name).in_(
-                    [p.upper() for p in patterns]
-                )
-            )
-            .order_by(desc(COTReportDisaggFuturesOnly.Report_Date_as_YYYY_MM_DD))
-        )
-
-        reports = query.limit(weeks).all()
-
-        if not reports:
-            query = (
-                db.query(COTReportDisaggFuturesOnly)
-                .filter(
-                    COTReportDisaggFuturesOnly.Commodity_Name.ilike(f"%{commodity}%")
-                )
-                .order_by(desc(COTReportDisaggFuturesOnly.Report_Date_as_YYYY_MM_DD))
-            )
-            reports = query.limit(weeks).all()
+        # Query historical data using helper function (excludes micro/mini contracts)
+        reports = build_cot_query(db, commodity, weeks)
 
         if not reports:
             raise HTTPException(
@@ -1381,29 +1352,8 @@ async def get_trading_signal(
     Analyzes positioning across categories to generate actionable signals.
     """
     try:
-        patterns = get_commodity_filter(commodity)
-
-        query = (
-            db.query(COTReportDisaggFuturesOnly)
-            .filter(
-                func.upper(COTReportDisaggFuturesOnly.Commodity_Name).in_(
-                    [p.upper() for p in patterns]
-                )
-            )
-            .order_by(desc(COTReportDisaggFuturesOnly.Report_Date_as_YYYY_MM_DD))
-        )
-
-        reports = query.limit(weeks).all()
-
-        if not reports:
-            query = (
-                db.query(COTReportDisaggFuturesOnly)
-                .filter(
-                    COTReportDisaggFuturesOnly.Commodity_Name.ilike(f"%{commodity}%")
-                )
-                .order_by(desc(COTReportDisaggFuturesOnly.Report_Date_as_YYYY_MM_DD))
-            )
-            reports = query.limit(weeks).all()
+        # Query historical data using helper function (excludes micro/mini contracts)
+        reports = build_cot_query(db, commodity, weeks)
 
         if not reports:
             raise HTTPException(

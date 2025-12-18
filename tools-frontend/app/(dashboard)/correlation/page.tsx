@@ -50,14 +50,26 @@ export default function CorrelationMatrixPage() {
     initialLoadRef.current = true
 
     // Fire calculations for tabbed sections after page renders
+    // Use a longer delay to ensure API is ready
     const timer = setTimeout(() => {
       // Calculate rolling correlation with defaults
       setRollingLoading(true)
       correlationApi.getRolling("GOLD", "USDINR", 30, 180)
-        .then(response => setRollingResult(response))
+        .then(response => {
+          // Only set result if we have valid data points with actual variation
+          // Check that max != min (indicating actual data, not defaults)
+          const hasValidData = response &&
+            response.data_points &&
+            response.data_points.length > 0 &&
+            response.max_correlation !== response.min_correlation
+
+          if (hasValidData) {
+            setRollingResult(response)
+          }
+        })
         .catch(err => console.error("Auto-calc rolling error:", err))
         .finally(() => setRollingLoading(false))
-    }, 100)
+    }, 500)
 
     return () => clearTimeout(timer)
   }, [])
@@ -559,7 +571,9 @@ function RollingCorrelationSection({
         </StyledCardContent>
       </StyledCard>
 
-      {rollingResult && <RollingCorrelationChart data={rollingResult} />}
+      {rollingResult && rollingResult.data_points && rollingResult.data_points.length > 0 && (
+        <RollingCorrelationChart data={rollingResult} />
+      )}
     </div>
   )
 }

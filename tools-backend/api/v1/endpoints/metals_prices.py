@@ -8,8 +8,8 @@ from datetime import date
 import logging
 
 from database import get_db
-from services.metals_price_service_optimized import (
-    MetalsPriceServiceOptimized as MetalsPriceService,
+from services.metals_price_service_vectorized import (
+    MetalsPriceServiceVectorized as MetalsPriceService,
 )
 from services.seasonal_cache_service import get_cache
 from models.seasonal import SeasonalEvent
@@ -210,7 +210,10 @@ async def get_seasonal_events_analysis(
     db: Session = Depends(get_db),
 ):
     """
-    Get comprehensive seasonal analysis for all events stored in the database
+    Get comprehensive seasonal analysis for all events stored in the database.
+
+    OPTIMIZED: Uses batch processing with vectorized pandas/numpy operations
+    instead of processing each event individually.
 
     Returns analysis for Indian festivals, economic events, and global events.
     Includes volatility analysis for each event.
@@ -241,7 +244,6 @@ async def get_seasonal_events_analysis(
     for db_event in db_events:
         if db_event.start_date:
             events_by_name[db_event.name].append(db_event)
-            # Store metadata from first occurrence
             if db_event.name not in event_metadata:
                 event_metadata[db_event.name] = {
                     "type": db_event.event_type.value
@@ -250,169 +252,98 @@ async def get_seasonal_events_analysis(
                     "is_lunar_based": db_event.is_lunar_based,
                 }
 
-    events_analysis = []
+    # Prepare events for batch processing
+    events_for_batch = []
+    current_year = date_type.today().year
+    min_year = current_year - years_back
 
-    # Process each unique event
     for event_name, event_occurrences in events_by_name.items():
-        try:
-            meta = event_metadata[event_name]
-            is_lunar = meta["is_lunar_based"]
+        meta = event_metadata[event_name]
+        is_lunar = meta["is_lunar_based"]
 
-            if is_lunar:
-                # For lunar-based events, use actual dates from database
-                event_dates = [e.start_date for e in event_occurrences if e.start_date]
-                # Filter to only include dates within years_back range
-                current_year = date_type.today().year
-                min_year = current_year - years_back
-                event_dates = [d for d in event_dates if d.year >= min_year]
-
-                if not event_dates:
-                    continue
-
-                performance = MetalsPriceService.calculate_lunar_event_performance(
-                    db,
-                    event_dates,
-                    metal,
-                    currency,
-                    days_before,
-                    days_after,
-                )
-
-                # For display, use the most recent occurrence's month/day
-                latest_event = max(event_occurrences, key=lambda e: e.start_date)
-                display_month = latest_event.start_date.month
-                display_day = latest_event.start_date.day
-            else:
-                # For fixed-date events, use the standard calculation
-                first_event = event_occurrences[0]
-                display_month = first_event.start_date.month
-                display_day = first_event.start_date.day
-
-                performance = MetalsPriceService.calculate_historical_event_performance(
-                    db,
-                    display_month,
-                    display_day,
-                    metal,
-                    currency,
-                    years_back,
-                    days_before,
-                    days_after,
-                )
-
-            # Get volatility analysis (uses first occurrence for reference)
+        if is_lunar:
+            # Lunar events: collect actual dates
+            event_dates = [
+                e.start_date
+                for e in event_occurrences
+                if e.start_date and e.start_date.year >= min_year
+            ]
+            if not event_dates:
+                continue
+            latest_event = max(event_occurrences, key=lambda e: e.start_date)
+            events_for_batch.append(
+                {
+                    "name": event_name,
+                    "type": meta["type"],
+                    "is_lunar_based": True,
+                    "dates": event_dates,
+                    "month": latest_event.start_date.month,
+                    "day": latest_event.start_date.day,
+                }
+            )
+        else:
+            # Fixed-date events
             first_event = event_occurrences[0]
-            volatility = MetalsPriceService.get_volatility_analysis(
-                db,
-                first_event.start_date.month,
-                first_event.start_date.day,
-                metal,
-                currency,
-                years_back,
+            events_for_batch.append(
+                {
+                    "name": event_name,
+                    "type": meta["type"],
+                    "is_lunar_based": False,
+                    "month": first_event.start_date.month,
+                    "day": first_event.start_date.day,
+                }
             )
 
-            if performance.get("has_data"):
-                events_analysis.append(
-                    {
-                        "name": event_name,
-                        "event_type": meta["type"],
-                        "month": display_month,
-                        "day": display_day,
-                        "is_lunar_based": is_lunar,
-                        "avg_price_change": performance.get("avg_change_7d", 0),
-                        "win_rate": performance.get("win_rate", 0),
-                        "occurrences": performance.get("occurrences", 0),
-                        "best_return": performance.get("best_return", 0),
-                        "worst_return": performance.get("worst_return", 0),
-                        "avg_volatility": performance.get("avg_volatility", 0),
-                        # Volatility analysis fields
-                        "volatility_increase_pct": volatility.get(
-                            "event_week_volatility_increase_pct", 0
-                        )
-                        if volatility.get("has_data")
-                        else 0,
-                        "normal_volatility": volatility.get("avg_normal_volatility", 0)
-                        if volatility.get("has_data")
-                        else 0,
-                        "event_volatility": volatility.get(
-                            "avg_event_week_volatility", 0
-                        )
-                        if volatility.get("has_data")
-                        else 0,
-                        "yearly_data": performance.get("yearly_data", []),
-                    }
-                )
-        except Exception as e:
-            logger.warning(f"Error analyzing event {event_name}: {e}")
-            continue
-
-    # If no events in DB, use fallback defaults (fixed-date events only)
-    if not events_analysis:
-        fallback_events = [
-            {"name": "Union Budget", "month": 2, "day": 1, "type": "budget_india"},
+    # Use fallback events if no events in DB
+    if not events_for_batch:
+        events_for_batch = [
+            {
+                "name": "Union Budget",
+                "month": 2,
+                "day": 1,
+                "type": "budget_india",
+                "is_lunar_based": False,
+            },
             {
                 "name": "Republic Day",
                 "month": 1,
                 "day": 26,
                 "type": "holiday_trading_india",
+                "is_lunar_based": False,
             },
             {
                 "name": "Independence Day",
                 "month": 8,
                 "day": 15,
                 "type": "holiday_trading_india",
+                "is_lunar_based": False,
             },
             {
                 "name": "Christmas",
                 "month": 12,
                 "day": 25,
                 "type": "holiday_trading_global",
+                "is_lunar_based": False,
             },
             {
                 "name": "New Year",
                 "month": 1,
                 "day": 1,
                 "type": "holiday_trading_global",
+                "is_lunar_based": False,
             },
         ]
 
-        for event in fallback_events:
-            try:
-                performance = MetalsPriceService.calculate_historical_event_performance(
-                    db,
-                    event["month"],
-                    event["day"],
-                    metal,
-                    currency,
-                    years_back,
-                    days_before,
-                    days_after,
-                )
-                if performance.get("has_data"):
-                    events_analysis.append(
-                        {
-                            "name": event["name"],
-                            "event_type": event["type"],
-                            "month": event["month"],
-                            "day": event["day"],
-                            "is_lunar_based": False,
-                            "avg_price_change": performance.get("avg_change_7d", 0),
-                            "win_rate": performance.get("win_rate", 0),
-                            "occurrences": performance.get("occurrences", 0),
-                            "best_return": performance.get("best_return", 0),
-                            "worst_return": performance.get("worst_return", 0),
-                            "avg_volatility": performance.get("avg_volatility", 0),
-                            "volatility_increase_pct": 0,
-                            "normal_volatility": 0,
-                            "event_volatility": 0,
-                            "yearly_data": performance.get("yearly_data", []),
-                        }
-                    )
-            except Exception as e:
-                logger.warning(f"Error analyzing fallback event {event['name']}: {e}")
-                continue
-
-    # Sort by absolute average price change
-    events_analysis.sort(key=lambda x: abs(x.get("avg_price_change", 0)), reverse=True)
+    # BATCH PROCESS all events at once (major optimization)
+    events_analysis = MetalsPriceService.batch_calculate_events_analysis(
+        db,
+        events_for_batch,
+        metal,
+        currency,
+        years_back,
+        days_before,
+        days_after,
+    )
 
     return {
         "metal": metal,
@@ -493,15 +424,51 @@ async def get_upcoming_alerts(
         .all()
     )
 
-    # Deduplicate events by name to avoid duplicate alerts
-    seen_names = set()
+    # Get current date for filtering
+    from datetime import date
+    import re
+
+    today = date.today()
+    current_year = today.year
+
+    # Deduplicate events by normalized name (without year) to avoid duplicate alerts
+    # Also filter out events with past years in their names
+    seen_base_names = set()
     events = []
     for db_event in db_events:
-        if db_event.start_date and db_event.name not in seen_names:
-            seen_names.add(db_event.name)
+        if not db_event.start_date:
+            continue
+
+        event_name = db_event.name
+
+        # Check if event name contains a year (e.g., "FOMC Meeting Jan 2024")
+        year_match = re.search(r"\b(20\d{2})\b", event_name)
+        if year_match:
+            event_year = int(year_match.group(1))
+            # Skip events with past years
+            if event_year < current_year:
+                continue
+            # For current/future year events, use the year from the name
+            # but only if it matches the event's month/day timing
+            event_month = db_event.start_date.month
+            event_day = db_event.start_date.day
+            try:
+                event_date = date(event_year, event_month, event_day)
+                # Skip if event date is in the past
+                if event_date < today:
+                    continue
+            except ValueError:
+                continue
+
+        # Normalize name by removing year for deduplication
+        base_name = re.sub(r"\s*(20\d{2}(-\d{2})?)\s*", " ", event_name).strip()
+        base_name = re.sub(r"\s+", " ", base_name)  # Clean up extra spaces
+
+        if base_name not in seen_base_names:
+            seen_base_names.add(base_name)
             events.append(
                 {
-                    "name": db_event.name,
+                    "name": base_name,  # Use cleaned name without year
                     "month": db_event.start_date.month,
                     "day": db_event.start_date.day,
                     "type": db_event.event_type.value

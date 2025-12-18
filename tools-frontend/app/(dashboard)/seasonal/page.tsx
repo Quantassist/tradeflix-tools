@@ -1,13 +1,14 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { Calendar, AlertCircle, Pencil, Trash2, ChevronDown, RefreshCw, Zap, BookOpen } from "lucide-react"
+import { Calendar, AlertCircle, Pencil, Trash2, ChevronDown, RefreshCw, Zap, BookOpen, TrendingUp, CalendarDays, BarChart3, Activity, Settings2 } from "lucide-react"
 import { seasonalEventsApi, SeasonalEvent } from "@/lib/api/seasonal-events"
 import { formatPercent } from "@/lib/utils"
 import { toast } from "sonner"
@@ -70,13 +71,227 @@ const EVENT_TYPE_ICONS: Record<string, string> = {
 }
 
 
+// Events Management Section Component
+interface EventsManagementSectionProps {
+  events: SeasonalEvent[]
+  filteredEvents: SeasonalEvent[]
+  loading: boolean
+  selectedCommodity: string
+  setSelectedCommodity: (value: string) => void
+  selectedYear: string
+  setSelectedYear: (value: string) => void
+  availableYears: number[]
+  loadEvents: () => void
+  handleEditClick: (event: SeasonalEvent) => void
+  handleDeleteClick: (event: SeasonalEvent) => void
+}
+
+function EventsManagementSection({
+  events,
+  filteredEvents,
+  loading,
+  selectedCommodity,
+  setSelectedCommodity,
+  selectedYear,
+  setSelectedYear,
+  availableYears,
+  loadEvents,
+  handleEditClick,
+  handleDeleteClick,
+}: EventsManagementSectionProps) {
+  return (
+    <Card className="border-2 border-emerald-200/60 shadow-lg overflow-hidden">
+      <CardHeader className="bg-linear-to-r from-emerald-50 via-green-50 to-teal-50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="p-2.5 bg-emerald-100 rounded-xl">
+              <Calendar className="h-5 w-5 text-emerald-600" />
+            </div>
+            <div>
+              <CardTitle className="text-lg font-semibold">Manage Seasonal Events</CardTitle>
+              <CardDescription className="flex items-center gap-2 mt-0.5">
+                <Badge variant="secondary" className="text-xs">{events.length} events</Badge>
+              </CardDescription>
+            </div>
+          </div>
+          <AddEventDialog onEventCreated={loadEvents} />
+        </div>
+      </CardHeader>
+      <CardContent className="pt-6 space-y-6">
+        {/* Filters */}
+        <div className="flex gap-3 items-center flex-wrap p-4 bg-gray-50/50 rounded-xl border border-gray-100">
+          <Select value={selectedCommodity} onValueChange={setSelectedCommodity}>
+            <SelectTrigger className="w-[180px] bg-white border-gray-200 hover:border-emerald-300 transition-colors">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Commodities</SelectItem>
+              <SelectItem value="GOLD">Gold</SelectItem>
+              <SelectItem value="SILVER">Silver</SelectItem>
+              <SelectItem value="CRUDE">Crude Oil</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={selectedYear} onValueChange={setSelectedYear}>
+            <SelectTrigger className="w-[130px] bg-white border-gray-200 hover:border-emerald-300 transition-colors">
+              <SelectValue placeholder="Select Year" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Years</SelectItem>
+              {availableYears.map(year => (
+                <SelectItem key={year} value={year.toString()}>
+                  {year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            onClick={loadEvents}
+            disabled={loading}
+            variant="outline"
+            className="border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300 transition-all"
+          >
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                Loading...
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                <RefreshCw className="h-4 w-4" />
+                Refresh
+              </span>
+            )}
+          </Button>
+        </div>
+
+        {/* Events Grid */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredEvents.length > 0 ? (
+            filteredEvents.map((event, idx) => {
+              const avgImpact = event.avg_price_change_percent || 0
+              const eventIcon = EVENT_TYPE_ICONS[event.event_type] || "📅"
+              return (
+                <motion.div
+                  key={event.id}
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate="visible"
+                  whileHover="hover"
+                  transition={{ delay: idx * 0.05 }}
+                >
+                  <Card className="h-full border border-gray-200 hover:border-emerald-300 transition-colors duration-300 overflow-hidden">
+                    <CardHeader className="bg-linear-to-r from-gray-50 via-emerald-50/50 to-green-50/50 border-b py-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <span className="text-xl">{eventIcon}</span>
+                        <span className="font-semibold">{event.name}</span>
+                      </CardTitle>
+                      <CardDescription className="text-xs flex items-center gap-2">
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                          {event.event_type.replace(/_/g, ' ')}
+                        </Badge>
+                        <span>•</span>
+                        <span>{event.start_date}</span>
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3 pt-4 text-sm">
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground text-xs">Country</span>
+                        <span className="font-medium text-sm">{event.country}</span>
+                      </div>
+                      {avgImpact !== 0 && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground text-xs">Avg Impact</span>
+                          <span className={`font-bold ${avgImpact > 0 ? "text-emerald-600" : "text-red-500"}`}>
+                            {avgImpact > 0 ? '+' : ''}{formatPercent(avgImpact)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground text-xs">Affects</span>
+                        <span className="flex gap-1">
+                          {event.affects_gold && <span title="Gold" className="text-lg">🥇</span>}
+                          {event.affects_silver && <span title="Silver" className="text-lg">🥈</span>}
+                        </span>
+                      </div>
+                      {event.description && (
+                        <div className="p-2.5 rounded-lg bg-gray-50 text-xs text-gray-600 leading-relaxed">
+                          {event.description}
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                        <div className="flex items-center gap-1.5">
+                          <Badge
+                            variant={event.is_active ? "default" : "secondary"}
+                            className={`text-[10px] ${event.is_active ? 'bg-emerald-500' : ''}`}
+                          >
+                            {event.is_active ? "Active" : "Inactive"}
+                          </Badge>
+                          {event.is_verified && (
+                            <Badge variant="outline" className="text-emerald-600 border-emerald-300 text-[10px]">
+                              ✓ Verified
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex gap-0.5">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            onClick={() => handleEditClick(event)}
+                            title="Edit event"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            onClick={() => handleDeleteClick(event)}
+                            title="Delete event"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )
+            })
+          ) : (
+            <motion.div
+              className="col-span-full flex flex-col items-center justify-center py-16 space-y-4"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+            >
+              <div className="p-4 bg-gray-100 rounded-full">
+                <AlertCircle className="h-8 w-8 text-gray-400" />
+              </div>
+              <div className="text-center">
+                <p className="text-gray-600 font-medium">
+                  {loading ? "Loading events..." : selectedYear !== "all" ? `No events found for ${selectedYear}` : "No seasonal events found"}
+                </p>
+                {!loading && selectedYear === "all" && (
+                  <p className="text-sm text-gray-400 mt-1">
+                    Click &quot;Add Event&quot; to create your first seasonal event
+                  </p>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
 export default function SeasonalTrendsPage() {
   const [loading, setLoading] = useState(false)
   const [events, setEvents] = useState<SeasonalEvent[]>([])
   const [selectedCommodity, setSelectedCommodity] = useState<string>("all")
   const [selectedYear, setSelectedYear] = useState<string>("all")
-  const [eventsExpanded, setEventsExpanded] = useState(false)
   const [guideOpen, setGuideOpen] = useState(false)
+  const [visitedTabs, setVisitedTabs] = useState<Set<string>>(new Set(["overview"]))
 
   // Shared settings state for analysis components
   const [analysisSettings, setAnalysisSettings] = useState({
@@ -159,7 +374,7 @@ export default function SeasonalTrendsPage() {
         className="relative overflow-hidden rounded-3xl bg-linear-to-br from-emerald-600 via-green-500 to-teal-500 p-8 md:p-10 text-white shadow-2xl"
       >
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+        <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent"></div>
         <motion.div
           className="relative z-10"
           initial={{ opacity: 0, y: 20 }}
@@ -283,7 +498,7 @@ export default function SeasonalTrendsPage() {
 
       {/* Global Analysis Controls - Sticky Header */}
       <motion.div variants={itemVariants} className="sticky -top-6 z-50 -mx-6 px-6 pt-6 pb-2 bg-background">
-        <Card className="border-2 border-emerald-300 bg-linear-to-r from-emerald-50 via-teal-50 to-cyan-50 shadow-lg backdrop-blur-sm">
+        <Card className="border-2 border-emerald-300 bg-white shadow-lg backdrop-blur-sm">
           <CardContent className="py-4">
             <div className="flex flex-wrap gap-4 items-center justify-between">
               <div className="flex flex-wrap gap-4 items-center">
@@ -368,268 +583,120 @@ export default function SeasonalTrendsPage() {
         </Card>
       </motion.div>
 
-      {/* Seasonal Strategy Backtester */}
+      {/* Tab-based Content - Only loads data for active tab */}
       <motion.div variants={itemVariants}>
-        <SeasonalStrategyPicker />
-      </motion.div>
+        <Tabs defaultValue="overview" className="w-full" onValueChange={(value) => {
+          setVisitedTabs(prev => new Set([...prev, value]))
+        }}>
+          <TabsList className="grid w-full grid-cols-5 h-12 p-1 bg-gray-100 border border-gray-200 rounded-xl">
+            <TabsTrigger
+              value="overview"
+              className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-md rounded-lg transition-all"
+            >
+              <TrendingUp className="h-4 w-4" />
+              <span className="hidden sm:inline">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="calendar"
+              className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-md rounded-lg transition-all"
+            >
+              <CalendarDays className="h-4 w-4" />
+              <span className="hidden sm:inline">Calendar</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="events"
+              className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-md rounded-lg transition-all"
+            >
+              <BarChart3 className="h-4 w-4" />
+              <span className="hidden sm:inline">Event Analysis</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="market"
+              className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-md rounded-lg transition-all"
+            >
+              <Activity className="h-4 w-4" />
+              <span className="hidden sm:inline">Market</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="manage"
+              className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-md rounded-lg transition-all"
+            >
+              <Settings2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Manage</span>
+            </TabsTrigger>
+          </TabsList>
 
-      {/* Historical Seasonal Analysis from Real Data */}
-      <motion.div variants={itemVariants}>
-        <SeasonalAnalysisCharts
-          metal={analysisSettings.metal}
-          currency={analysisSettings.currency}
-          yearsBack={analysisSettings.yearsBack}
-          daysWindow={analysisSettings.daysWindow}
-          onSettingsChange={handleSettingsChange}
-        />
-      </motion.div>
+          {/* Tab 1: Overview & Seasonality */}
+          <TabsContent value="overview" className="mt-6 space-y-6">
+            <SeasonalStrategyPicker />
+            <SeasonalAnalysisCharts
+              metal={analysisSettings.metal}
+              currency={analysisSettings.currency}
+              yearsBack={analysisSettings.yearsBack}
+              daysWindow={analysisSettings.daysWindow}
+              onSettingsChange={handleSettingsChange}
+            />
+          </TabsContent>
 
-      {/* Interactive Calendar Heatmap */}
-      <motion.div variants={itemVariants}>
-        <CalendarHeatmap
-          metal={analysisSettings.metal}
-          currency={analysisSettings.currency}
-          yearsBack={analysisSettings.yearsBack}
-        />
-      </motion.div>
-
-      {/* Advanced Analysis - Alerts, Trajectory, Comparison */}
-      <motion.div variants={itemVariants}>
-        <SeasonalAdvancedCharts
-          metal={analysisSettings.metal}
-          currency={analysisSettings.currency}
-          yearsBack={analysisSettings.yearsBack}
-          daysWindow={analysisSettings.daysWindow}
-        />
-      </motion.div>
-
-      {/* Recession & Crisis Indicators */}
-      <motion.div variants={itemVariants}>
-        <RecessionIndicators
-          metal={analysisSettings.metal}
-          currency={analysisSettings.currency}
-        />
-      </motion.div>
-
-      {/* Economic Events Deep Analysis */}
-      <motion.div variants={itemVariants}>
-        <EconomicEventsAnalysis
-          metal={analysisSettings.metal}
-          currency={analysisSettings.currency}
-          yearsBack={analysisSettings.yearsBack}
-        />
-      </motion.div>
-
-      {/* Events Management Section - Progressive Disclosure */}
-      <motion.div variants={itemVariants}>
-        <Card className="border-2 border-emerald-200/60 shadow-lg overflow-hidden">
-          <CardHeader
-            className="bg-linear-to-r from-emerald-50 via-green-50 to-teal-50 cursor-pointer hover:from-emerald-100 hover:via-green-100 hover:to-teal-100 transition-all duration-300"
-            onClick={() => setEventsExpanded(!eventsExpanded)}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-2.5 bg-emerald-100 rounded-xl">
-                  <Calendar className="h-5 w-5 text-emerald-600" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg font-semibold">Manage Seasonal Events</CardTitle>
-                  <CardDescription className="flex items-center gap-2 mt-0.5">
-                    <Badge variant="secondary" className="text-xs">{events.length} events</Badge>
-                    <span className="text-xs">Click to {eventsExpanded ? 'collapse' : 'expand'}</span>
-                  </CardDescription>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <AddEventDialog onEventCreated={loadEvents} />
-                <motion.div
-                  animate={{ rotate: eventsExpanded ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl">
-                    <ChevronDown className="h-5 w-5 text-emerald-600" />
-                  </Button>
-                </motion.div>
-              </div>
-            </div>
-          </CardHeader>
-
-          <AnimatePresence>
-            {eventsExpanded && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-              >
-                <CardContent className="pt-6 space-y-6">
-                  {/* Filters */}
-                  <div className="flex gap-3 items-center flex-wrap p-4 bg-gray-50/50 rounded-xl border border-gray-100">
-                    <Select value={selectedCommodity} onValueChange={setSelectedCommodity}>
-                      <SelectTrigger className="w-[180px] bg-white border-gray-200 hover:border-emerald-300 transition-colors">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Commodities</SelectItem>
-                        <SelectItem value="GOLD">Gold</SelectItem>
-                        <SelectItem value="SILVER">Silver</SelectItem>
-                        <SelectItem value="CRUDE">Crude Oil</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Select value={selectedYear} onValueChange={setSelectedYear}>
-                      <SelectTrigger className="w-[130px] bg-white border-gray-200 hover:border-emerald-300 transition-colors">
-                        <SelectValue placeholder="Select Year" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Years</SelectItem>
-                        {availableYears.map(year => (
-                          <SelectItem key={year} value={year.toString()}>
-                            {year}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Button
-                      onClick={loadEvents}
-                      disabled={loading}
-                      variant="outline"
-                      className="border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300 transition-all"
-                    >
-                      {loading ? (
-                        <span className="flex items-center gap-2">
-                          <RefreshCw className="h-4 w-4 animate-spin" />
-                          Loading...
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-2">
-                          <RefreshCw className="h-4 w-4" />
-                          Refresh
-                        </span>
-                      )}
-                    </Button>
-                  </div>
-
-                  {/* Events Grid */}
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {filteredEvents.length > 0 ? (
-                      filteredEvents.map((event, idx) => {
-                        const avgImpact = event.avg_price_change_percent || 0
-                        const eventIcon = EVENT_TYPE_ICONS[event.event_type] || "📅"
-                        return (
-                          <motion.div
-                            key={event.id}
-                            variants={cardVariants}
-                            initial="hidden"
-                            animate="visible"
-                            whileHover="hover"
-                            transition={{ delay: idx * 0.05 }}
-                          >
-                            <Card className="h-full border border-gray-200 hover:border-emerald-300 transition-colors duration-300 overflow-hidden">
-                              <CardHeader className="bg-linear-to-r from-gray-50 via-emerald-50/50 to-green-50/50 border-b py-3">
-                                <CardTitle className="text-base flex items-center gap-2">
-                                  <span className="text-xl">{eventIcon}</span>
-                                  <span className="font-semibold">{event.name}</span>
-                                </CardTitle>
-                                <CardDescription className="text-xs flex items-center gap-2">
-                                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                                    {event.event_type.replace(/_/g, ' ')}
-                                  </Badge>
-                                  <span>•</span>
-                                  <span>{event.start_date}</span>
-                                </CardDescription>
-                              </CardHeader>
-                              <CardContent className="space-y-3 pt-4 text-sm">
-                                <div className="flex justify-between items-center">
-                                  <span className="text-muted-foreground text-xs">Country</span>
-                                  <span className="font-medium text-sm">{event.country}</span>
-                                </div>
-                                {avgImpact !== 0 && (
-                                  <div className="flex justify-between items-center">
-                                    <span className="text-muted-foreground text-xs">Avg Impact</span>
-                                    <span className={`font-bold ${avgImpact > 0 ? "text-emerald-600" : "text-red-500"}`}>
-                                      {avgImpact > 0 ? '+' : ''}{formatPercent(avgImpact)}
-                                    </span>
-                                  </div>
-                                )}
-                                <div className="flex justify-between items-center">
-                                  <span className="text-muted-foreground text-xs">Affects</span>
-                                  <span className="flex gap-1">
-                                    {event.affects_gold && <span title="Gold" className="text-lg">🥇</span>}
-                                    {event.affects_silver && <span title="Silver" className="text-lg">🥈</span>}
-                                  </span>
-                                </div>
-                                {event.description && (
-                                  <div className="p-2.5 rounded-lg bg-gray-50 text-xs text-gray-600 leading-relaxed">
-                                    {event.description}
-                                  </div>
-                                )}
-                                <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                                  <div className="flex items-center gap-1.5">
-                                    <Badge
-                                      variant={event.is_active ? "default" : "secondary"}
-                                      className={`text-[10px] ${event.is_active ? 'bg-emerald-500' : ''}`}
-                                    >
-                                      {event.is_active ? "Active" : "Inactive"}
-                                    </Badge>
-                                    {event.is_verified && (
-                                      <Badge variant="outline" className="text-emerald-600 border-emerald-300 text-[10px]">
-                                        ✓ Verified
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  <div className="flex gap-0.5">
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                      onClick={() => handleEditClick(event)}
-                                      title="Edit event"
-                                    >
-                                      <Pencil className="h-3.5 w-3.5" />
-                                    </Button>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                      onClick={() => handleDeleteClick(event)}
-                                      title="Delete event"
-                                    >
-                                      <Trash2 className="h-3.5 w-3.5" />
-                                    </Button>
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          </motion.div>
-                        )
-                      })
-                    ) : (
-                      <motion.div
-                        className="col-span-full flex flex-col items-center justify-center py-16 space-y-4"
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                      >
-                        <div className="p-4 bg-gray-100 rounded-full">
-                          <AlertCircle className="h-8 w-8 text-gray-400" />
-                        </div>
-                        <div className="text-center">
-                          <p className="text-gray-600 font-medium">
-                            {loading ? "Loading events..." : selectedYear !== "all" ? `No events found for ${selectedYear}` : "No seasonal events found"}
-                          </p>
-                          {!loading && selectedYear === "all" && (
-                            <p className="text-sm text-gray-400 mt-1">
-                              Click &quot;Add Event&quot; to create your first seasonal event
-                            </p>
-                          )}
-                        </div>
-                      </motion.div>
-                    )}
-                  </div>
-                </CardContent>
-              </motion.div>
+          {/* Tab 2: Calendar Analysis */}
+          <TabsContent value="calendar" className="mt-6">
+            {visitedTabs.has("calendar") && (
+              <CalendarHeatmap
+                metal={analysisSettings.metal}
+                currency={analysisSettings.currency}
+                yearsBack={analysisSettings.yearsBack}
+              />
             )}
-          </AnimatePresence>
-        </Card>
+          </TabsContent>
+
+          {/* Tab 3: Event Deep Dive */}
+          <TabsContent value="events" className="mt-6 space-y-6">
+            {visitedTabs.has("events") && (
+              <>
+                <SeasonalAdvancedCharts
+                  metal={analysisSettings.metal}
+                  currency={analysisSettings.currency}
+                  yearsBack={analysisSettings.yearsBack}
+                  daysWindow={analysisSettings.daysWindow}
+                />
+                <EconomicEventsAnalysis
+                  metal={analysisSettings.metal}
+                  currency={analysisSettings.currency}
+                  yearsBack={analysisSettings.yearsBack}
+                />
+              </>
+            )}
+          </TabsContent>
+
+          {/* Tab 4: Market Conditions */}
+          <TabsContent value="market" className="mt-6">
+            {visitedTabs.has("market") && (
+              <RecessionIndicators
+                metal={analysisSettings.metal}
+                currency={analysisSettings.currency}
+              />
+            )}
+          </TabsContent>
+
+          {/* Tab 5: Event Management */}
+          <TabsContent value="manage" className="mt-6">
+            {visitedTabs.has("manage") && (
+              <EventsManagementSection
+                events={events}
+                filteredEvents={filteredEvents}
+                loading={loading}
+                selectedCommodity={selectedCommodity}
+                setSelectedCommodity={setSelectedCommodity}
+                selectedYear={selectedYear}
+                setSelectedYear={setSelectedYear}
+                availableYears={availableYears}
+                loadEvents={loadEvents}
+                handleEditClick={handleEditClick}
+                handleDeleteClick={handleDeleteClick}
+              />
+            )}
+          </TabsContent>
+        </Tabs>
       </motion.div>
 
       {/* Edit Event Dialog */}

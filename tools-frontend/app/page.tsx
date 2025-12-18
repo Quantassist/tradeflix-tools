@@ -27,7 +27,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/auth-client";
 import { useState, useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 
 // Animation variants - using type assertion for framer-motion compatibility
 const fadeInUp = {
@@ -47,10 +47,6 @@ export default function Home() {
   const { data: session } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 100]);
 
   const painPoints = [
     {
@@ -87,6 +83,7 @@ export default function Home() {
       gradient: "from-cyan-500 to-blue-600",
       hoverBorder: "hover:border-cyan-400",
       bulletColor: "bg-cyan-500",
+      isFree: true,
     },
     {
       name: "Pivot Calculator",
@@ -98,6 +95,7 @@ export default function Home() {
       gradient: "from-blue-500 to-indigo-600",
       hoverBorder: "hover:border-blue-400",
       bulletColor: "bg-blue-500",
+      isFree: true,
     },
     {
       name: "Arbitrage Heatmap",
@@ -109,6 +107,7 @@ export default function Home() {
       gradient: "from-emerald-500 to-teal-600",
       hoverBorder: "hover:border-emerald-400",
       bulletColor: "bg-emerald-500",
+      isFree: false,
     },
     {
       name: "Correlation Matrix",
@@ -120,6 +119,7 @@ export default function Home() {
       gradient: "from-orange-500 to-amber-600",
       hoverBorder: "hover:border-orange-400",
       bulletColor: "bg-orange-500",
+      isFree: false,
     },
     {
       name: "Seasonal Trends",
@@ -131,6 +131,7 @@ export default function Home() {
       gradient: "from-violet-500 to-purple-600",
       hoverBorder: "hover:border-violet-400",
       bulletColor: "bg-violet-500",
+      isFree: true,
     },
     {
       name: "COT Report",
@@ -142,6 +143,7 @@ export default function Home() {
       gradient: "from-rose-500 to-pink-600",
       hoverBorder: "hover:border-rose-400",
       bulletColor: "bg-rose-500",
+      isFree: true,
     },
   ];
 
@@ -171,7 +173,7 @@ export default function Home() {
   return (
     <div className="bg-white">
       {/* Modern Header - Dark Glassmorphism (Box.com style) */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-xl border-b border-stone-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="">
             <div className="container mx-auto px-4 sm:px-6">
@@ -199,6 +201,12 @@ export default function Home() {
                     className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-all"
                   >
                     Tools
+                  </Link>
+                  <Link
+                    href="#pricing"
+                    className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+                  >
+                    Pricing
                   </Link>
                   <Link
                     href="#why-us"
@@ -265,6 +273,13 @@ export default function Home() {
                       Tools
                     </Link>
                     <Link
+                      href="#pricing"
+                      className="px-4 py-3 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Pricing
+                    </Link>
+                    <Link
                       href="#why-us"
                       className="px-4 py-3 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-all"
                       onClick={() => setMobileMenuOpen(false)}
@@ -303,7 +318,7 @@ export default function Home() {
       </header>
 
       {/* Hero Section - Light Theme with Gradient (Box.com style) */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+      <section ref={heroRef} className="relative min-h-[85vh] flex items-center justify-center overflow-hidden pt-16">
         {/* Light gradient background - purple/blue to white */}
         <div className="absolute inset-0 bg-gradient-to-b from-indigo-50 via-purple-50/50 to-white" />
 
@@ -313,10 +328,7 @@ export default function Home() {
           <div className="absolute bottom-40 right-1/4 w-[400px] h-[400px] bg-purple-200/30 rounded-full blur-[100px]" />
         </div>
 
-        <motion.div
-          style={{ opacity: heroOpacity, scale: heroScale, y: heroY }}
-          className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 relative z-10 py-20 sm:py-24 lg:py-32"
-        >
+        <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 relative z-10 py-12 sm:py-16 lg:py-20">
           <div className="text-center">
             {/* Animated Badge */}
             <motion.div
@@ -345,7 +357,7 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.6 }}
                 className="block mt-2 sm:mt-3"
               >
-                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-orange-500 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-blue-600 via-purple-600 to-orange-500 bg-clip-text text-transparent">
                   While Opportunities Slip Away?
                 </span>
               </motion.span>
@@ -376,7 +388,7 @@ export default function Home() {
                     size="lg"
                     className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg px-8 sm:px-10 py-6 sm:py-7 rounded-full shadow-xl shadow-blue-600/25 font-bold"
                   >
-                    {session?.user ? "Go to Dashboard" : "Get started"}
+                    {session?.user ? "Go to Dashboard" : "Start Free Trial"}
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </motion.div>
@@ -395,7 +407,7 @@ export default function Home() {
               </Link>
             </motion.div>
 
-            {/* Stats */}
+            {/* Stats - No parallax fade */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -405,14 +417,14 @@ export default function Home() {
               {[
                 { value: "6", label: "Pro Analytics Tools", suffix: "" },
                 { value: "10", label: "Years of Historical Data", suffix: "+" },
-                { value: "100", label: "Free to Use", suffix: "%" },
+                { value: "Free", label: "Plan Available", suffix: "" },
               ].map((stat, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.5, delay: 1.4 + index * 0.1 }}
-                  className="text-center p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm"
+                  className="text-center p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white border border-gray-200 shadow-sm"
                 >
                   <div className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-1 sm:mb-2">
                     {stat.value}<span className="text-blue-600">{stat.suffix}</span>
@@ -422,11 +434,11 @@ export default function Home() {
               ))}
             </motion.div>
           </div>
-        </motion.div>
+        </div>
       </section>
 
       {/* Pain Points Section - Light Theme with Smooth Gradient */}
-      <section id="problem" className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <section id="problem" className="py-10 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         {/* Gradient background - white to light blue */}
         <div className="absolute inset-0 bg-gradient-to-b from-white via-slate-50 to-blue-50/50" />
 
@@ -436,7 +448,7 @@ export default function Home() {
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={staggerContainer}
-            className="text-center mb-12 sm:mb-16"
+            className="text-center mb-8 sm:mb-10"
           >
             <motion.h2 variants={fadeInUp} className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 sm:mb-6 text-gray-900 tracking-tight leading-tight">
               The Hidden Cost of
@@ -507,7 +519,7 @@ export default function Home() {
       </section>
 
       {/* Solution Section - Light Theme with Smooth Gradient */}
-      <section className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <section className="py-10 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         {/* Gradient background - blue to light purple */}
         <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 via-white to-purple-50/30" />
 
@@ -517,7 +529,7 @@ export default function Home() {
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={staggerContainer}
-            className="text-center mb-10 sm:mb-16"
+            className="text-center mb-8 sm:mb-10"
           >
             <motion.h2 variants={fadeInUp} className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 sm:mb-6 text-gray-900 tracking-tight leading-tight">
               There&apos;s a <span className="text-emerald-600">Better Way</span>
@@ -576,7 +588,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
-            className="text-center mt-10 sm:mt-14"
+            className="text-center mt-8 sm:mt-10"
           >
             <Link href={session?.user ? "/dashboard" : "/sign-in?tab=sign-up"}>
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
@@ -594,7 +606,7 @@ export default function Home() {
       </section>
 
       {/* Tools Section - Light Theme with Gradient */}
-      <section id="tools" className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <section id="tools" className="py-10 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         {/* Gradient background - purple to light */}
         <div className="absolute inset-0 bg-gradient-to-b from-purple-50/30 via-white to-slate-50" />
 
@@ -604,7 +616,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-12 sm:mb-16"
+            className="text-center mb-8 sm:mb-10"
           >
             <div className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-full mb-4 sm:mb-6 shadow-lg">
               <Zap className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -629,19 +641,25 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="group"
               >
-                <div className="relative h-full bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
+                <div className="relative h-full bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-500 hover:-translate-y-1 flex flex-col">
                   {/* Top accent line */}
                   <div className={`h-1 bg-gradient-to-r ${tool.gradient}`} />
 
-                  <div className="p-5 sm:p-6">
+                  <div className="p-5 sm:p-6 flex flex-col flex-1">
                     {/* Icon and badge row */}
                     <div className="flex items-start justify-between mb-4">
                       <div className={`w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br ${tool.gradient} rounded-xl flex items-center justify-center shadow-lg`}>
                         <tool.icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
                       </div>
-                      <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200">
-                        Free
-                      </span>
+                      {tool.isFree ? (
+                        <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200">
+                          Free
+                        </span>
+                      ) : (
+                        <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-1 rounded-md border border-blue-200">
+                          Pro
+                        </span>
+                      )}
                     </div>
 
                     {/* Title and subtitle */}
@@ -652,7 +670,7 @@ export default function Home() {
                     <p className="text-sm text-gray-600 mb-4 leading-relaxed">{tool.details}</p>
 
                     {/* Features with checkmarks */}
-                    <ul className="space-y-2 mb-5">
+                    <ul className="space-y-2 mb-5 flex-1">
                       {tool.features.map((feature) => (
                         <li key={feature} className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
                           <CheckCircle2 className={`h-4 w-4 shrink-0 ${tool.bulletColor.replace('bg-', 'text-')}`} />
@@ -661,8 +679,8 @@ export default function Home() {
                       ))}
                     </ul>
 
-                    {/* CTA Button */}
-                    <Link href={tool.href} className="block">
+                    {/* CTA Button - always at bottom */}
+                    <Link href={tool.href} className="block mt-auto">
                       <Button className={`w-full bg-gradient-to-r ${tool.gradient} hover:opacity-90 text-white font-semibold py-5 sm:py-6 rounded-xl shadow-lg transition-all group-hover:shadow-xl`}>
                         <span>Try {tool.name.split(' ')[0]}</span>
                         <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -680,14 +698,14 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.4 }}
-            className="text-center mt-10 sm:mt-14"
+            className="text-center mt-8 sm:mt-10"
           >
             <p className="text-gray-600 text-sm sm:text-base mb-4">
-              All tools are <span className="text-blue-600 font-semibold">100% free</span> — no credit card required
+              Start with our <span className="text-blue-600 font-semibold">free plan</span> — no credit card required
             </p>
             <Link href={session?.user ? "/dashboard" : "/sign-in?tab=sign-up"}>
               <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-6 rounded-full shadow-xl shadow-blue-600/20">
-                Access All Tools Free
+                Start Free Trial
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
@@ -696,7 +714,7 @@ export default function Home() {
       </section>
 
       {/* Why Choose Us Section - Light Theme with Gradient */}
-      <section id="why-us" className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <section id="why-us" className="py-10 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         {/* Gradient background */}
         <div className="absolute inset-0 bg-gradient-to-b from-slate-50 via-white to-blue-50/30" />
 
@@ -706,7 +724,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-10 sm:mb-16"
+            className="text-center mb-8 sm:mb-10"
           >
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 sm:mb-6 text-gray-900 tracking-tight leading-tight">
               Built for <span className="text-blue-600">Serious Traders</span>
@@ -744,10 +762,179 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FOMO / Urgency Section - Light Theme with Blue Accent Card */}
-      <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Pricing Section - Freemium Model */}
+      <section id="pricing" className="py-10 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-50/30 via-white to-slate-100" />
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-50/30 via-white to-purple-50/20" />
+
+        <div className="container mx-auto max-w-6xl relative">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-8 sm:mb-10"
+          >
+            <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full mb-4 sm:mb-6 border border-purple-200">
+              <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="text-sm sm:text-base font-semibold">Simple, Transparent Pricing</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 sm:mb-6 text-gray-900 tracking-tight leading-tight">
+              Start Free, <span className="text-blue-600">Upgrade When Ready</span>
+            </h2>
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto px-4">
+              Get started with powerful free tools. Unlock advanced features when you need them.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+            {/* Free Plan */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0 }}
+              className="relative"
+            >
+              <div className="h-full bg-white rounded-2xl sm:rounded-3xl border border-gray-200 p-6 sm:p-8 hover:shadow-xl transition-all duration-300">
+                <div className="mb-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Free</h3>
+                  <p className="text-gray-500 text-sm">Perfect for getting started</p>
+                </div>
+                <div className="mb-6">
+                  <span className="text-4xl sm:text-5xl font-extrabold text-gray-900">₹0</span>
+                  <span className="text-gray-500 ml-2">/forever</span>
+                </div>
+                <ul className="space-y-3 mb-8">
+                  {[
+                    "Pivot Calculator (Basic)",
+                    "Arbitrage Alerts (Delayed)",
+                    "COT Reports (Weekly Summary)",
+                    "Seasonal Patterns (Limited)",
+                    "Community Support",
+                  ].map((feature, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm text-gray-600">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/sign-in?tab=sign-up">
+                  <Button variant="outline" className="w-full py-6 rounded-xl border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold">
+                    Get Started Free
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Pro Plan - Featured */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="relative"
+            >
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
+                <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
+                  MOST POPULAR
+                </span>
+              </div>
+              <div className="h-full bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-600/20 ring-2 ring-blue-600/50">
+                <div className="mb-6">
+                  <h3 className="text-xl font-bold text-white mb-2">Pro</h3>
+                  <p className="text-blue-200 text-sm">For serious traders</p>
+                </div>
+                <div className="mb-6">
+                  <span className="text-4xl sm:text-5xl font-extrabold text-white">₹999</span>
+                  <span className="text-blue-200 ml-2">/month</span>
+                </div>
+                <ul className="space-y-3 mb-8">
+                  {[
+                    "Everything in Free, plus:",
+                    "Real-time Arbitrage Alerts",
+                    "Full COT Analysis & Charts",
+                    "Advanced Pivot Strategies",
+                    "Correlation Matrix (All Pairs)",
+                    "Backtest Engine (Unlimited)",
+                    "Priority Email Support",
+                  ].map((feature, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm text-white">
+                      <CheckCircle2 className="h-5 w-5 text-blue-300 shrink-0 mt-0.5" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/sign-in?tab=sign-up">
+                  <Button className="w-full py-6 rounded-xl bg-white hover:bg-gray-100 text-blue-700 font-bold shadow-lg">
+                    Start 7-Day Free Trial
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Enterprise Plan */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="relative"
+            >
+              <div className="h-full bg-white rounded-2xl sm:rounded-3xl border border-gray-200 p-6 sm:p-8 hover:shadow-xl transition-all duration-300">
+                <div className="mb-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Enterprise</h3>
+                  <p className="text-gray-500 text-sm">For trading firms & teams</p>
+                </div>
+                <div className="mb-6">
+                  <span className="text-4xl sm:text-5xl font-extrabold text-gray-900">Custom</span>
+                </div>
+                <ul className="space-y-3 mb-8">
+                  {[
+                    "Everything in Pro, plus:",
+                    "API Access",
+                    "Custom Integrations",
+                    "Multi-user Dashboard",
+                    "White-label Options",
+                    "Dedicated Account Manager",
+                    "24/7 Phone Support",
+                  ].map((feature, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm text-gray-600">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link href="mailto:contact@bullionbrain.com">
+                  <Button variant="outline" className="w-full py-6 rounded-xl border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold">
+                    Contact Sales
+                  </Button>
+                </Link>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Money-back guarantee */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="text-center mt-8 sm:mt-10"
+          >
+            <div className="inline-flex items-center gap-2 text-gray-600">
+              <Shield className="h-5 w-5 text-emerald-500" />
+              <span className="text-sm sm:text-base">30-day money-back guarantee • Cancel anytime • No questions asked</span>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* FOMO / Urgency Section - Light Theme with Blue Accent Card */}
+      <section className="py-8 sm:py-10 lg:py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        {/* Gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-50/20 via-white to-slate-100" />
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -771,7 +958,7 @@ export default function Home() {
                   size="lg"
                   className="w-full sm:w-auto bg-white hover:bg-gray-100 text-blue-700 text-base sm:text-lg px-8 sm:px-10 py-6 sm:py-7 rounded-full shadow-xl font-bold"
                 >
-                  {session?.user ? "Go to Dashboard" : "Get Your Edge Now — It's Free"}
+                  {session?.user ? "Go to Dashboard" : "Start Your Free Trial"}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </motion.div>
@@ -781,7 +968,7 @@ export default function Home() {
       </section>
 
       {/* Final CTA Section - Light Theme */}
-      <section className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <section className="py-10 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         {/* Gradient background */}
         <div className="absolute inset-0 bg-gradient-to-b from-slate-100 via-white to-gray-50" />
 
@@ -800,7 +987,7 @@ export default function Home() {
             className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full mb-6 sm:mb-8 border border-emerald-200"
           >
             <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
-            <span className="text-sm sm:text-base font-semibold">100% Free to Use</span>
+            <span className="text-sm sm:text-base font-semibold">7-Day Free Trial</span>
           </motion.div>
 
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-4 sm:mb-6 text-gray-900 tracking-tight leading-tight">
@@ -809,7 +996,7 @@ export default function Home() {
           </h2>
           <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-8 sm:mb-10 max-w-2xl mx-auto px-4">
             Join traders who&apos;ve stopped guessing and started using data.
-            All tools are <span className="text-blue-600 font-bold">completely free</span> to use.
+            Start with our <span className="text-blue-600 font-bold">free plan</span> or unlock all features with Pro.
           </p>
           <Link href={session?.user ? "/dashboard" : "/sign-in?tab=sign-up"}>
             <motion.div
@@ -821,7 +1008,7 @@ export default function Home() {
                 size="lg"
                 className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg lg:text-xl px-8 sm:px-12 py-6 sm:py-8 rounded-full shadow-2xl shadow-blue-600/25 font-bold"
               >
-                {session?.user ? "Go to Dashboard" : "Start Free — No Credit Card Required"}
+                {session?.user ? "Go to Dashboard" : "Start Free Trial"}
                 <ArrowRight className="ml-2 sm:ml-3 h-5 w-5 sm:h-6 sm:w-6" />
               </Button>
             </motion.div>
@@ -839,11 +1026,11 @@ export default function Home() {
       </section>
 
       {/* Modern Footer */}
-      <footer className="bg-slate-950 text-slate-400 relative overflow-hidden">
+      <footer className="bg-stone-900 text-stone-400 relative overflow-hidden">
         {/* Subtle gradient accent */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
 
-        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
           {/* Main Footer Content */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
             {/* Brand Column */}
@@ -854,18 +1041,9 @@ export default function Home() {
                 </div>
                 <span className="text-xl font-bold text-white">Bullion Brain</span>
               </Link>
-              <p className="text-sm leading-relaxed text-slate-400 mb-6 max-w-xs">
+              <p className="text-sm leading-relaxed text-stone-400 mb-6 max-w-xs">
                 Professional trading tools for Gold, Silver, and Commodities markets. Make data-driven decisions with confidence.
               </p>
-              {/* Social proof badge */}
-              <div className="inline-flex items-center gap-2 bg-slate-800/50 px-3 py-2 rounded-lg border border-slate-700/50">
-                <div className="flex -space-x-1">
-                  <div className="w-6 h-6 rounded-full bg-amber-500/20 border border-amber-500/30" />
-                  <div className="w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-500/30" />
-                  <div className="w-6 h-6 rounded-full bg-blue-500/20 border border-blue-500/30" />
-                </div>
-                <span className="text-xs text-slate-300 font-medium">100% Free</span>
-              </div>
             </div>
 
             {/* Analytics Tools Column */}
@@ -873,19 +1051,19 @@ export default function Home() {
               <h4 className="text-white font-semibold mb-4 sm:mb-5 text-sm uppercase tracking-wider">Analytics Tools</h4>
               <ul className="space-y-3">
                 <li>
-                  <Link href="/backtest" className="text-sm text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                  <Link href="/backtest" className="text-sm text-stone-400 hover:text-amber-400 transition-colors flex items-center gap-2 group">
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-500 group-hover:bg-amber-400 transition-colors" />
                     Backtest Engine
                   </Link>
                 </li>
                 <li>
-                  <Link href="/pivot" className="text-sm text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                  <Link href="/pivot" className="text-sm text-stone-400 hover:text-amber-400 transition-colors flex items-center gap-2 group">
                     <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 group-hover:bg-amber-400 transition-colors" />
                     Pivot Calculator
                   </Link>
                 </li>
                 <li>
-                  <Link href="/arbitrage" className="text-sm text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                  <Link href="/arbitrage" className="text-sm text-stone-400 hover:text-amber-400 transition-colors flex items-center gap-2 group">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover:bg-amber-400 transition-colors" />
                     Arbitrage Heatmap
                   </Link>
@@ -898,19 +1076,19 @@ export default function Home() {
               <h4 className="text-white font-semibold mb-4 sm:mb-5 text-sm uppercase tracking-wider">Research Tools</h4>
               <ul className="space-y-3">
                 <li>
-                  <Link href="/correlation" className="text-sm text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                  <Link href="/correlation" className="text-sm text-stone-400 hover:text-amber-400 transition-colors flex items-center gap-2 group">
                     <span className="w-1.5 h-1.5 rounded-full bg-purple-500 group-hover:bg-amber-400 transition-colors" />
                     Correlation Matrix
                   </Link>
                 </li>
                 <li>
-                  <Link href="/seasonal" className="text-sm text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                  <Link href="/seasonal" className="text-sm text-stone-400 hover:text-amber-400 transition-colors flex items-center gap-2 group">
                     <span className="w-1.5 h-1.5 rounded-full bg-pink-500 group-hover:bg-amber-400 transition-colors" />
                     Seasonal Trends
                   </Link>
                 </li>
                 <li>
-                  <Link href="/cot" className="text-sm text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-2 group">
+                  <Link href="/cot" className="text-sm text-stone-400 hover:text-amber-400 transition-colors flex items-center gap-2 group">
                     <span className="w-1.5 h-1.5 rounded-full bg-orange-500 group-hover:bg-amber-400 transition-colors" />
                     COT Report
                   </Link>
@@ -923,22 +1101,22 @@ export default function Home() {
               <h4 className="text-white font-semibold mb-4 sm:mb-5 text-sm uppercase tracking-wider">Company</h4>
               <ul className="space-y-3">
                 <li>
-                  <Link href="/dashboard" className="text-sm text-slate-400 hover:text-amber-400 transition-colors">
+                  <Link href="/dashboard" className="text-sm text-stone-400 hover:text-amber-400 transition-colors">
                     Dashboard
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-sm text-slate-400 hover:text-amber-400 transition-colors">
+                  <Link href="#" className="text-sm text-stone-400 hover:text-amber-400 transition-colors">
                     About Us
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-sm text-slate-400 hover:text-amber-400 transition-colors">
+                  <Link href="#" className="text-sm text-stone-400 hover:text-amber-400 transition-colors">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="text-sm text-slate-400 hover:text-amber-400 transition-colors">
+                  <Link href="#" className="text-sm text-stone-400 hover:text-amber-400 transition-colors">
                     Terms of Service
                   </Link>
                 </li>
@@ -947,13 +1125,13 @@ export default function Home() {
           </div>
 
           {/* Bottom Bar */}
-          <div className="border-t border-slate-800 mt-10 sm:mt-12 pt-6 sm:pt-8">
+          <div className="border-t border-stone-800 mt-10 sm:mt-12 pt-6 sm:pt-8">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-stone-500">
                 &copy; {new Date().getFullYear()} Bullion Brain. All rights reserved.
               </p>
               <div className="flex items-center gap-6">
-                <span className="text-xs text-slate-600">Built for serious traders</span>
+                <span className="text-xs text-stone-600">Built for serious traders</span>
               </div>
             </div>
           </div>

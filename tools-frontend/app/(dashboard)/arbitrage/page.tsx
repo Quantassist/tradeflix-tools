@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { StyledCard, StyledCardHeader, StyledCardContent } from "@/components/ui/styled-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,7 +28,7 @@ export default function ArbitrageCalculatorPage() {
     contract_size_grams: "10",  // MCX Gold is quoted per 10 grams
   })
 
-  const handleAutoFetch = async () => {
+  const handleAutoFetch = async (autoCalculate = false) => {
     setAutoFetchLoading(true)
     try {
       const data = await arbitrageApi.getRealtime("GOLD")
@@ -43,12 +43,13 @@ export default function ArbitrageCalculatorPage() {
         throw new Error("Invalid response from API")
       }
 
-      setFormData({
+      const newFormData = {
         ...formData,
         comex_price_usd: comexPrice.toFixed(2),
         mcx_price_inr: mcxPrice ? mcxPrice.toFixed(2) : formData.mcx_price_inr,
         usdinr_rate: usdinrRate.toFixed(2),
-      })
+      }
+      setFormData(newFormData)
 
       // Show different toast based on MCX data source
       const isRealMcx = mcxSource === "DhanHQ"
@@ -61,6 +62,11 @@ export default function ArbitrageCalculatorPage() {
       } else {
         toast.warning(`Prices fetched. COMEX: $${comexPrice.toFixed(2)}, ${mcxStatus}, USD/INR: ${usdinrRate.toFixed(2)}. MCX price is estimated - DhanHQ may be unavailable.`)
       }
+
+      // Auto-calculate arbitrage after fetching prices
+      if (autoCalculate && newFormData.mcx_price_inr) {
+        await calculateArbitrage(newFormData)
+      }
     } catch (error: unknown) {
       console.error("Error auto-fetching prices:", error)
       toast.error("Failed to fetch live prices. Please enter values manually.")
@@ -68,6 +74,32 @@ export default function ArbitrageCalculatorPage() {
       setAutoFetchLoading(false)
     }
   }
+
+  const calculateArbitrage = async (data: typeof formData) => {
+    setLoading(true)
+    try {
+      const response = await arbitrageApi.calculate({
+        comex_price_usd: parseFloat(data.comex_price_usd),
+        mcx_price_inr: parseFloat(data.mcx_price_inr),
+        usdinr_rate: parseFloat(data.usdinr_rate),
+        import_duty_percent: parseFloat(data.import_duty_percent),
+        contract_size_grams: parseInt(data.contract_size_grams),
+      })
+      setResult(response)
+      toast.success("Arbitrage analysis complete!")
+    } catch (error: unknown) {
+      console.error("Error calculating arbitrage:", error)
+      toast.error("Failed to calculate arbitrage. Please check your inputs and try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Auto-fetch and calculate on page load
+  useEffect(() => {
+    handleAutoFetch(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -83,7 +115,7 @@ export default function ArbitrageCalculatorPage() {
       })
       setResult(response)
       toast.success("Arbitrage analysis complete!")
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error calculating arbitrage:", error)
       toast.error("Failed to calculate arbitrage. Please check your inputs and try again.")
     } finally {
@@ -229,7 +261,7 @@ export default function ArbitrageCalculatorPage() {
                 type="button"
                 variant="outline"
                 className="w-full border-2 border-dashed border-purple-400 hover:border-purple-500 hover:bg-purple-50 transition-all duration-300 py-5"
-                onClick={handleAutoFetch}
+                onClick={() => handleAutoFetch(false)}
                 disabled={autoFetchLoading}
               >
                 {autoFetchLoading ? (
@@ -523,17 +555,22 @@ export default function ArbitrageCalculatorPage() {
         />
       )}
 
-      {/* Multi-Commodity Tracker & USDINR Sensitivity - Side by side on large screens */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <MultiCommodityTracker />
-        <USDINRSensitivity
-          initialComexPrice={result?.fair_value?.comex_price_usd}
-          initialUsdinr={result?.fair_value?.usdinr_rate}
-        />
-      </div>
+      {/* Show these sections only after arbitrage is calculated */}
+      {result && (
+        <>
+          {/* Multi-Commodity Tracker */}
+          <MultiCommodityTracker />
 
-      {/* Historical Arbitrage Data */}
-      <ArbitrageHistoryChart />
+          {/* USD/INR Sensitivity Analysis */}
+          <USDINRSensitivity
+            initialComexPrice={result.fair_value.comex_price_usd}
+            initialUsdinr={result.fair_value.usdinr_rate}
+          />
+
+          {/* Historical Arbitrage Data */}
+          <ArbitrageHistoryChart />
+        </>
+      )}
 
     </div>
   )

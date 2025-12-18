@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { StyledCard, StyledCardHeader, StyledCardContent } from "@/components/ui/styled-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -43,6 +43,15 @@ export function USDINRSensitivity({ initialComexPrice = 2650, initialUsdinr = 84
         contract_size: "10",
     })
     const [sliderValue, setSliderValue] = useState([0.5])
+
+    // Update form data when props change (e.g., when arbitrage result arrives)
+    useEffect(() => {
+        setFormData(prev => ({
+            ...prev,
+            comex_price_usd: initialComexPrice.toString(),
+            current_usdinr: initialUsdinr.toString(),
+        }))
+    }, [initialComexPrice, initialUsdinr])
 
     const handleSliderChange = (value: number[]) => {
         setSliderValue(value)

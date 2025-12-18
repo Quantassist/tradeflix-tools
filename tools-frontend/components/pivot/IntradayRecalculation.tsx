@@ -188,8 +188,8 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
                         </div>
                     ) : (
                         <>
-                            {/* Input Fields */}
-                            <div className="grid grid-cols-3 gap-3">
+                            {/* Input Fields - Compact 2-column layout */}
+                            <div className="grid grid-cols-2 gap-3">
                                 <div>
                                     <Label className="text-xs">Intraday High</Label>
                                     <Input
@@ -212,7 +212,7 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
                                         className="font-mono"
                                     />
                                 </div>
-                                <div>
+                                <div className="col-span-2">
                                     <Label className="text-xs">Current Price (optional)</Label>
                                     <Input
                                         type="number"
@@ -226,7 +226,7 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
                             </div>
 
                             <div className="flex gap-2">
-                                <Button onClick={handleRecalculate} className="flex-1 gap-2">
+                                <Button onClick={handleRecalculate} className="gap-2">
                                     <RefreshCcw className="h-4 w-4" />
                                     Recalculate
                                 </Button>

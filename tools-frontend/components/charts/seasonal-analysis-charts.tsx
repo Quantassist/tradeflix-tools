@@ -335,6 +335,25 @@ export function SeasonalAnalysisCharts({
 
     const hasData = monthlyData.some(m => m.occurrences > 0) || eventsData.length > 0
 
+    // Show loading state while data is being fetched
+    if (loading) {
+        return (
+            <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex flex-col items-center justify-center h-96 space-y-4"
+            >
+                <Loader2 className="h-12 w-12 text-emerald-500 animate-spin" />
+                <div className="text-center">
+                    <p className="text-gray-600 font-medium">Loading seasonal analysis...</p>
+                    <p className="text-sm text-gray-400 mt-1">
+                        Analyzing historical price patterns
+                    </p>
+                </div>
+            </motion.div>
+        )
+    }
+
     if (!hasData) {
         return (
             <motion.div
@@ -411,7 +430,7 @@ export function SeasonalAnalysisCharts({
                                 </Dialog>
                             }
                         />
-                        <CardContent className="pt-4">
+                        <CardContent className="pt-4 pb-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <AnimatePresence>
                                     {insights.map((insight, idx) => (

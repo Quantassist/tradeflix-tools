@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { StyledCard, StyledCardHeader, StyledCardContent } from "@/components/ui/styled-card"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -123,12 +123,13 @@ export function MultiTimeframePivots() {
     const [symbol, setSymbol] = useState("GOLD")
     const [data, setData] = useState<MultiTimeframePivotResponse | null>(null)
 
-    const handleFetch = async () => {
+    const handleFetch = async (selectedSymbol?: string) => {
+        const symbolToFetch = selectedSymbol || symbol
         setLoading(true)
         try {
-            const response = await pivotApi.getMultiTimeframePivots(symbol, "COMEX")
+            const response = await pivotApi.getMultiTimeframePivots(symbolToFetch, "COMEX")
             setData(response)
-            toast.success(`Fetched multi-timeframe pivots for ${symbol}`)
+            toast.success(`Fetched multi-timeframe pivots for ${symbolToFetch}`)
         } catch (error) {
             console.error("Error fetching multi-timeframe pivots:", error)
             toast.error("Failed to fetch pivot data")
@@ -136,6 +137,12 @@ export function MultiTimeframePivots() {
             setLoading(false)
         }
     }
+
+    // Auto-fetch on component mount
+    useEffect(() => {
+        handleFetch()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     return (
         <div className="space-y-6">
@@ -246,7 +253,7 @@ export function MultiTimeframePivots() {
                                 <SelectItem value="NATURALGAS">Natural Gas</SelectItem>
                             </SelectContent>
                         </Select>
-                        <Button onClick={handleFetch} disabled={loading} className="gap-2">
+                        <Button onClick={() => handleFetch()} disabled={loading} className="gap-2">
                             {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                             Fetch All Timeframes
                         </Button>

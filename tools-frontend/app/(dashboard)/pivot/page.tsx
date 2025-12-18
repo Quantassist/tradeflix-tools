@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { StyledCard, StyledCardHeader, StyledCardContent } from "@/components/ui/styled-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -181,7 +181,7 @@ export default function PivotCalculatorPage() {
     timeframe: "daily",
   })
 
-  const handleAutoFetch = async () => {
+  const handleAutoFetch = async (autoCalculate = false) => {
     setAutoFetchLoading(true)
     try {
       const data = await pivotApi.getAutoPivots(
@@ -189,13 +189,19 @@ export default function PivotCalculatorPage() {
         formData.timeframe,
         "COMEX"
       )
-      setFormData({
+      const newFormData = {
         ...formData,
         high: data.ohlc.high.toFixed(2),
         low: data.ohlc.low.toFixed(2),
         close: data.ohlc.close.toFixed(2),
-      })
+      }
+      setFormData(newFormData)
       toast.success(`Fetched ${formData.timeframe} OHLC for ${formData.symbol} (${data.ohlc_date})`)
+
+      // Auto-calculate pivots after fetching prices
+      if (autoCalculate) {
+        await calculatePivots(newFormData)
+      }
     } catch (error: unknown) {
       console.error("Error auto-fetching OHLC:", error)
       toast.error("Failed to fetch OHLC data. Please enter values manually.")
@@ -203,6 +209,34 @@ export default function PivotCalculatorPage() {
       setAutoFetchLoading(false)
     }
   }
+
+  const calculatePivots = async (data: typeof formData) => {
+    setLoading(true)
+    try {
+      const response = await pivotApi.calculate({
+        symbol: data.symbol,
+        timeframe: data.timeframe,
+        ohlc: {
+          high: parseFloat(data.high),
+          low: parseFloat(data.low),
+          close: parseFloat(data.close),
+        },
+      })
+      setResult(response)
+      toast.success("Pivot levels calculated successfully!")
+    } catch (error: unknown) {
+      console.error("Error calculating pivots:", error)
+      toast.error("Failed to calculate pivots. Please check your inputs and try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Auto-fetch HLC and calculate pivots on page load
+  useEffect(() => {
+    handleAutoFetch(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -490,7 +524,7 @@ export default function PivotCalculatorPage() {
                 type="button"
                 variant="outline"
                 className="w-full border-2 border-dashed border-cyan-400 hover:border-cyan-500 hover:bg-cyan-50 transition-all duration-300 py-5"
-                onClick={handleAutoFetch}
+                onClick={() => handleAutoFetch(false)}
                 disabled={autoFetchLoading}
               >
                 {autoFetchLoading ? (
@@ -647,197 +681,200 @@ export default function PivotCalculatorPage() {
                     <TabsTrigger value="fibonacci">Fibonacci</TabsTrigger>
                   </TabsList>
 
-                  {/* Modern CPR Levels with inline help */}
-                  <TabsContent value="cpr" className="space-y-3">
-                    {/* CPR Info Banner */}
-                    <div className="text-xs text-muted-foreground bg-slate-50 rounded-lg p-2 border">
-                      <span className="font-medium">CPR Formula:</span> Pivot = (H+L+C)/3, BC = (H+L)/2, TC = 2×Pivot - BC
-                    </div>
-                    <div className="rounded-xl border-2 border-blue-200 bg-blue-50/50 p-4 hover:shadow-md transition-all duration-300">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Minus className="h-4 w-4 text-blue-600" />
-                          <span className="font-medium">TC (Top Central)</span>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger><HelpCircle className="h-3 w-3 text-muted-foreground" /></TooltipTrigger>
-                              <TooltipContent><p className="text-xs max-w-48">Upper boundary of CPR. Price above TC = bullish bias</p></TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                        <span className="font-mono font-semibold">₹{formatNumber(result.cpr.tc)}</span>
+                  {/* Fixed height container to prevent layout shift on tab switch */}
+                  <div className="min-h-[340px]">
+                    {/* Modern CPR Levels with inline help */}
+                    <TabsContent value="cpr" className="space-y-3">
+                      {/* CPR Info Banner */}
+                      <div className="text-xs text-muted-foreground bg-slate-50 rounded-lg p-2 border">
+                        <span className="font-medium">CPR Formula:</span> Pivot = (H+L+C)/3, BC = (H+L)/2, TC = 2×Pivot - BC
                       </div>
-                    </div>
-                    <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Minus className="h-4 w-4 text-blue-600" />
-                          <span className="font-medium">Pivot</span>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger><HelpCircle className="h-3 w-3 text-muted-foreground" /></TooltipTrigger>
-                              <TooltipContent><p className="text-xs max-w-48">Central pivot point. Key level for trend direction</p></TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                        <span className="font-mono font-semibold">₹{formatNumber(result.cpr.pivot)}</span>
-                      </div>
-                    </div>
-                    <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Minus className="h-4 w-4 text-blue-600" />
-                          <span className="font-medium">BC (Bottom Central)</span>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger><HelpCircle className="h-3 w-3 text-muted-foreground" /></TooltipTrigger>
-                              <TooltipContent><p className="text-xs max-w-48">Lower boundary of CPR. Price below BC = bearish bias</p></TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                        <span className="font-mono font-semibold">₹{formatNumber(result.cpr.bc)}</span>
-                      </div>
-                    </div>
-                    <div className="rounded-lg border bg-muted/50 p-3">
-                      <div className="text-sm">
-                        <div className="flex justify-between mb-1">
-                          <div className="flex items-center gap-1">
-                            <span className="text-muted-foreground">CPR Width:</span>
+                      <div className="rounded-xl border-2 border-blue-200 bg-blue-50/50 p-4 hover:shadow-md transition-all duration-300">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Minus className="h-4 w-4 text-blue-600" />
+                            <span className="font-medium">TC (Top Central)</span>
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger><HelpCircle className="h-3 w-3 text-muted-foreground" /></TooltipTrigger>
-                                <TooltipContent><p className="text-xs max-w-48">Narrow CPR = trending day. Wide CPR = range-bound day</p></TooltipContent>
+                                <TooltipContent><p className="text-xs max-w-48">Upper boundary of CPR. Price above TC = bullish bias</p></TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
                           </div>
-                          <span className="font-medium">₹{formatNumber(result.cpr.width)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Classification:</span>
-                          <Badge variant={result.cpr.classification === "narrow" ? "default" : "outline"} className={result.cpr.classification === "narrow" ? "bg-amber-500" : ""}>
-                            {result.cpr.classification.toUpperCase()}
-                          </Badge>
+                          <span className="font-mono font-semibold">₹{formatNumber(result.cpr.tc)}</span>
                         </div>
                       </div>
-                    </div>
-                  </TabsContent>
+                      <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Minus className="h-4 w-4 text-blue-600" />
+                            <span className="font-medium">Pivot</span>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger><HelpCircle className="h-3 w-3 text-muted-foreground" /></TooltipTrigger>
+                                <TooltipContent><p className="text-xs max-w-48">Central pivot point. Key level for trend direction</p></TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <span className="font-mono font-semibold">₹{formatNumber(result.cpr.pivot)}</span>
+                        </div>
+                      </div>
+                      <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Minus className="h-4 w-4 text-blue-600" />
+                            <span className="font-medium">BC (Bottom Central)</span>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger><HelpCircle className="h-3 w-3 text-muted-foreground" /></TooltipTrigger>
+                                <TooltipContent><p className="text-xs max-w-48">Lower boundary of CPR. Price below BC = bearish bias</p></TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <span className="font-mono font-semibold">₹{formatNumber(result.cpr.bc)}</span>
+                        </div>
+                      </div>
+                      <div className="rounded-lg border bg-muted/50 p-3">
+                        <div className="text-sm">
+                          <div className="flex justify-between mb-1">
+                            <div className="flex items-center gap-1">
+                              <span className="text-muted-foreground">CPR Width:</span>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger><HelpCircle className="h-3 w-3 text-muted-foreground" /></TooltipTrigger>
+                                  <TooltipContent><p className="text-xs max-w-48">Narrow CPR = trending day. Wide CPR = range-bound day</p></TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </div>
+                            <span className="font-medium">₹{formatNumber(result.cpr.width)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Classification:</span>
+                            <Badge variant={result.cpr.classification === "narrow" ? "default" : "outline"} className={result.cpr.classification === "narrow" ? "bg-amber-500" : ""}>
+                              {result.cpr.classification.toUpperCase()}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </TabsContent>
 
-                  {/* Floor Pivots with inline help */}
-                  <TabsContent value="floor" className="space-y-2">
-                    {/* Floor Pivots Info Banner */}
-                    <div className="text-xs text-muted-foreground bg-slate-50 rounded-lg p-2 border">
-                      <span className="font-medium">Floor Pivots:</span> R1 = 2×P - L, S1 = 2×P - H, R2/S2 = P ± Range
-                    </div>
-                    {/* Resistance Levels */}
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="rounded-lg border border-red-200 bg-red-50/70 p-2 text-center">
-                        <div className="text-xs text-red-600 font-medium">R3</div>
-                        <div className="font-mono font-semibold text-sm">₹{formatNumber(result.floor_pivots.r3)}</div>
+                    {/* Floor Pivots with inline help */}
+                    <TabsContent value="floor" className="space-y-2">
+                      {/* Floor Pivots Info Banner */}
+                      <div className="text-xs text-muted-foreground bg-slate-50 rounded-lg p-2 border">
+                        <span className="font-medium">Floor Pivots:</span> R1 = 2×P - L, S1 = 2×P - H, R2/S2 = P ± Range
                       </div>
-                      <div className="rounded-lg border border-red-200 bg-red-50/70 p-2 text-center">
-                        <div className="text-xs text-red-600 font-medium">R2</div>
-                        <div className="font-mono font-semibold text-sm">₹{formatNumber(result.floor_pivots.r2)}</div>
-                      </div>
-                      <div className="rounded-lg border border-red-200 bg-red-50/70 p-2 text-center">
-                        <div className="text-xs text-red-600 font-medium">R1</div>
-                        <div className="font-mono font-semibold text-sm">₹{formatNumber(result.floor_pivots.r1)}</div>
-                      </div>
-                    </div>
-                    {/* Pivot */}
-                    <div className="rounded-lg border-2 border-blue-300 bg-blue-50 p-3 text-center">
-                      <div className="text-xs text-blue-600 font-medium">PIVOT</div>
-                      <div className="font-mono font-bold text-lg">₹{formatNumber(result.floor_pivots.pivot)}</div>
-                    </div>
-                    {/* Support Levels */}
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="rounded-lg border border-green-200 bg-green-50/70 p-2 text-center">
-                        <div className="text-xs text-green-600 font-medium">S1</div>
-                        <div className="font-mono font-semibold text-sm">₹{formatNumber(result.floor_pivots.s1)}</div>
-                      </div>
-                      <div className="rounded-lg border border-green-200 bg-green-50/70 p-2 text-center">
-                        <div className="text-xs text-green-600 font-medium">S2</div>
-                        <div className="font-mono font-semibold text-sm">₹{formatNumber(result.floor_pivots.s2)}</div>
-                      </div>
-                      <div className="rounded-lg border border-green-200 bg-green-50/70 p-2 text-center">
-                        <div className="text-xs text-green-600 font-medium">S3</div>
-                        <div className="font-mono font-semibold text-sm">₹{formatNumber(result.floor_pivots.s3)}</div>
-                      </div>
-                    </div>
-                  </TabsContent>
-
-                  {/* Fibonacci Levels - Compact */}
-                  <TabsContent value="fibonacci" className="space-y-2">
-                    {/* Fibonacci Info Banner */}
-                    <div className="text-xs text-muted-foreground bg-slate-50 rounded-lg p-2 border">
-                      <span className="font-medium">Fibonacci:</span> Retracement levels from High to Low. 61.8% = Golden Zone
-                    </div>
-                    {/* Retracement Levels - Compact Grid */}
-                    <div className="grid grid-cols-4 gap-1.5 text-center">
-                      <div className="rounded border bg-slate-50 p-1.5">
-                        <div className="text-[10px] text-muted-foreground">0%</div>
-                        <div className="font-mono text-xs font-medium">₹{formatNumber(result.fibonacci.level_0)}</div>
-                      </div>
-                      <div className="rounded border bg-slate-50 p-1.5">
-                        <div className="text-[10px] text-muted-foreground">23.6%</div>
-                        <div className="font-mono text-xs font-medium">₹{formatNumber(result.fibonacci.level_236)}</div>
-                      </div>
-                      <div className="rounded border bg-slate-50 p-1.5">
-                        <div className="text-[10px] text-muted-foreground">38.2%</div>
-                        <div className="font-mono text-xs font-medium">₹{formatNumber(result.fibonacci.level_382)}</div>
-                      </div>
-                      <div className="rounded border bg-slate-50 p-1.5">
-                        <div className="text-[10px] text-muted-foreground">50%</div>
-                        <div className="font-mono text-xs font-medium">₹{formatNumber(result.fibonacci.level_500)}</div>
-                      </div>
-                    </div>
-                    {/* Golden Zone - Highlighted */}
-                    <div className="rounded-lg border-2 border-amber-300 bg-amber-50 p-3 text-center">
-                      <div className="text-xs text-amber-600 font-medium">61.8% GOLDEN ZONE</div>
-                      <div className="font-mono font-bold text-lg text-amber-700">₹{formatNumber(result.fibonacci.level_618)}</div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-1.5 text-center">
-                      <div className="rounded border bg-slate-50 p-1.5">
-                        <div className="text-[10px] text-muted-foreground">78.6%</div>
-                        <div className="font-mono text-xs font-medium">₹{formatNumber(result.fibonacci.level_786)}</div>
-                      </div>
-                      <div className="rounded border bg-slate-50 p-1.5">
-                        <div className="text-[10px] text-muted-foreground">100%</div>
-                        <div className="font-mono text-xs font-medium">₹{formatNumber(result.fibonacci.level_100)}</div>
-                      </div>
-                    </div>
-                    {/* Extension Levels - Compact */}
-                    {(result.fibonacci.ext_1272 || result.fibonacci.ext_1618) && (
-                      <div className="pt-2 border-t">
-                        <div className="text-[10px] font-medium text-muted-foreground uppercase mb-1.5">Extensions (Targets)</div>
-                        <div className="grid grid-cols-4 gap-1.5 text-center">
-                          {result.fibonacci.ext_1272 && (
-                            <div className="rounded border border-purple-200 bg-purple-50 p-1.5">
-                              <div className="text-[10px] text-purple-600">127.2%</div>
-                              <div className="font-mono text-xs font-medium text-purple-700">₹{formatNumber(result.fibonacci.ext_1272)}</div>
-                            </div>
-                          )}
-                          {result.fibonacci.ext_1618 && (
-                            <div className="rounded border border-purple-200 bg-purple-50 p-1.5">
-                              <div className="text-[10px] text-purple-600">161.8%</div>
-                              <div className="font-mono text-xs font-medium text-purple-700">₹{formatNumber(result.fibonacci.ext_1618)}</div>
-                            </div>
-                          )}
-                          {result.fibonacci.ext_2000 && (
-                            <div className="rounded border border-purple-200 bg-purple-50 p-1.5">
-                              <div className="text-[10px] text-purple-600">200%</div>
-                              <div className="font-mono text-xs font-medium text-purple-700">₹{formatNumber(result.fibonacci.ext_2000)}</div>
-                            </div>
-                          )}
-                          {result.fibonacci.ext_2618 && (
-                            <div className="rounded border border-purple-200 bg-purple-50 p-1.5">
-                              <div className="text-[10px] text-purple-600">261.8%</div>
-                              <div className="font-mono text-xs font-medium text-purple-700">₹{formatNumber(result.fibonacci.ext_2618)}</div>
-                            </div>
-                          )}
+                      {/* Resistance Levels */}
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="rounded-lg border border-red-200 bg-red-50/70 p-2 text-center">
+                          <div className="text-xs text-red-600 font-medium">R3</div>
+                          <div className="font-mono font-semibold text-sm">₹{formatNumber(result.floor_pivots.r3)}</div>
+                        </div>
+                        <div className="rounded-lg border border-red-200 bg-red-50/70 p-2 text-center">
+                          <div className="text-xs text-red-600 font-medium">R2</div>
+                          <div className="font-mono font-semibold text-sm">₹{formatNumber(result.floor_pivots.r2)}</div>
+                        </div>
+                        <div className="rounded-lg border border-red-200 bg-red-50/70 p-2 text-center">
+                          <div className="text-xs text-red-600 font-medium">R1</div>
+                          <div className="font-mono font-semibold text-sm">₹{formatNumber(result.floor_pivots.r1)}</div>
                         </div>
                       </div>
-                    )}
-                  </TabsContent>
+                      {/* Pivot */}
+                      <div className="rounded-lg border-2 border-blue-300 bg-blue-50 p-3 text-center">
+                        <div className="text-xs text-blue-600 font-medium">PIVOT</div>
+                        <div className="font-mono font-bold text-lg">₹{formatNumber(result.floor_pivots.pivot)}</div>
+                      </div>
+                      {/* Support Levels */}
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="rounded-lg border border-green-200 bg-green-50/70 p-2 text-center">
+                          <div className="text-xs text-green-600 font-medium">S1</div>
+                          <div className="font-mono font-semibold text-sm">₹{formatNumber(result.floor_pivots.s1)}</div>
+                        </div>
+                        <div className="rounded-lg border border-green-200 bg-green-50/70 p-2 text-center">
+                          <div className="text-xs text-green-600 font-medium">S2</div>
+                          <div className="font-mono font-semibold text-sm">₹{formatNumber(result.floor_pivots.s2)}</div>
+                        </div>
+                        <div className="rounded-lg border border-green-200 bg-green-50/70 p-2 text-center">
+                          <div className="text-xs text-green-600 font-medium">S3</div>
+                          <div className="font-mono font-semibold text-sm">₹{formatNumber(result.floor_pivots.s3)}</div>
+                        </div>
+                      </div>
+                    </TabsContent>
+
+                    {/* Fibonacci Levels - Compact */}
+                    <TabsContent value="fibonacci" className="space-y-2">
+                      {/* Fibonacci Info Banner */}
+                      <div className="text-xs text-muted-foreground bg-slate-50 rounded-lg p-2 border">
+                        <span className="font-medium">Fibonacci:</span> Retracement levels from High to Low. 61.8% = Golden Zone
+                      </div>
+                      {/* Retracement Levels - Compact Grid */}
+                      <div className="grid grid-cols-4 gap-1.5 text-center">
+                        <div className="rounded border bg-slate-50 p-1.5">
+                          <div className="text-[10px] text-muted-foreground">0%</div>
+                          <div className="font-mono text-xs font-medium">₹{formatNumber(result.fibonacci.level_0)}</div>
+                        </div>
+                        <div className="rounded border bg-slate-50 p-1.5">
+                          <div className="text-[10px] text-muted-foreground">23.6%</div>
+                          <div className="font-mono text-xs font-medium">₹{formatNumber(result.fibonacci.level_236)}</div>
+                        </div>
+                        <div className="rounded border bg-slate-50 p-1.5">
+                          <div className="text-[10px] text-muted-foreground">38.2%</div>
+                          <div className="font-mono text-xs font-medium">₹{formatNumber(result.fibonacci.level_382)}</div>
+                        </div>
+                        <div className="rounded border bg-slate-50 p-1.5">
+                          <div className="text-[10px] text-muted-foreground">50%</div>
+                          <div className="font-mono text-xs font-medium">₹{formatNumber(result.fibonacci.level_500)}</div>
+                        </div>
+                      </div>
+                      {/* Golden Zone - Highlighted */}
+                      <div className="rounded-lg border-2 border-amber-300 bg-amber-50 p-3 text-center">
+                        <div className="text-xs text-amber-600 font-medium">61.8% GOLDEN ZONE</div>
+                        <div className="font-mono font-bold text-lg text-amber-700">₹{formatNumber(result.fibonacci.level_618)}</div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1.5 text-center">
+                        <div className="rounded border bg-slate-50 p-1.5">
+                          <div className="text-[10px] text-muted-foreground">78.6%</div>
+                          <div className="font-mono text-xs font-medium">₹{formatNumber(result.fibonacci.level_786)}</div>
+                        </div>
+                        <div className="rounded border bg-slate-50 p-1.5">
+                          <div className="text-[10px] text-muted-foreground">100%</div>
+                          <div className="font-mono text-xs font-medium">₹{formatNumber(result.fibonacci.level_100)}</div>
+                        </div>
+                      </div>
+                      {/* Extension Levels - Compact */}
+                      {(result.fibonacci.ext_1272 || result.fibonacci.ext_1618) && (
+                        <div className="pt-2 border-t">
+                          <div className="text-[10px] font-medium text-muted-foreground uppercase mb-1.5">Extensions (Targets)</div>
+                          <div className="grid grid-cols-4 gap-1.5 text-center">
+                            {result.fibonacci.ext_1272 && (
+                              <div className="rounded border border-purple-200 bg-purple-50 p-1.5">
+                                <div className="text-[10px] text-purple-600">127.2%</div>
+                                <div className="font-mono text-xs font-medium text-purple-700">₹{formatNumber(result.fibonacci.ext_1272)}</div>
+                              </div>
+                            )}
+                            {result.fibonacci.ext_1618 && (
+                              <div className="rounded border border-purple-200 bg-purple-50 p-1.5">
+                                <div className="text-[10px] text-purple-600">161.8%</div>
+                                <div className="font-mono text-xs font-medium text-purple-700">₹{formatNumber(result.fibonacci.ext_1618)}</div>
+                              </div>
+                            )}
+                            {result.fibonacci.ext_2000 && (
+                              <div className="rounded border border-purple-200 bg-purple-50 p-1.5">
+                                <div className="text-[10px] text-purple-600">200%</div>
+                                <div className="font-mono text-xs font-medium text-purple-700">₹{formatNumber(result.fibonacci.ext_2000)}</div>
+                              </div>
+                            )}
+                            {result.fibonacci.ext_2618 && (
+                              <div className="rounded border border-purple-200 bg-purple-50 p-1.5">
+                                <div className="text-[10px] text-purple-600">261.8%</div>
+                                <div className="font-mono text-xs font-medium text-purple-700">₹{formatNumber(result.fibonacci.ext_2618)}</div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </TabsContent>
+                  </div>
                 </Tabs>
               </div>
             ) : (
@@ -873,17 +910,22 @@ export default function PivotCalculatorPage() {
         </>
       )}
 
-      {/* Multi-Timeframe Pivot Analysis */}
-      <MultiTimeframePivots />
+      {/* Show these sections only after pivots are calculated */}
+      {result && (
+        <>
+          {/* Multi-Timeframe Pivot Analysis */}
+          <MultiTimeframePivots />
 
-      {/* Historical Accuracy Analysis */}
-      <HistoricalAccuracy />
+          {/* Historical Accuracy Analysis */}
+          <HistoricalAccuracy />
 
-      {/* Pivot Alerts */}
-      <PivotAlerts pivotData={result} />
-
-      {/* Intraday Recalculation */}
-      <IntradayRecalculation originalPivotData={result} />
+          {/* Pivot Alerts and Intraday Recalculation side by side */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            <PivotAlerts pivotData={result} />
+            <IntradayRecalculation originalPivotData={result} />
+          </div>
+        </>
+      )}
     </div>
   )
 }

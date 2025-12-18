@@ -172,149 +172,119 @@ export default function Home() {
 
   return (
     <div className="bg-white">
-      {/* Modern Header - Dark Glassmorphism (Box.com style) */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-xl border-b border-stone-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="">
-            <div className="container mx-auto px-4 sm:px-6">
-              <div className="flex h-14 sm:h-16 items-center justify-between">
-                {/* Logo */}
-                <Link href="/" className="flex items-center gap-2 sm:gap-3 group">
-                  <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/25 group-hover:shadow-amber-500/40 transition-shadow">
-                    <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-slate-900" />
-                  </div>
-                  <span className="text-lg sm:text-xl font-bold text-white">
-                    Bullion Brain
-                  </span>
-                </Link>
+      {/* Top backdrop to hide content above header */}
+      <div className="fixed top-0 left-0 right-0 h-6 bg-gradient-to-b from-white via-white to-transparent z-40" />
 
-                {/* Desktop Navigation */}
-                <nav className="hidden md:flex items-center gap-1">
-                  <Link
-                    href="#problem"
-                    className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-                  >
-                    Why You Need This
-                  </Link>
-                  <Link
-                    href="#tools"
-                    className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-                  >
-                    Tools
-                  </Link>
-                  <Link
-                    href="#pricing"
-                    className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-                  >
-                    Pricing
-                  </Link>
-                  <Link
-                    href="#why-us"
-                    className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-                  >
-                    Benefits
-                  </Link>
-                </nav>
-
-                {/* Auth Buttons */}
-                <div className="hidden md:flex items-center gap-2 sm:gap-3">
-                  {session?.user ? (
-                    <Link href="/dashboard">
-                      <Button className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold px-5 py-2 rounded-xl shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 transition-all">
-                        Dashboard
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </Link>
-                  ) : (
-                    <>
-                      <Link href="/sign-in">
-                        <Button variant="ghost" className="text-slate-300 hover:text-white hover:bg-slate-800/50 font-medium px-4 py-2 rounded-xl">
-                          Sign In
-                        </Button>
-                      </Link>
-                      <Link href="/sign-in?tab=sign-up">
-                        <Button className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold px-5 py-2 rounded-xl shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 transition-all">
-                          Get Started Free
-                        </Button>
-                      </Link>
-                    </>
-                  )}
-                </div>
-
-                {/* Mobile Menu Button */}
-                <button
-                  className="md:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-colors"
-                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                >
-                  {mobileMenuOpen ? (
-                    <X className="h-5 w-5" />
-                  ) : (
-                    <Menu className="h-5 w-5" />
-                  )}
-                </button>
+      {/* Modern Header - Pill-shaped, Centered, Glassmorphic (Lumba-inspired) */}
+      <header className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-4xl">
+        <div className="bg-white/90 backdrop-blur-xl border border-gray-200/60 rounded-full shadow-lg shadow-gray-200/50 px-4 sm:px-6 lg:px-8">
+          <div className="flex h-14 sm:h-16 items-center justify-between">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 group">
+              <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-md shadow-amber-500/25 group-hover:shadow-amber-500/40 transition-shadow">
+                <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
               </div>
+              <span className="text-lg sm:text-xl font-bold text-gray-900 tracking-tight">
+                Bullion Brain
+              </span>
+            </Link>
 
-              {/* Mobile Menu */}
-              {mobileMenuOpen && (
-                <div className="md:hidden py-4 border-t border-slate-700/50">
-                  <nav className="flex flex-col gap-1">
-                    <Link
-                      href="#problem"
-                      className="px-4 py-3 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Why You Need This
-                    </Link>
-                    <Link
-                      href="#tools"
-                      className="px-4 py-3 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Tools
-                    </Link>
-                    <Link
-                      href="#pricing"
-                      className="px-4 py-3 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Pricing
-                    </Link>
-                    <Link
-                      href="#why-us"
-                      className="px-4 py-3 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Benefits
-                    </Link>
-                    <div className="flex flex-col gap-2 pt-4 mt-2 border-t border-slate-700/50">
-                      {session?.user ? (
-                        <Link href="/dashboard">
-                          <Button className="w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-xl">
-                            Dashboard
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
-                        </Link>
-                      ) : (
-                        <>
-                          <Link href="/sign-in">
-                            <Button variant="outline" className="w-full border-slate-600 text-slate-300 hover:bg-slate-800/50 rounded-xl">
-                              Sign In
-                            </Button>
-                          </Link>
-                          <Link href="/sign-in?tab=sign-up">
-                            <Button className="w-full bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold rounded-xl">
-                              Get Started Free
-                            </Button>
-                          </Link>
-                        </>
-                      )}
-                    </div>
-                  </nav>
-                </div>
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-6 lg:gap-8">
+              <Link
+                href="#problem"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                About Us
+              </Link>
+              <Link
+                href="#tools"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Tools
+              </Link>
+              <Link
+                href="#pricing"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Pricing
+              </Link>
+            </nav>
+
+            {/* Auth Buttons */}
+            <div className="hidden md:flex items-center">
+              {session?.user ? (
+                <Link href="/dashboard">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-full shadow-md shadow-blue-600/30 hover:shadow-blue-600/40 transition-all">
+                    Dashboard
+                  </Button>
+                </Link>
+              ) : (
+                <Link href="/sign-in?tab=sign-up">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-full shadow-md shadow-blue-600/30 hover:shadow-blue-600/40 transition-all">
+                    Get Started
+                  </Button>
+                </Link>
               )}
             </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Menu - Dropdown below pill */}
+        {mobileMenuOpen && (
+          <div className="mt-2 bg-white/95 backdrop-blur-xl border border-gray-200/60 rounded-2xl shadow-lg shadow-gray-200/50 p-4">
+            <nav className="flex flex-col gap-1">
+              <Link
+                href="#problem"
+                className="px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                About Us
+              </Link>
+              <Link
+                href="#tools"
+                className="px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Tools
+              </Link>
+              <Link
+                href="#pricing"
+                className="px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-all"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Pricing
+              </Link>
+              <div className="pt-3 mt-2 border-t border-gray-100">
+                {session?.user ? (
+                  <Link href="/dashboard">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full shadow-md">
+                      Dashboard
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link href="/sign-in?tab=sign-up">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full shadow-md">
+                      Get Started
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </nav>
+          </div>
+        )}
       </header>
 
       {/* Hero Section - Light Theme with Gradient (Box.com style) */}
@@ -547,10 +517,10 @@ export default function Home() {
             className="grid grid-cols-2 gap-2 sm:gap-4 mb-4 sm:mb-6"
           >
             <div className="text-center p-3 sm:p-4 bg-red-50 rounded-xl sm:rounded-2xl border border-red-200">
-              <span className="text-xs sm:text-sm font-bold text-red-700 uppercase tracking-wider">Without Bullion Brain</span>
+              <span className="text-sm font-bold text-red-700 uppercase tracking-wider">Without Bullion Brain</span>
             </div>
             <div className="text-center p-3 sm:p-4 bg-emerald-50 rounded-xl sm:rounded-2xl border border-emerald-200">
-              <span className="text-xs sm:text-sm font-bold text-emerald-700 uppercase tracking-wider">With Bullion Brain</span>
+              <span className="text-sm font-bold text-emerald-700 uppercase tracking-wider">With Bullion Brain</span>
             </div>
           </motion.div>
 
@@ -571,13 +541,13 @@ export default function Home() {
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0">
                     <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600" />
                   </div>
-                  <span className="text-xs sm:text-sm lg:text-base text-gray-700">{item.without}</span>
+                  <span className="text-sm lg:text-base text-gray-700">{item.without}</span>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-4 p-3 sm:p-5 bg-emerald-50 rounded-xl sm:rounded-2xl border border-emerald-100">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-100 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0">
                     <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600" />
                   </div>
-                  <span className="text-xs sm:text-sm lg:text-base text-gray-900 font-semibold">{item.with}</span>
+                  <span className="text-sm lg:text-base text-gray-900 font-semibold">{item.with}</span>
                 </div>
               </motion.div>
             ))}
@@ -652,11 +622,11 @@ export default function Home() {
                         <tool.icon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
                       </div>
                       {tool.isFree ? (
-                        <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200">
+                        <span className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200">
                           Free
                         </span>
                       ) : (
-                        <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-1 rounded-md border border-blue-200">
+                        <span className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-1 rounded-md border border-blue-200">
                           Pro
                         </span>
                       )}
@@ -664,15 +634,15 @@ export default function Home() {
 
                     {/* Title and subtitle */}
                     <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">{tool.name}</h3>
-                    <p className="text-xs sm:text-sm font-medium text-gray-500 mb-3">{tool.description}</p>
+                    <p className="text-sm font-medium text-gray-500 mb-3">{tool.description}</p>
 
                     {/* Value proposition */}
-                    <p className="text-sm text-gray-600 mb-4 leading-relaxed">{tool.details}</p>
+                    <p className="text-sm sm:text-base text-gray-600 mb-4 leading-relaxed">{tool.details}</p>
 
                     {/* Features with checkmarks */}
                     <ul className="space-y-2 mb-5 flex-1">
                       {tool.features.map((feature) => (
-                        <li key={feature} className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                        <li key={feature} className="flex items-center gap-2 text-sm text-gray-600">
                           <CheckCircle2 className={`h-4 w-4 shrink-0 ${tool.bulletColor.replace('bg-', 'text-')}`} />
                           <span>{feature}</span>
                         </li>
@@ -796,16 +766,16 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0 }}
               className="relative"
             >
-              <div className="h-full bg-white rounded-2xl sm:rounded-3xl border border-gray-200 p-6 sm:p-8 hover:shadow-xl transition-all duration-300">
+              <div className="h-full bg-white rounded-2xl sm:rounded-3xl border border-gray-200 p-6 sm:p-8 hover:shadow-xl transition-all duration-300 flex flex-col">
                 <div className="mb-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Free</h3>
-                  <p className="text-gray-500 text-sm">Perfect for getting started</p>
+                  <p className="text-gray-500">Perfect for getting started</p>
                 </div>
                 <div className="mb-6">
                   <span className="text-4xl sm:text-5xl font-extrabold text-gray-900">₹0</span>
                   <span className="text-gray-500 ml-2">/forever</span>
                 </div>
-                <ul className="space-y-3 mb-8">
+                <ul className="space-y-3 flex-1">
                   {[
                     "Pivot Calculator (Basic)",
                     "Arbitrage Alerts (Delayed)",
@@ -813,13 +783,13 @@ export default function Home() {
                     "Seasonal Patterns (Limited)",
                     "Community Support",
                   ].map((feature, i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm text-gray-600">
+                    <li key={i} className="flex items-start gap-3 text-gray-600">
                       <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
                       <span>{feature}</span>
                     </li>
                   ))}
                 </ul>
-                <Link href="/sign-in?tab=sign-up">
+                <Link href="/sign-in?tab=sign-up" className="mt-8">
                   <Button variant="outline" className="w-full py-6 rounded-xl border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold">
                     Get Started Free
                   </Button>
@@ -840,16 +810,16 @@ export default function Home() {
                   MOST POPULAR
                 </span>
               </div>
-              <div className="h-full bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-600/20 ring-2 ring-blue-600/50">
+              <div className="h-full bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-600/20 ring-2 ring-blue-600/50 flex flex-col">
                 <div className="mb-6">
                   <h3 className="text-xl font-bold text-white mb-2">Pro</h3>
-                  <p className="text-blue-200 text-sm">For serious traders</p>
+                  <p className="text-blue-200">For serious traders</p>
                 </div>
                 <div className="mb-6">
                   <span className="text-4xl sm:text-5xl font-extrabold text-white">₹999</span>
                   <span className="text-blue-200 ml-2">/month</span>
                 </div>
-                <ul className="space-y-3 mb-8">
+                <ul className="space-y-3 flex-1">
                   {[
                     "Everything in Free, plus:",
                     "Real-time Arbitrage Alerts",
@@ -859,13 +829,13 @@ export default function Home() {
                     "Backtest Engine (Unlimited)",
                     "Priority Email Support",
                   ].map((feature, i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm text-white">
+                    <li key={i} className="flex items-start gap-3 text-white">
                       <CheckCircle2 className="h-5 w-5 text-blue-300 shrink-0 mt-0.5" />
                       <span>{feature}</span>
                     </li>
                   ))}
                 </ul>
-                <Link href="/sign-in?tab=sign-up">
+                <Link href="/sign-in?tab=sign-up" className="mt-8">
                   <Button className="w-full py-6 rounded-xl bg-white hover:bg-gray-100 text-blue-700 font-bold shadow-lg">
                     Start 7-Day Free Trial
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -882,15 +852,15 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="relative"
             >
-              <div className="h-full bg-white rounded-2xl sm:rounded-3xl border border-gray-200 p-6 sm:p-8 hover:shadow-xl transition-all duration-300">
+              <div className="h-full bg-white rounded-2xl sm:rounded-3xl border border-gray-200 p-6 sm:p-8 hover:shadow-xl transition-all duration-300 flex flex-col">
                 <div className="mb-6">
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Enterprise</h3>
-                  <p className="text-gray-500 text-sm">For trading firms & teams</p>
+                  <p className="text-gray-500">For trading firms & teams</p>
                 </div>
                 <div className="mb-6">
                   <span className="text-4xl sm:text-5xl font-extrabold text-gray-900">Custom</span>
                 </div>
-                <ul className="space-y-3 mb-8">
+                <ul className="space-y-3 flex-1">
                   {[
                     "Everything in Pro, plus:",
                     "API Access",
@@ -900,13 +870,13 @@ export default function Home() {
                     "Dedicated Account Manager",
                     "24/7 Phone Support",
                   ].map((feature, i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm text-gray-600">
+                    <li key={i} className="flex items-start gap-3 text-gray-600">
                       <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
                       <span>{feature}</span>
                     </li>
                   ))}
                 </ul>
-                <Link href="mailto:contact@bullionbrain.com">
+                <Link href="mailto:contact@bullionbrain.com" className="mt-8">
                   <Button variant="outline" className="w-full py-6 rounded-xl border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold">
                     Contact Sales
                   </Button>

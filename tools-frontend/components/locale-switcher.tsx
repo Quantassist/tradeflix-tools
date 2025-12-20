@@ -19,16 +19,17 @@ export function LocaleSwitcher() {
     const pathname = usePathname();
 
     const handleLocaleChange = (newLocale: string) => {
+        if (newLocale === locale) return; // No change needed
+
         // Remove current locale prefix if present
         const localePattern = new RegExp(`^/(${routing.locales.join('|')})(/|$)`);
         const pathnameWithoutLocale = pathname.replace(localePattern, '$2') || '/';
 
-        // Build new path with locale prefix (or without for default locale)
-        const newPath = newLocale === routing.defaultLocale
-            ? pathnameWithoutLocale
-            : `/${newLocale}${pathnameWithoutLocale === '/' ? '' : pathnameWithoutLocale}`;
+        // Build new path with locale prefix
+        const newPath = `/${newLocale}${pathnameWithoutLocale === '/' ? '' : pathnameWithoutLocale}`;
 
-        router.push(newPath);
+        // Use window.location for hard navigation to ensure locale change takes effect
+        window.location.href = newPath;
     };
 
     return (

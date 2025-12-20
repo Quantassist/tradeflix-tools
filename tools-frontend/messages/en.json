@@ -522,6 +522,25 @@
       "recalculatedFloorPivots": "Recalculated Floor Pivots",
       "note": "Note",
       "intradayNote": "Intraday recalculation uses current session data to provide dynamic pivot levels. These are useful for adjusting your trading plan as the session progresses."
+    },
+    "levelsChart": {
+      "title": "Pivot Levels Visualization",
+      "description": "Support and resistance levels with current price",
+      "readingChart": "Reading the Chart",
+      "chartReadingGuide": "Chart Reading Guide",
+      "howToInterpret": "How to interpret the pivot levels chart",
+      "resistanceLevels": "Resistance Levels (R1-R3)",
+      "resistanceDesc": "Price barriers above current price. Expect selling pressure at these levels.",
+      "cprZone": "CPR Zone (TC, Pivot, BC)",
+      "cprZoneDesc": "Central Pivot Range - the day's equilibrium zone. Price tends to gravitate here.",
+      "supportLevels": "Support Levels (S1-S3)",
+      "supportDesc": "Price floors below current price. Expect buying pressure at these levels.",
+      "currentPriceNote": "Orange dashed line shows current price position relative to all levels.",
+      "resistance": "Resistance",
+      "cpr": "CPR",
+      "support": "Support",
+      "currentPrice": "Current Price",
+      "current": "Current"
     }
   },
   "arbitrage": {
@@ -533,7 +552,150 @@
     "calculateArbitrage": "Calculate Arbitrage",
     "analyzingMarkets": "Analyzing markets...",
     "arbitrageAnalysis": "Arbitrage Analysis",
-    "resultsDescription": "Results will appear here after calculation"
+    "resultsDescription": "Results will appear here after calculation",
+    "understandingArbitrage": "Understanding COMEX-MCX Arbitrage",
+    "guide": "Guide",
+    "guideSubtitle": "Learn how to identify and trade pricing inefficiencies between exchanges",
+    "hideGuide": "Hide Guide",
+    "showGuide": "Show Guide",
+    "whatIsArbitrage": "What is Arbitrage?",
+    "whatIsArbitrageDesc": "Arbitrage exploits price differences between COMEX (US) and MCX (India) for the same commodity.",
+    "fairValueCalc": "Fair Value Calculation",
+    "fairValueCalcDesc": "COMEX price × USDINR × conversion factor + import duty + costs = Fair Value",
+    "premiumDiscount": "Premium/Discount",
+    "premiumDiscountDesc": "When MCX > Fair Value = Premium (sell signal). When MCX < Fair Value = Discount (buy signal).",
+    "riskFactors": "Risk Factors",
+    "riskFactorsDesc": "Currency fluctuations, timing gaps, and transaction costs can affect profitability.",
+    "opportunity": "Opportunity",
+    "usdinrSensitivity": {
+      "title": "USD/INR Sensitivity Analysis",
+      "description": "Analyze how currency movements impact MCX fair value",
+      "comexPrice": "COMEX Price ($/oz)",
+      "currentUsdinr": "Current USD/INR",
+      "usdinrChange": "USD/INR Change",
+      "inrStrengthens": "INR strengthens",
+      "inrWeakens": "INR weakens",
+      "quickScenarios": "Quick Scenarios",
+      "calculating": "Calculating...",
+      "calculateImpact": "Calculate Impact",
+      "fairValueImpact": "Fair Value Impact",
+      "currentFairValue": "Current Fair Value",
+      "newFairValue": "New Fair Value",
+      "changePercent": "Change %",
+      "impactPerRupee": "Impact per ₹1",
+      "magnitude": "Magnitude",
+      "interpretation": "Interpretation",
+      "breakEvenAnalysis": "Break-even Analysis",
+      "breakEvenDesc": "Every ₹1 change in USD/INR moves MCX Gold fair value by approximately",
+      "perContract": "per contract"
+    },
+    "multiCommodityTracker": {
+      "title": "Multi-Commodity Tracker",
+      "description": "Real-time arbitrage across multiple commodities",
+      "updated": "Updated",
+      "refreshAll": "Refresh All",
+      "commodity": "Commodity",
+      "comex": "COMEX",
+      "mcx": "MCX",
+      "fairValue": "Fair Value",
+      "premium": "Premium",
+      "heatmap": "Heatmap",
+      "signal": "Signal",
+      "strongBuy": "Strong Buy",
+      "buy": "Buy",
+      "strongSell": "Strong Sell",
+      "sell": "Sell",
+      "neutral": "Neutral",
+      "error": "Error",
+      "estimated": "Est.",
+      "crossCommodityAnalysis": "Cross-Commodity Analysis",
+      "insufficientData": "Insufficient data for analysis",
+      "goldPremiumHigher": "Gold premium is higher than Silver - Gold may correct relative to Silver",
+      "silverPremiumHigher": "Silver premium is higher than Gold - Silver may correct relative to Gold",
+      "premiumsAligned": "Gold and Silver premiums are aligned - No divergence detected"
+    },
+    "history": {
+      "title": "Historical Arbitrage Data",
+      "description": "Premium/discount trends over time",
+      "gold": "Gold",
+      "silver": "Silver",
+      "days7": "7 Days",
+      "days30": "30 Days",
+      "days90": "90 Days",
+      "months6": "6 Months",
+      "year1": "1 Year",
+      "years2": "2 Years",
+      "years5": "5 Years",
+      "max": "Max",
+      "refresh": "Refresh",
+      "recordNow": "Record Now",
+      "noHistoricalData": "No Historical Data",
+      "noDataMessage": "Start collecting arbitrage data by clicking 'Record Now'. Data will be stored for historical analysis.",
+      "recordFirstDataPoint": "Record First Data Point",
+      "premiumZone": "Premium Zone",
+      "discountZone": "Discount Zone",
+      "fairValueZone": "Fair Value Zone",
+      "avgPremium": "Avg Premium",
+      "stdDeviation": "Std Deviation",
+      "minBestBuy": "Min (Best Buy)",
+      "maxBestSell": "Max (Best Sell)",
+      "signalDistribution": "Signal Distribution",
+      "showingDataPoints": "Showing {count} data points",
+      "downsampledFrom": "downsampled from {total} for performance",
+      "allAvailableData": "all available data",
+      "overDays": "over {days} days"
+    },
+    "heatmap": {
+      "title": "Arbitrage Heatmap",
+      "description": "Real-time premium/discount visualization",
+      "strongDiscount": "Strong Discount",
+      "strongDiscountDesc": "MCX significantly underpriced - Strong long opportunity",
+      "discount": "Discount",
+      "discountDesc": "MCX underpriced - Potential long opportunity",
+      "fairValue": "Fair Value",
+      "fairValueDesc": "MCX fairly priced - No significant arbitrage",
+      "premium": "Premium",
+      "premiumDesc": "MCX overpriced - Watch for reversal",
+      "strongPremium": "Strong Premium",
+      "strongPremiumDesc": "MCX significantly overpriced - Strong short opportunity",
+      "buyMcx": "BUY MCX",
+      "considerBuy": "Consider BUY",
+      "neutral": "NEUTRAL",
+      "considerSell": "Consider SELL",
+      "sellMcx": "SELL MCX",
+      "premiumPercent": "Premium %",
+      "premiumRupees": "Premium ₹",
+      "arbitrageScale": "Arbitrage Scale",
+      "currentSignal": "Current Signal"
+    },
+    "spreadChart": {
+      "priceComparison": "Price Comparison",
+      "priceComparisonDesc": "Fair value vs MCX price analysis",
+      "opportunity": "Opportunity",
+      "fairValue": "Fair Value",
+      "fairValueDesc": "COMEX + Duty + Costs",
+      "mcxPrice": "MCX Price",
+      "mcxPriceDesc": "Current Market Price",
+      "premium": "Premium",
+      "discount": "Discount",
+      "arbitrageOpportunity": "Arbitrage Opportunity",
+      "noOpportunity": "No Opportunity",
+      "profitBreakdown": "Profit Breakdown",
+      "profitBreakdownDesc": "Detailed profit and cost analysis",
+      "grossProfit": "Gross Profit",
+      "beforeCosts": "Before costs",
+      "brokerage": "Brokerage",
+      "tradingFees": "Trading fees",
+      "exchangeFees": "Exchange Fees",
+      "exchangeCharges": "Exchange charges",
+      "tax": "Tax",
+      "gstDuties": "GST & duties",
+      "netProfit": "Net Profit",
+      "finalPnl": "Final P&L",
+      "profit": "Profit",
+      "costs": "Costs",
+      "netResult": "Net Result"
+    }
   },
   "landing": {
     "nav": {
@@ -640,61 +802,61 @@
         "name": "Backtest Engine",
         "description": "Strategy Validation",
         "details": "Test your Gold & Silver strategies against 10+ years of data. Know your edge before risking real capital.",
-        "features": [
-          "Historical Simulation",
-          "Performance Metrics",
-          "Drawdown Analysis"
-        ]
+        "features": {
+          "simulation": "Historical Simulation",
+          "metrics": "Performance Metrics",
+          "drawdown": "Drawdown Analysis"
+        }
       },
       "pivot": {
         "name": "Pivot Calculator",
         "description": "Intraday S/R Levels",
         "details": "Generate CPR, Floor, and Fibonacci pivots instantly. Know exactly where price is likely to reverse or break.",
-        "features": [
-          "Central Pivot Range",
-          "Fibonacci Levels",
-          "Multi-timeframe"
-        ]
+        "features": {
+          "cpr": "Central Pivot Range",
+          "fibonacci": "Fibonacci Levels",
+          "multiTimeframe": "Multi-timeframe"
+        }
       },
       "arbitrage": {
         "name": "Arbitrage Heatmap",
         "description": "COMEX vs MCX",
         "details": "Spot when MCX is overpriced or underpriced vs COMEX. Capture pricing inefficiencies before they disappear.",
-        "features": [
-          "Fair Value Calculator",
-          "Premium Alerts",
-          "Historical Spreads"
-        ]
+        "features": {
+          "fairValue": "Fair Value Calculator",
+          "alerts": "Premium Alerts",
+          "historical": "Historical Spreads"
+        }
       },
       "correlation": {
         "name": "Correlation Matrix",
         "description": "Multi-Asset Analysis",
         "details": "Understand how Gold moves with USDINR, DXY, and Crude. Find divergence trades and hedge positions.",
-        "features": [
-          "Cross-Asset Correlations",
-          "Beta Sensitivity",
-          "Divergence Alerts"
-        ]
+        "features": {
+          "realtime": "Cross-Asset Correlations",
+          "beta": "Beta Sensitivity",
+          "divergence": "Divergence Alerts"
+        }
       },
       "seasonal": {
         "name": "Seasonal Trends",
         "description": "Calendar Patterns",
         "details": "Know how Gold behaves around Diwali, Akshaya Tritiya, Fed meetings. Trade with historical probabilities on your side.",
-        "features": [
-          "Festival Analysis",
-          "Event Tracking",
-          "Win Rate Stats"
-        ]
+        "features": {
+          "festival": "Festival Analysis",
+          "economic": "Event Tracking",
+          "winRate": "Win Rate Stats"
+        }
       },
       "cot": {
         "name": "COT Report",
         "description": "Smart Money Positioning",
         "details": "See what hedge funds and commercials are doing. Identify extreme positioning that precedes major moves.",
-        "features": [
-          "Position Visualization",
-          "Percentile Rankings",
-          "Contrarian Signals"
-        ]
+        "features": {
+          "position": "Position Visualization",
+          "percentile": "Percentile Rankings",
+          "contrarian": "Contrarian Signals"
+        }
       }
     },
     "whyUs": {

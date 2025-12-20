@@ -10,6 +10,7 @@ import { Calculator, TrendingUp, TrendingDown, ArrowRight, IndianRupee } from "l
 import { cn } from "@/lib/utils"
 import { arbitrageApi } from "@/lib/api/arbitrage"
 import { toast } from "sonner"
+import { useTranslations } from "next-intl"
 
 type SensitivityResult = {
     analysis: {
@@ -34,6 +35,7 @@ type USDINRSensitivityProps = {
 }
 
 export function USDINRSensitivity({ initialComexPrice = 2650, initialUsdinr = 84.5 }: USDINRSensitivityProps) {
+    const t = useTranslations('arbitrage.usdinrSensitivity')
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState<SensitivityResult | null>(null)
     const [formData, setFormData] = useState({
@@ -89,15 +91,15 @@ export function USDINRSensitivity({ initialComexPrice = 2650, initialUsdinr = 84
         <StyledCard variant="teal">
             <StyledCardHeader
                 icon={IndianRupee}
-                title="USD/INR Sensitivity Analysis"
-                description="Analyze how currency movements impact MCX fair value"
+                title={t('title')}
+                description={t('description')}
                 variant="teal"
             />
             <StyledCardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="comex_price">COMEX Price ($/oz)</Label>
+                            <Label htmlFor="comex_price">{t('comexPrice')}</Label>
                             <Input
                                 id="comex_price"
                                 type="number"
@@ -108,7 +110,7 @@ export function USDINRSensitivity({ initialComexPrice = 2650, initialUsdinr = 84
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="current_usdinr">Current USD/INR</Label>
+                            <Label htmlFor="current_usdinr">{t('currentUsdinr')}</Label>
                             <Input
                                 id="current_usdinr"
                                 type="number"
@@ -123,7 +125,7 @@ export function USDINRSensitivity({ initialComexPrice = 2650, initialUsdinr = 84
                     {/* USDINR Change Slider */}
                     <div className="space-y-4">
                         <div className="flex justify-between items-center">
-                            <Label>USD/INR Change</Label>
+                            <Label>{t('usdinrChange')}</Label>
                             <span className={cn(
                                 "font-mono font-bold text-lg",
                                 sliderValue[0] > 0 ? "text-red-600" : sliderValue[0] < 0 ? "text-green-600" : "text-gray-600"
@@ -140,14 +142,14 @@ export function USDINRSensitivity({ initialComexPrice = 2650, initialUsdinr = 84
                             className="py-4"
                         />
                         <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>-₹2.00 (INR strengthens)</span>
-                            <span>+₹2.00 (INR weakens)</span>
+                            <span>-₹2.00 ({t('inrStrengthens')})</span>
+                            <span>+₹2.00 ({t('inrWeakens')})</span>
                         </div>
                     </div>
 
                     {/* Quick Scenario Buttons */}
                     <div className="space-y-2">
-                        <Label>Quick Scenarios</Label>
+                        <Label>{t('quickScenarios')}</Label>
                         <div className="flex gap-2">
                             {scenarios.map((scenario) => (
                                 <Button
@@ -175,12 +177,12 @@ export function USDINRSensitivity({ initialComexPrice = 2650, initialUsdinr = 84
                         {loading ? (
                             <span className="flex items-center gap-2">
                                 <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                Calculating...
+                                {t('calculating')}
                             </span>
                         ) : (
                             <span className="flex items-center gap-2">
                                 <Calculator className="h-4 w-4" />
-                                Calculate Impact
+                                {t('calculateImpact')}
                             </span>
                         )}
                     </Button>
@@ -203,7 +205,7 @@ export function USDINRSensitivity({ initialComexPrice = 2650, initialUsdinr = 84
                                     ) : (
                                         <TrendingDown className="h-6 w-6 text-green-600" />
                                     )}
-                                    <span className="font-medium">Fair Value Impact</span>
+                                    <span className="font-medium">{t('fairValueImpact')}</span>
                                 </div>
                                 <span className={cn(
                                     "text-2xl font-bold font-mono",
@@ -217,12 +219,12 @@ export function USDINRSensitivity({ initialComexPrice = 2650, initialUsdinr = 84
                             {/* Before/After Comparison */}
                             <div className="flex items-center justify-between gap-4 text-sm">
                                 <div className="flex-1 p-3 bg-white/60 rounded-lg">
-                                    <p className="text-muted-foreground text-xs">Current Fair Value</p>
+                                    <p className="text-muted-foreground text-xs">{t('currentFairValue')}</p>
                                     <p className="font-mono font-semibold">₹{result.analysis.current_fair_value.toFixed(2)}</p>
                                 </div>
                                 <ArrowRight className="h-5 w-5 text-muted-foreground" />
                                 <div className="flex-1 p-3 bg-white/60 rounded-lg">
-                                    <p className="text-muted-foreground text-xs">New Fair Value</p>
+                                    <p className="text-muted-foreground text-xs">{t('newFairValue')}</p>
                                     <p className="font-mono font-semibold">₹{result.analysis.new_fair_value.toFixed(2)}</p>
                                 </div>
                             </div>
@@ -231,7 +233,7 @@ export function USDINRSensitivity({ initialComexPrice = 2650, initialUsdinr = 84
                         {/* Detailed Metrics */}
                         <div className="grid grid-cols-3 gap-3">
                             <div className="p-3 rounded-lg bg-gray-50 border text-center">
-                                <p className="text-xs text-muted-foreground">Change %</p>
+                                <p className="text-xs text-muted-foreground">{t('changePercent')}</p>
                                 <p className={cn(
                                     "font-mono font-semibold",
                                     result.analysis.fair_value_change_percent > 0 ? "text-red-600" : "text-green-600"
@@ -241,13 +243,13 @@ export function USDINRSensitivity({ initialComexPrice = 2650, initialUsdinr = 84
                                 </p>
                             </div>
                             <div className="p-3 rounded-lg bg-gray-50 border text-center">
-                                <p className="text-xs text-muted-foreground">Impact per ₹1</p>
+                                <p className="text-xs text-muted-foreground">{t('impactPerRupee')}</p>
                                 <p className="font-mono font-semibold">
                                     ₹{Math.abs(result.interpretation.impact_per_rupee).toFixed(2)}
                                 </p>
                             </div>
                             <div className="p-3 rounded-lg bg-gray-50 border text-center">
-                                <p className="text-xs text-muted-foreground">Magnitude</p>
+                                <p className="text-xs text-muted-foreground">{t('magnitude')}</p>
                                 <p className="font-semibold capitalize">{result.interpretation.magnitude}</p>
                             </div>
                         </div>
@@ -255,7 +257,7 @@ export function USDINRSensitivity({ initialComexPrice = 2650, initialUsdinr = 84
                         {/* Interpretation */}
                         <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
                             <p className="text-sm">
-                                <strong>Interpretation:</strong> If USD/INR {result.interpretation.direction} by ₹{Math.abs(result.analysis.usdinr_change).toFixed(2)},
+                                <strong>{t('interpretation')}:</strong> If USD/INR {result.interpretation.direction} by ₹{Math.abs(result.analysis.usdinr_change).toFixed(2)},
                                 MCX Gold fair value will {result.analysis.fair_value_change > 0 ? "increase" : "decrease"} by ₹{Math.abs(result.analysis.fair_value_change).toFixed(2)} per 10g.
                                 This is a <strong>{result.interpretation.magnitude}</strong> impact.
                             </p>
@@ -263,10 +265,10 @@ export function USDINRSensitivity({ initialComexPrice = 2650, initialUsdinr = 84
 
                         {/* Break-even Analysis */}
                         <div className="p-4 rounded-lg bg-amber-50 border border-amber-200">
-                            <h4 className="font-medium text-sm mb-2">Break-even Analysis</h4>
+                            <h4 className="font-medium text-sm mb-2">{t('breakEvenAnalysis')}</h4>
                             <p className="text-sm text-muted-foreground">
-                                Every ₹1 change in USD/INR moves MCX Gold fair value by approximately <strong>₹{Math.abs(result.interpretation.impact_per_rupee).toFixed(2)}</strong> per 10g.
-                                For a 100g contract, this translates to <strong>₹{(Math.abs(result.interpretation.impact_per_rupee) * 10).toFixed(2)}</strong> per contract.
+                                {t('breakEvenDesc')} <strong>₹{Math.abs(result.interpretation.impact_per_rupee).toFixed(2)}</strong> per 10g.
+                                For a 100g contract, this translates to <strong>₹{(Math.abs(result.interpretation.impact_per_rupee) * 10).toFixed(2)}</strong> {t('perContract')}.
                             </p>
                         </div>
                     </div>

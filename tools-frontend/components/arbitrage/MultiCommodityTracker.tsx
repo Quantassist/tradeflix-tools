@@ -9,6 +9,7 @@ import { RefreshCw, TrendingUp, TrendingDown, Minus, Layers } from "lucide-react
 import { cn } from "@/lib/utils"
 import { arbitrageApi } from "@/lib/api/arbitrage"
 import { toast } from "sonner"
+import { useTranslations } from "next-intl"
 
 type CommodityData = {
     symbol: string
@@ -37,20 +38,20 @@ const COMMODITIES: CommodityConfig[] = [
     { symbol: "SILVER", name: "Silver", contractSize: 1, unit: "1kg", importDuty: 2.5 },
 ]
 
-function getSignalConfig(signal: string) {
+function getSignalConfig(signal: string, t: (key: string) => string) {
     if (signal.includes("strong_long")) {
-        return { icon: TrendingUp, color: "text-green-600", bg: "bg-green-100", label: "Strong Buy" }
+        return { icon: TrendingUp, color: "text-green-600", bg: "bg-green-100", label: t('strongBuy') }
     }
     if (signal.includes("long")) {
-        return { icon: TrendingUp, color: "text-green-500", bg: "bg-green-50", label: "Buy" }
+        return { icon: TrendingUp, color: "text-green-500", bg: "bg-green-50", label: t('buy') }
     }
     if (signal.includes("strong_short")) {
-        return { icon: TrendingDown, color: "text-red-600", bg: "bg-red-100", label: "Strong Sell" }
+        return { icon: TrendingDown, color: "text-red-600", bg: "bg-red-100", label: t('strongSell') }
     }
     if (signal.includes("short")) {
-        return { icon: TrendingDown, color: "text-red-500", bg: "bg-red-50", label: "Sell" }
+        return { icon: TrendingDown, color: "text-red-500", bg: "bg-red-50", label: t('sell') }
     }
-    return { icon: Minus, color: "text-yellow-600", bg: "bg-yellow-50", label: "Neutral" }
+    return { icon: Minus, color: "text-yellow-600", bg: "bg-yellow-50", label: t('neutral') }
 }
 
 function getPremiumColor(premiumPercent: number) {
@@ -62,6 +63,7 @@ function getPremiumColor(premiumPercent: number) {
 }
 
 export function MultiCommodityTracker() {
+    const t = useTranslations('arbitrage.multiCommodityTracker')
     const [commodities, setCommodities] = useState<CommodityData[]>(
         COMMODITIES.map((c) => ({
             symbol: c.symbol,
@@ -146,14 +148,14 @@ export function MultiCommodityTracker() {
         <StyledCard variant="indigo">
             <StyledCardHeader
                 icon={Layers}
-                title="Multi-Commodity Tracker"
-                description="Real-time arbitrage across multiple commodities"
+                title={t('title')}
+                description={t('description')}
                 variant="indigo"
                 action={
                     <div className="flex items-center gap-3">
                         {lastUpdated && (
                             <span className="text-xs text-muted-foreground">
-                                Updated: {lastUpdated.toLocaleTimeString()}
+                                {t('updated')}: {lastUpdated.toLocaleTimeString()}
                             </span>
                         )}
                         <Button
@@ -164,7 +166,7 @@ export function MultiCommodityTracker() {
                             className="gap-2"
                         >
                             <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
-                            Refresh All
+                            {t('refreshAll')}
                         </Button>
                     </div>
                 }
@@ -173,18 +175,18 @@ export function MultiCommodityTracker() {
                 <div className="space-y-4">
                     {/* Header Row */}
                     <div className="grid grid-cols-7 gap-4 px-4 py-2 bg-gray-50 rounded-lg text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        <div>Commodity</div>
-                        <div className="text-right">COMEX</div>
-                        <div className="text-right">MCX</div>
-                        <div className="text-right">Fair Value</div>
-                        <div className="text-right">Premium</div>
-                        <div className="text-center">Heatmap</div>
-                        <div className="text-center">Signal</div>
+                        <div>{t('commodity')}</div>
+                        <div className="text-right">{t('comex')}</div>
+                        <div className="text-right">{t('mcx')}</div>
+                        <div className="text-right">{t('fairValue')}</div>
+                        <div className="text-right">{t('premium')}</div>
+                        <div className="text-center">{t('heatmap')}</div>
+                        <div className="text-center">{t('signal')}</div>
                     </div>
 
                     {/* Commodity Rows */}
                     {commodities.map((commodity) => {
-                        const signalConfig = getSignalConfig(commodity.signal)
+                        const signalConfig = getSignalConfig(commodity.signal, t)
                         const SignalIcon = signalConfig.icon
 
                         return (
@@ -201,7 +203,7 @@ export function MultiCommodityTracker() {
                                 <div className="flex items-center gap-2">
                                     <div className="font-semibold">{commodity.name}</div>
                                     {commodity.mcxSource === "estimated" && (
-                                        <Badge variant="outline" className="text-xs">Est.</Badge>
+                                        <Badge variant="outline" className="text-xs">{t('estimated')}</Badge>
                                     )}
                                 </div>
 
@@ -275,7 +277,7 @@ export function MultiCommodityTracker() {
                                     {commodity.loading ? (
                                         <Skeleton className="h-6 w-20" />
                                     ) : commodity.error ? (
-                                        <Badge variant="destructive" className="text-xs">Error</Badge>
+                                        <Badge variant="destructive" className="text-xs">{t('error')}</Badge>
                                     ) : (
                                         <Badge className={cn("gap-1", signalConfig.bg, signalConfig.color)}>
                                             <SignalIcon className="h-3 w-3" />
@@ -291,12 +293,12 @@ export function MultiCommodityTracker() {
                 {/* Cross-Commodity Analysis */}
                 {!refreshing && commodities.filter((c) => !c.error).length >= 2 && (
                     <div className="mt-6 p-4 rounded-xl bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-200">
-                        <h4 className="font-medium text-sm mb-2">Cross-Commodity Analysis</h4>
+                        <h4 className="font-medium text-sm mb-2">{t('crossCommodityAnalysis')}</h4>
                         <p className="text-sm text-muted-foreground">
                             {(() => {
                                 const gold = commodities.find((c) => c.symbol === "GOLD")
                                 const silver = commodities.find((c) => c.symbol === "SILVER")
-                                if (!gold || !silver || gold.error || silver.error) return "Insufficient data for analysis"
+                                if (!gold || !silver || gold.error || silver.error) return t('insufficientData')
 
                                 const goldPremium = gold.premiumPercent
                                 const silverPremium = silver.premiumPercent
@@ -304,12 +306,12 @@ export function MultiCommodityTracker() {
 
                                 if (diff > 0.5) {
                                     if (goldPremium > silverPremium) {
-                                        return `Gold premium (${goldPremium.toFixed(2)}%) is ${diff.toFixed(2)}% higher than Silver (${silverPremium.toFixed(2)}%) - Gold may correct relative to Silver`
+                                        return `Gold (${goldPremium.toFixed(2)}%) vs Silver (${silverPremium.toFixed(2)}%) - ${t('goldPremiumHigher')}`
                                     } else {
-                                        return `Silver premium (${silverPremium.toFixed(2)}%) is ${diff.toFixed(2)}% higher than Gold (${goldPremium.toFixed(2)}%) - Silver may correct relative to Gold`
+                                        return `Silver (${silverPremium.toFixed(2)}%) vs Gold (${goldPremium.toFixed(2)}%) - ${t('silverPremiumHigher')}`
                                     }
                                 }
-                                return `Gold and Silver premiums are aligned (${goldPremium.toFixed(2)}% vs ${silverPremium.toFixed(2)}%) - No divergence detected`
+                                return `Gold (${goldPremium.toFixed(2)}%) vs Silver (${silverPremium.toFixed(2)}%) - ${t('premiumsAligned')}`
                             })()}
                         </p>
                     </div>

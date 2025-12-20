@@ -4,6 +4,7 @@ import { StyledCard, StyledCardHeader, StyledCardContent } from "@/components/ui
 import { Badge } from "@/components/ui/badge"
 import { TrendingUp, TrendingDown, Minus, Activity } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useTranslations } from "next-intl"
 
 type ArbitrageLevel = "strong_discount" | "discount" | "fair" | "premium" | "strong_premium"
 
@@ -22,57 +23,57 @@ function getArbitrageLevel(premiumPercent: number): ArbitrageLevel {
     return "fair"
 }
 
-function getHeatmapConfig(level: ArbitrageLevel) {
+function getHeatmapConfig(level: ArbitrageLevel, t: (key: string) => string) {
     const configs = {
         strong_discount: {
             color: "from-green-500 to-emerald-600",
             bgColor: "bg-linear-to-br from-green-50 to-emerald-100",
             borderColor: "border-green-400",
             textColor: "text-green-700",
-            label: "Strong Discount",
-            description: "MCX significantly underpriced - Strong long opportunity",
+            label: t('strongDiscount'),
+            description: t('strongDiscountDesc'),
             icon: TrendingUp,
-            action: "BUY MCX",
+            action: t('buyMcx'),
         },
         discount: {
             color: "from-green-400 to-green-500",
             bgColor: "bg-linear-to-br from-green-50 to-green-100",
             borderColor: "border-green-300",
             textColor: "text-green-600",
-            label: "Discount",
-            description: "MCX underpriced - Potential long opportunity",
+            label: t('discount'),
+            description: t('discountDesc'),
             icon: TrendingUp,
-            action: "Consider BUY",
+            action: t('considerBuy'),
         },
         fair: {
             color: "from-yellow-400 to-amber-500",
             bgColor: "bg-linear-to-br from-yellow-50 to-amber-100",
             borderColor: "border-yellow-300",
             textColor: "text-yellow-700",
-            label: "Fair Value",
-            description: "MCX fairly priced - No significant arbitrage",
+            label: t('fairValue'),
+            description: t('fairValueDesc'),
             icon: Minus,
-            action: "NEUTRAL",
+            action: t('neutral'),
         },
         premium: {
             color: "from-orange-400 to-orange-500",
             bgColor: "bg-linear-to-br from-orange-50 to-orange-100",
             borderColor: "border-orange-300",
             textColor: "text-orange-600",
-            label: "Premium",
-            description: "MCX overpriced - Watch for reversal",
+            label: t('premium'),
+            description: t('premiumDesc'),
             icon: TrendingDown,
-            action: "Consider SELL",
+            action: t('considerSell'),
         },
         strong_premium: {
             color: "from-red-500 to-rose-600",
             bgColor: "bg-linear-to-br from-red-50 to-rose-100",
             borderColor: "border-red-400",
             textColor: "text-red-700",
-            label: "Strong Premium",
-            description: "MCX significantly overpriced - Strong short opportunity",
+            label: t('strongPremium'),
+            description: t('strongPremiumDesc'),
             icon: TrendingDown,
-            action: "SELL MCX",
+            action: t('sellMcx'),
         },
     }
     return configs[level]
@@ -87,16 +88,17 @@ const heatmapScale = [
 ]
 
 export function ArbitrageHeatmap({ premiumPercent, premium, signal, commodity = "GOLD" }: ArbitrageHeatmapProps) {
+    const t = useTranslations('arbitrage.heatmap')
     const level = getArbitrageLevel(premiumPercent)
-    const config = getHeatmapConfig(level)
+    const config = getHeatmapConfig(level, t)
     const Icon = config.icon
 
     return (
         <StyledCard variant="amber" className={cn(config.borderColor)}>
             <StyledCardHeader
                 icon={Activity}
-                title="Arbitrage Heatmap"
-                description={`Real-time premium/discount visualization for ${commodity}`}
+                title={t('title')}
+                description={`${t('description')} - ${commodity}`}
                 variant="amber"
                 action={
                     <Badge className={cn("text-sm px-3 py-1 shadow-sm", config.bgColor, config.textColor, config.borderColor)}>
@@ -122,13 +124,13 @@ export function ArbitrageHeatmap({ premiumPercent, premium, signal, commodity = 
                     {/* Premium Display */}
                     <div className="grid grid-cols-2 gap-4 mt-4">
                         <div className="bg-white/60 rounded-xl p-4 backdrop-blur-sm">
-                            <p className="text-xs text-muted-foreground uppercase tracking-wide">Premium %</p>
+                            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('premiumPercent')}</p>
                             <p className={cn("text-3xl font-bold font-mono", config.textColor)}>
                                 {premiumPercent > 0 ? "+" : ""}{premiumPercent.toFixed(3)}%
                             </p>
                         </div>
                         <div className="bg-white/60 rounded-xl p-4 backdrop-blur-sm">
-                            <p className="text-xs text-muted-foreground uppercase tracking-wide">Premium ₹</p>
+                            <p className="text-xs text-muted-foreground uppercase tracking-wide">{t('premiumRupees')}</p>
                             <p className={cn("text-3xl font-bold font-mono", config.textColor)}>
                                 {premium > 0 ? "+" : ""}₹{premium.toFixed(2)}
                             </p>
@@ -138,7 +140,7 @@ export function ArbitrageHeatmap({ premiumPercent, premium, signal, commodity = 
 
                 {/* Heatmap Scale Legend */}
                 <div className="space-y-3">
-                    <h4 className="text-sm font-medium text-muted-foreground">Arbitrage Scale</h4>
+                    <h4 className="text-sm font-medium text-muted-foreground">{t('arbitrageScale')}</h4>
                     <div className="flex gap-1 h-8 rounded-lg overflow-hidden">
                         {heatmapScale.map((item) => (
                             <div
@@ -152,9 +154,9 @@ export function ArbitrageHeatmap({ premiumPercent, premium, signal, commodity = 
                         ))}
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>Strong Discount</span>
-                        <span>Fair Value</span>
-                        <span>Strong Premium</span>
+                        <span>{t('strongDiscount')}</span>
+                        <span>{t('fairValue')}</span>
+                        <span>{t('strongPremium')}</span>
                     </div>
                 </div>
 
@@ -176,7 +178,7 @@ export function ArbitrageHeatmap({ premiumPercent, premium, signal, commodity = 
 
                 {/* Signal Info */}
                 <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border">
-                    <span className="text-sm text-muted-foreground">Current Signal</span>
+                    <span className="text-sm text-muted-foreground">{t('currentSignal')}</span>
                     <Badge variant={signal.includes("long") ? "default" : signal.includes("short") ? "destructive" : "secondary"}>
                         {signal.toUpperCase().replace("_", " ")}
                     </Badge>

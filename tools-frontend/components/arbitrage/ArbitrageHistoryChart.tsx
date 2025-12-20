@@ -10,6 +10,7 @@ import { History, RefreshCw, TrendingUp, TrendingDown, BarChart3 } from "lucide-
 import { cn } from "@/lib/utils"
 import { arbitrageApi } from "@/lib/api/arbitrage"
 import { toast } from "sonner"
+import { useTranslations } from "next-intl"
 
 type HistoryDataPoint = {
     recorded_at: string
@@ -52,7 +53,7 @@ type TooltipPayloadItem = {
     }
 }
 
-const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: TooltipPayloadItem[]; label?: string }) => {
+function CustomTooltip({ active, payload, t }: { active?: boolean; payload?: TooltipPayloadItem[]; label?: string; t: (key: string) => string }) {
     if (active && payload && payload.length) {
         const premiumPercent = payload.find(p => p.dataKey === "premium_percent")?.value || 0
         const fullDate = payload[0]?.payload?.fullDate || ""
@@ -66,7 +67,7 @@ const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Toolti
                     {premiumPercent > 0 ? "+" : ""}{premiumPercent.toFixed(3)}%
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                    {premiumPercent > 0.7 ? "Premium Zone" : premiumPercent < -0.3 ? "Discount Zone" : "Fair Value Zone"}
+                    {premiumPercent > 0.7 ? t('premiumZone') : premiumPercent < -0.3 ? t('discountZone') : t('fairValueZone')}
                 </p>
             </div>
         )
@@ -75,6 +76,7 @@ const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Toolti
 }
 
 export function ArbitrageHistoryChart() {
+    const t = useTranslations('arbitrage.history')
     const [loading, setLoading] = useState(false)
     const [recording, setRecording] = useState(false)
     const [data, setData] = useState<HistoryResponse | null>(null)
@@ -146,8 +148,8 @@ export function ArbitrageHistoryChart() {
         <StyledCard variant="purple">
             <StyledCardHeader
                 icon={History}
-                title="Historical Arbitrage Data"
-                description="Premium/discount trends over time"
+                title={t('title')}
+                description={t('description')}
                 variant="purple"
                 action={
                     <div className="flex items-center gap-3 flex-wrap">
@@ -156,8 +158,8 @@ export function ArbitrageHistoryChart() {
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="GOLD">Gold</SelectItem>
-                                <SelectItem value="SILVER">Silver</SelectItem>
+                                <SelectItem value="GOLD">{t('gold')}</SelectItem>
+                                <SelectItem value="SILVER">{t('silver')}</SelectItem>
                             </SelectContent>
                         </Select>
                         <Select value={days} onValueChange={setDays}>
@@ -165,14 +167,14 @@ export function ArbitrageHistoryChart() {
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="7">7 Days</SelectItem>
-                                <SelectItem value="30">30 Days</SelectItem>
-                                <SelectItem value="90">90 Days</SelectItem>
-                                <SelectItem value="180">6 Months</SelectItem>
-                                <SelectItem value="365">1 Year</SelectItem>
-                                <SelectItem value="730">2 Years</SelectItem>
-                                <SelectItem value="1825">5 Years</SelectItem>
-                                <SelectItem value="0">Max</SelectItem>
+                                <SelectItem value="7">{t('days7')}</SelectItem>
+                                <SelectItem value="30">{t('days30')}</SelectItem>
+                                <SelectItem value="90">{t('days90')}</SelectItem>
+                                <SelectItem value="180">{t('months6')}</SelectItem>
+                                <SelectItem value="365">{t('year1')}</SelectItem>
+                                <SelectItem value="730">{t('years2')}</SelectItem>
+                                <SelectItem value="1825">{t('years5')}</SelectItem>
+                                <SelectItem value="0">{t('max')}</SelectItem>
                             </SelectContent>
                         </Select>
                         <Button
@@ -183,7 +185,7 @@ export function ArbitrageHistoryChart() {
                             className="gap-2"
                         >
                             <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
-                            Refresh
+                            {t('refresh')}
                         </Button>
                         <Button
                             size="sm"
@@ -196,7 +198,7 @@ export function ArbitrageHistoryChart() {
                             ) : (
                                 <BarChart3 className="h-4 w-4" />
                             )}
-                            Record Now
+                            {t('recordNow')}
                         </Button>
                     </div>
                 }
@@ -215,13 +217,13 @@ export function ArbitrageHistoryChart() {
                 ) : data?.data_count === 0 ? (
                     <div className="flex flex-col items-center justify-center h-[300px] text-center">
                         <History className="h-16 w-16 text-muted-foreground/30 mb-4" />
-                        <h3 className="text-lg font-medium">No Historical Data</h3>
+                        <h3 className="text-lg font-medium">{t('noHistoricalData')}</h3>
                         <p className="text-sm text-muted-foreground mt-1 max-w-md">
-                            {data.message || "Start collecting arbitrage data by clicking 'Record Now'. Data will be stored for historical analysis."}
+                            {data.message || t('noDataMessage')}
                         </p>
                         <Button onClick={recordNow} disabled={recording} className="mt-4 gap-2">
                             <BarChart3 className="h-4 w-4" />
-                            Record First Data Point
+                            {t('recordFirstDataPoint')}
                         </Button>
                     </div>
                 ) : (
@@ -250,7 +252,7 @@ export function ArbitrageHistoryChart() {
                                         domain={['auto', 'auto']}
                                         label={{ value: 'Premium %', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fontSize: 12, fill: '#6b7280' } }}
                                     />
-                                    <Tooltip content={<CustomTooltip />} />
+                                    <Tooltip content={<CustomTooltip t={t} />} />
 
                                     {/* Reference lines for zones */}
                                     <ReferenceLine y={0} stroke="#6b7280" strokeDasharray="5 5" />
@@ -283,7 +285,7 @@ export function ArbitrageHistoryChart() {
                                     <div className="p-4 rounded-xl bg-linear-to-br from-violet-50 to-purple-50 border border-violet-200 shadow-sm">
                                         <div className="flex items-center gap-2 mb-1">
                                             <div className="w-2 h-2 rounded-full bg-violet-500"></div>
-                                            <p className="text-xs text-violet-600 font-medium uppercase tracking-wide">Avg Premium</p>
+                                            <p className="text-xs text-violet-600 font-medium uppercase tracking-wide">{t('avgPremium')}</p>
                                         </div>
                                         <p className={cn(
                                             "text-2xl font-bold font-mono",
@@ -296,7 +298,7 @@ export function ArbitrageHistoryChart() {
                                     <div className="p-4 rounded-xl bg-linear-to-br from-slate-50 to-gray-100 border border-slate-200 shadow-sm">
                                         <div className="flex items-center gap-2 mb-1">
                                             <div className="w-2 h-2 rounded-full bg-slate-500"></div>
-                                            <p className="text-xs text-slate-600 font-medium uppercase tracking-wide">Std Deviation</p>
+                                            <p className="text-xs text-slate-600 font-medium uppercase tracking-wide">{t('stdDeviation')}</p>
                                         </div>
                                         <p className="text-2xl font-bold font-mono text-slate-700">
                                             ±{data.statistics.std_deviation.toFixed(3)}%
@@ -305,7 +307,7 @@ export function ArbitrageHistoryChart() {
                                     <div className="p-4 rounded-xl bg-linear-to-br from-green-50 to-emerald-50 border border-green-200 shadow-sm">
                                         <div className="flex items-center gap-2 mb-1">
                                             <TrendingDown className="w-3 h-3 text-green-600" />
-                                            <p className="text-xs text-green-600 font-medium uppercase tracking-wide">Min (Best Buy)</p>
+                                            <p className="text-xs text-green-600 font-medium uppercase tracking-wide">{t('minBestBuy')}</p>
                                         </div>
                                         <p className="text-2xl font-bold font-mono text-green-600">
                                             {data.statistics.min_premium_percent.toFixed(3)}%
@@ -314,7 +316,7 @@ export function ArbitrageHistoryChart() {
                                     <div className="p-4 rounded-xl bg-linear-to-br from-red-50 to-rose-50 border border-red-200 shadow-sm">
                                         <div className="flex items-center gap-2 mb-1">
                                             <TrendingUp className="w-3 h-3 text-red-600" />
-                                            <p className="text-xs text-red-600 font-medium uppercase tracking-wide">Max (Best Sell)</p>
+                                            <p className="text-xs text-red-600 font-medium uppercase tracking-wide">{t('maxBestSell')}</p>
                                         </div>
                                         <p className="text-2xl font-bold font-mono text-red-600">
                                             +{data.statistics.max_premium_percent.toFixed(3)}%
@@ -327,7 +329,7 @@ export function ArbitrageHistoryChart() {
                                     <div className="p-4 rounded-xl bg-linear-to-br from-amber-50 to-orange-50 border border-amber-200 shadow-sm">
                                         <div className="flex items-center gap-2 mb-3">
                                             <BarChart3 className="w-3 h-3 text-amber-600" />
-                                            <h4 className="text-xs text-amber-600 font-medium uppercase tracking-wide">Signal Distribution</h4>
+                                            <h4 className="text-xs text-amber-600 font-medium uppercase tracking-wide">{t('signalDistribution')}</h4>
                                         </div>
                                         <div className="space-y-2">
                                             {Object.entries(data.statistics.signal_distribution)

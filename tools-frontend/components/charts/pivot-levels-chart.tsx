@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { BarChart3, BookOpen, TrendingUp, TrendingDown, Minus } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import type { CPRLevels, PivotResponse } from "@/types"
+import { useTranslations } from "next-intl"
 
 type PivotLevelsChartProps = {
   cpr: CPRLevels
@@ -29,6 +30,8 @@ const CustomTooltip = ({ active, payload }: any) => {
 }
 
 export function PivotLevelsChart({ cpr, floorPivots, currentPrice }: PivotLevelsChartProps) {
+  const t = useTranslations('pivot.levelsChart')
+
   // Create data for horizontal bar chart
   const data = [
     { name: "R3", value: floorPivots.r3, type: "resistance", color: "#dc2626" },
@@ -55,8 +58,8 @@ export function PivotLevelsChart({ cpr, floorPivots, currentPrice }: PivotLevels
               <BarChart3 className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-slate-800">Pivot Levels Visualization</h2>
-              <p className="text-slate-500">Support and resistance levels with current price</p>
+              <h2 className="text-2xl font-bold text-slate-800">{t('title')}</h2>
+              <p className="text-slate-500">{t('description')}</p>
             </div>
           </div>
 
@@ -65,7 +68,7 @@ export function PivotLevelsChart({ cpr, floorPivots, currentPrice }: PivotLevels
             <DialogTrigger asChild>
               <Button className="bg-linear-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-md">
                 <BookOpen className="h-4 w-4 mr-2" />
-                Reading the Chart
+                {t('readingChart')}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg">
@@ -74,34 +77,34 @@ export function PivotLevelsChart({ cpr, floorPivots, currentPrice }: PivotLevels
                   <div className="p-2 bg-linear-to-br from-blue-500 to-purple-600 rounded-lg text-white">
                     <BarChart3 className="h-4 w-4" />
                   </div>
-                  Chart Reading Guide
+                  {t('chartReadingGuide')}
                 </DialogTitle>
-                <DialogDescription>How to interpret the pivot levels chart</DialogDescription>
+                <DialogDescription>{t('howToInterpret')}</DialogDescription>
               </DialogHeader>
               <div className="space-y-3 mt-3 text-sm">
                 <div className="p-3 rounded-lg bg-red-50 border border-red-100">
                   <div className="flex items-center gap-2 font-semibold text-red-700 mb-1">
                     <TrendingUp className="h-4 w-4" />
-                    Resistance Levels (R1-R3)
+                    {t('resistanceLevels')}
                   </div>
-                  <p className="text-red-600 text-xs">Price barriers above current price. Expect selling pressure at these levels.</p>
+                  <p className="text-red-600 text-xs">{t('resistanceDesc')}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-blue-50 border border-blue-100">
                   <div className="flex items-center gap-2 font-semibold text-blue-700 mb-1">
                     <Minus className="h-4 w-4" />
-                    CPR Zone (TC, Pivot, BC)
+                    {t('cprZone')}
                   </div>
-                  <p className="text-blue-600 text-xs">Central Pivot Range - the day&apos;s equilibrium zone. Price tends to gravitate here.</p>
+                  <p className="text-blue-600 text-xs">{t('cprZoneDesc')}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-green-50 border border-green-100">
                   <div className="flex items-center gap-2 font-semibold text-green-700 mb-1">
                     <TrendingDown className="h-4 w-4" />
-                    Support Levels (S1-S3)
+                    {t('supportLevels')}
                   </div>
-                  <p className="text-green-600 text-xs">Price floors below current price. Expect buying pressure at these levels.</p>
+                  <p className="text-green-600 text-xs">{t('supportDesc')}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-amber-50 border border-amber-100">
-                  <p className="text-amber-700 text-xs"><strong>Orange dashed line</strong> shows current price position relative to all levels.</p>
+                  <p className="text-amber-700 text-xs">{t('currentPriceNote')}</p>
                 </div>
               </div>
             </DialogContent>
@@ -133,7 +136,7 @@ export function PivotLevelsChart({ cpr, floorPivots, currentPrice }: PivotLevels
                 strokeWidth={3}
                 strokeDasharray="5 5"
                 label={{
-                  value: `Current: ₹${currentPrice.toLocaleString('en-IN')}`,
+                  value: `${t('current')}: ₹${currentPrice.toLocaleString('en-IN')}`,
                   position: 'top',
                   fill: '#f59e0b',
                   fontSize: 14,
@@ -153,19 +156,19 @@ export function PivotLevelsChart({ cpr, floorPivots, currentPrice }: PivotLevels
           <div className="flex justify-center gap-6 mt-6 flex-wrap">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-red-500"></div>
-              <span className="text-sm font-medium">Resistance</span>
+              <span className="text-sm font-medium">{t('resistance')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-blue-600"></div>
-              <span className="text-sm font-medium">CPR</span>
+              <span className="text-sm font-medium">{t('cpr')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-green-500"></div>
-              <span className="text-sm font-medium">Support</span>
+              <span className="text-sm font-medium">{t('support')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded border-2 border-orange-500 border-dashed"></div>
-              <span className="text-sm font-medium text-orange-600">Current Price</span>
+              <span className="text-sm font-medium text-orange-600">{t('currentPrice')}</span>
             </div>
           </div>
         </div>

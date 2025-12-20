@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { StyledCard, StyledCardHeader, StyledCardContent } from "@/components/ui/styled-card"
 import { formatCurrency } from "@/lib/utils"
 import { TrendingUp, TrendingDown, DollarSign } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 type ArbitrageSpreadChartProps = {
   fairValue: number
@@ -47,57 +48,59 @@ const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Toolti
 }
 
 export function ArbitrageSpreadChart({ fairValue, mcxPrice, premium, profitAnalysis }: ArbitrageSpreadChartProps) {
+  const t = useTranslations('arbitrage.spreadChart')
+
   const priceData = [
     {
-      name: 'Fair Value',
+      name: t('fairValue'),
       value: fairValue,
       fill: 'url(#colorFair)',
-      description: 'COMEX + Duty + Costs'
+      description: t('fairValueDesc')
     },
     {
-      name: 'MCX Price',
+      name: t('mcxPrice'),
       value: mcxPrice,
       fill: 'url(#colorMCX)',
-      description: 'Current Market Price'
+      description: t('mcxPriceDesc')
     },
     {
-      name: premium > 0 ? 'Premium' : 'Discount',
+      name: premium > 0 ? t('premium') : t('discount'),
       value: Math.abs(premium),
       fill: premium > 0 ? 'url(#colorProfit)' : 'url(#colorLoss)',
-      description: premium > 0 ? 'Arbitrage Opportunity' : 'No Opportunity'
+      description: premium > 0 ? t('arbitrageOpportunity') : t('noOpportunity')
     },
   ]
 
   const profitData = [
     {
-      name: 'Gross\nProfit',
+      name: t('grossProfit'),
       value: profitAnalysis.gross_profit,
       fill: 'url(#colorProfit)',
-      description: 'Before costs'
+      description: t('beforeCosts')
     },
     {
-      name: 'Brokerage',
+      name: t('brokerage'),
       value: -profitAnalysis.brokerage,
       fill: '#ef4444',
-      description: 'Trading fees'
+      description: t('tradingFees')
     },
     {
-      name: 'Exchange\nFees',
+      name: t('exchangeFees'),
       value: -profitAnalysis.exchange_fees,
       fill: '#f97316',
-      description: 'Exchange charges'
+      description: t('exchangeCharges')
     },
     {
-      name: 'Tax',
+      name: t('tax'),
       value: -profitAnalysis.tax,
       fill: '#eab308',
-      description: 'GST & duties'
+      description: t('gstDuties')
     },
     {
-      name: 'Net\nProfit',
+      name: t('netProfit'),
       value: profitAnalysis.net_profit,
       fill: profitAnalysis.net_profit > 0 ? 'url(#colorNetProfit)' : 'url(#colorNetLoss)',
-      description: 'Final P&L'
+      description: t('finalPnl')
     },
   ]
 
@@ -109,14 +112,14 @@ export function ArbitrageSpreadChart({ fairValue, mcxPrice, premium, profitAnaly
       <StyledCard variant="blue">
         <StyledCardHeader
           icon={DollarSign}
-          title="Price Comparison"
-          description="Fair value vs MCX price analysis"
+          title={t('priceComparison')}
+          description={t('priceComparisonDesc')}
           variant="blue"
           action={
             premium > 0 ? (
               <div className="bg-green-100 text-green-800 px-4 py-2 rounded-xl font-semibold flex items-center gap-1 shadow-sm">
                 <TrendingUp className="h-5 w-5" />
-                Opportunity
+                {t('opportunity')}
               </div>
             ) : null
           }
@@ -174,8 +177,8 @@ export function ArbitrageSpreadChart({ fairValue, mcxPrice, premium, profitAnaly
       <StyledCard variant={isProfitable ? "green" : "pink"}>
         <StyledCardHeader
           icon={isProfitable ? TrendingUp : TrendingDown}
-          title="Profit Breakdown"
-          description="Detailed profit and cost analysis"
+          title={t('profitBreakdown')}
+          description={t('profitBreakdownDesc')}
           variant={isProfitable ? "green" : "pink"}
           action={
             <div className={`px-5 py-2.5 rounded-xl font-bold text-lg shadow-sm ${isProfitable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
@@ -229,15 +232,15 @@ export function ArbitrageSpreadChart({ fairValue, mcxPrice, premium, profitAnaly
           <div className="mt-6 flex justify-center gap-8 flex-wrap">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-gradient-to-b from-green-500 to-green-600 rounded"></div>
-              <span className="text-sm font-medium">Profit</span>
+              <span className="text-sm font-medium">{t('profit')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-red-500 rounded"></div>
-              <span className="text-sm font-medium">Costs</span>
+              <span className="text-sm font-medium">{t('costs')}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-gradient-to-b from-green-600 to-green-700 rounded"></div>
-              <span className="text-sm font-medium">Net Result</span>
+              <span className="text-sm font-medium">{t('netResult')}</span>
             </div>
           </div>
         </StyledCardContent>

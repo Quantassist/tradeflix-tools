@@ -3,6 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { formatNumber } from "@/lib/utils"
 import { Network, TrendingUp, TrendingDown } from "lucide-react"
+import { useTranslations } from 'next-intl'
 
 type CorrelationHeatmapProps = {
   matrix: Record<string, Record<string, number>>
@@ -10,6 +11,7 @@ type CorrelationHeatmapProps = {
 }
 
 export function CorrelationHeatmap({ matrix, assets }: CorrelationHeatmapProps) {
+  const t = useTranslations('correlation.heatmap')
   const getColor = (value: number) => {
     // Return gradient background based on correlation value
     if (value === 1) return 'bg-linear-to-br from-blue-500 to-blue-600 text-white' // Perfect correlation (self)
@@ -50,19 +52,19 @@ export function CorrelationHeatmap({ matrix, assets }: CorrelationHeatmapProps) 
           <div>
             <CardTitle className="text-2xl flex items-center gap-2">
               <Network className="h-6 w-6 text-blue-600" />
-              Correlation Heatmap
+              {t('title')}
             </CardTitle>
             <CardDescription className="text-base mt-1">
-              Visual representation of asset correlations
+              {t('description')}
             </CardDescription>
           </div>
           <div className="flex gap-4">
             <div className="bg-white px-4 py-2 rounded-lg border-2 border-blue-200">
-              <p className="text-xs text-muted-foreground">Avg Correlation</p>
+              <p className="text-xs text-muted-foreground">{t('avgCorrelation')}</p>
               <p className="text-xl font-bold text-blue-600">{avgCorrelation.toFixed(2)}</p>
             </div>
             <div className="bg-white px-4 py-2 rounded-lg border-2 border-green-200">
-              <p className="text-xs text-muted-foreground">Strong Links</p>
+              <p className="text-xs text-muted-foreground">{t('strongLinks')}</p>
               <p className="text-xl font-bold text-green-600">{strongCorrelations}</p>
             </div>
           </div>
@@ -108,7 +110,7 @@ export function CorrelationHeatmap({ matrix, assets }: CorrelationHeatmapProps) 
                           <div className="font-semibold">{asset1} ↔ {asset2}</div>
                           <div>Correlation: {formatNumber(value, 3)}</div>
                           <div className="text-yellow-300">
-                            {Math.abs(value) > 0.8 ? 'Very Strong' : Math.abs(value) > 0.5 ? 'Strong' : Math.abs(value) > 0.3 ? 'Moderate' : 'Weak'}
+                            {Math.abs(value) > 0.8 ? t('veryStrong') : Math.abs(value) > 0.5 ? t('strong') : Math.abs(value) > 0.3 ? t('moderateLabel') : t('weakLabel')}
                           </div>
                         </div>
                       </td>
@@ -122,40 +124,40 @@ export function CorrelationHeatmap({ matrix, assets }: CorrelationHeatmapProps) 
 
         {/* Enhanced Legend */}
         <div className="mt-6 space-y-4">
-          <h4 className="font-semibold text-sm text-gray-700">Correlation Strength Guide:</h4>
+          <h4 className="font-semibold text-sm text-gray-700">{t('correlationStrengthGuide')}</h4>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <div className="flex flex-col items-center gap-2 p-3 rounded-lg border-2 border-green-200 bg-green-50">
               <div className="w-12 h-12 bg-linear-to-br from-green-500 to-green-600 rounded-lg shadow-md"></div>
               <div className="text-center">
-                <div className="font-bold text-sm text-green-700">Strong +</div>
+                <div className="font-bold text-sm text-green-700">{t('strongPositive')}</div>
                 <div className="text-xs text-gray-600">&gt; 0.7</div>
               </div>
             </div>
             <div className="flex flex-col items-center gap-2 p-3 rounded-lg border-2 border-green-100 bg-green-25">
               <div className="w-12 h-12 bg-linear-to-br from-green-300 to-green-400 rounded-lg shadow-md"></div>
               <div className="text-center">
-                <div className="font-bold text-sm text-green-600">Moderate +</div>
+                <div className="font-bold text-sm text-green-600">{t('moderatePositive')}</div>
                 <div className="text-xs text-gray-600">0.3 to 0.7</div>
               </div>
             </div>
             <div className="flex flex-col items-center gap-2 p-3 rounded-lg border-2 border-gray-200 bg-gray-50">
               <div className="w-12 h-12 bg-linear-to-br from-gray-200 to-gray-300 rounded-lg shadow-md"></div>
               <div className="text-center">
-                <div className="font-bold text-sm text-gray-700">Weak</div>
+                <div className="font-bold text-sm text-gray-700">{t('weak')}</div>
                 <div className="text-xs text-gray-600">-0.3 to 0.3</div>
               </div>
             </div>
             <div className="flex flex-col items-center gap-2 p-3 rounded-lg border-2 border-red-100 bg-red-25">
               <div className="w-12 h-12 bg-linear-to-br from-red-300 to-red-400 rounded-lg shadow-md"></div>
               <div className="text-center">
-                <div className="font-bold text-sm text-red-600">Moderate -</div>
+                <div className="font-bold text-sm text-red-600">{t('moderateNegative')}</div>
                 <div className="text-xs text-gray-600">-0.7 to -0.3</div>
               </div>
             </div>
             <div className="flex flex-col items-center gap-2 p-3 rounded-lg border-2 border-red-200 bg-red-50">
               <div className="w-12 h-12 bg-linear-to-br from-red-500 to-red-600 rounded-lg shadow-md"></div>
               <div className="text-center">
-                <div className="font-bold text-sm text-red-700">Strong -</div>
+                <div className="font-bold text-sm text-red-700">{t('strongNegative')}</div>
                 <div className="text-xs text-gray-600">&lt; -0.7</div>
               </div>
             </div>
@@ -165,13 +167,13 @@ export function CorrelationHeatmap({ matrix, assets }: CorrelationHeatmapProps) 
           <div className="mt-4 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
             <h5 className="font-semibold text-sm text-blue-900 mb-2 flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
-              Key Insights:
+              {t('keyInsights')}
             </h5>
             <ul className="text-xs text-blue-800 space-y-1">
-              <li>• <strong>Positive correlation:</strong> Assets move in the same direction</li>
-              <li>• <strong>Negative correlation:</strong> Assets move in opposite directions</li>
-              <li>• <strong>Strong correlations (&gt;0.7):</strong> Highlighted with yellow border</li>
-              <li>• <strong>Diversification tip:</strong> Choose assets with low or negative correlation</li>
+              <li>• <strong>{t('positiveCorrelation')}</strong> {t('positiveCorrelationDesc')}</li>
+              <li>• <strong>{t('negativeCorrelation')}</strong> {t('negativeCorrelationDesc')}</li>
+              <li>• <strong>{t('strongCorrelations')}</strong> {t('strongCorrelationsDesc')}</li>
+              <li>• <strong>{t('diversificationTip')}</strong> {t('diversificationTipDesc')}</li>
             </ul>
           </div>
         </div>

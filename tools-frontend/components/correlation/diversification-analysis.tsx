@@ -10,6 +10,7 @@ import { correlationApi } from "@/lib/api/correlation"
 import type { DiversificationScore } from "@/types"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
+import { useTranslations } from 'next-intl'
 
 const AVAILABLE_ASSETS = [
     { value: "GOLD", label: "Gold" },
@@ -23,6 +24,7 @@ const AVAILABLE_ASSETS = [
 ]
 
 export function DiversificationAnalysis() {
+    const t = useTranslations('correlation.diversificationAnalysis')
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState<DiversificationScore | null>(null)
     const [selectedAssets, setSelectedAssets] = useState<string[]>(["GOLD", "SILVER", "CRUDE"])
@@ -115,15 +117,15 @@ export function DiversificationAnalysis() {
         <StyledCard variant="pink">
             <StyledCardHeader
                 icon={PieChart}
-                title="Portfolio Diversification Analysis"
-                description="Analyze how well your portfolio assets are diversified"
+                title={t('title')}
+                description={t('description')}
                 variant="pink"
             />
             <StyledCardContent>
                 {/* Asset Selection Section */}
                 <div className="p-4 bg-slate-50 rounded-xl border mb-6">
                     <div className="flex flex-wrap items-center gap-2 mb-3">
-                        <span className="text-sm font-medium text-slate-600">Selected Assets:</span>
+                        <span className="text-sm font-medium text-slate-600">{t('selectedAssets')}</span>
                         {selectedAssets.map((asset) => (
                             <Badge
                                 key={asset}
@@ -137,7 +139,7 @@ export function DiversificationAnalysis() {
                     <div className="flex items-center gap-3">
                         <Select value={newAsset} onValueChange={handleAddAsset}>
                             <SelectTrigger className="w-40 bg-white border-rose-200">
-                                <SelectValue placeholder="+ Add Asset" />
+                                <SelectValue placeholder={t('addAsset')} />
                             </SelectTrigger>
                             <SelectContent>
                                 {AVAILABLE_ASSETS.filter((a) => !selectedAssets.includes(a.value)).map((a) => (
@@ -150,11 +152,11 @@ export function DiversificationAnalysis() {
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="30">30 days</SelectItem>
-                                <SelectItem value="60">60 days</SelectItem>
-                                <SelectItem value="90">90 days</SelectItem>
-                                <SelectItem value="180">180 days</SelectItem>
-                                <SelectItem value="365">1 year</SelectItem>
+                                <SelectItem value="30">{t('days30')}</SelectItem>
+                                <SelectItem value="60">{t('days60')}</SelectItem>
+                                <SelectItem value="90">{t('days90')}</SelectItem>
+                                <SelectItem value="180">{t('days180')}</SelectItem>
+                                <SelectItem value="365">{t('year1')}</SelectItem>
                             </SelectContent>
                         </Select>
                         <Button
@@ -166,7 +168,7 @@ export function DiversificationAnalysis() {
                                 <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (
                                 <span className="flex items-center gap-2">
-                                    Analyze <ArrowRight className="h-4 w-4" />
+                                    {t('analyze')} <ArrowRight className="h-4 w-4" />
                                 </span>
                             )}
                         </Button>
@@ -185,7 +187,7 @@ export function DiversificationAnalysis() {
                                         <span className={`text-4xl font-bold ${getScoreColor(result.diversification_score)}`}>
                                             {formatNumber(result.diversification_score, 0)}
                                         </span>
-                                        <span className="text-sm text-muted-foreground">out of 100</span>
+                                        <span className="text-sm text-muted-foreground">{t('outOf100')}</span>
                                     </div>
                                 </div>
                                 <Badge className={`absolute -bottom-3 left-1/2 -translate-x-1/2 px-4 py-1.5 text-sm font-semibold ${getRatingColor(result.rating)}`}>
@@ -203,41 +205,41 @@ export function DiversificationAnalysis() {
                                     ) : (
                                         <TrendingDown className="h-4 w-4 text-green-500" />
                                     )}
-                                    <span className="text-xs font-semibold text-slate-500 uppercase">Avg Correlation</span>
+                                    <span className="text-xs font-semibold text-slate-500 uppercase">{t('avgCorrelation')}</span>
                                 </div>
                                 <p className={`text-2xl font-bold ${result.avg_correlation > 0.5 ? 'text-red-600' : 'text-green-600'}`}>
                                     {formatNumber(result.avg_correlation, 3)}
                                 </p>
                                 <p className="text-xs text-slate-500 mt-1">
-                                    {result.avg_correlation > 0.5 ? "High - Less diverse" : "Low - Well diverse"}
+                                    {result.avg_correlation > 0.5 ? t('highLessDiverse') : t('lowWellDiverse')}
                                 </p>
                             </div>
                             <div className="p-4 rounded-xl border-2 bg-white text-center hover:shadow-md transition-shadow">
                                 <div className="flex items-center justify-center gap-2 mb-2">
                                     <TrendingUp className="h-4 w-4 text-slate-400" />
-                                    <span className="text-xs font-semibold text-slate-500 uppercase">Max Correlation</span>
+                                    <span className="text-xs font-semibold text-slate-500 uppercase">{t('maxCorrelation')}</span>
                                 </div>
                                 <p className={`text-2xl font-bold ${result.max_correlation > 0.7 ? 'text-red-600' : 'text-blue-600'}`}>
                                     {formatNumber(result.max_correlation, 3)}
                                 </p>
-                                <p className="text-xs text-slate-500 mt-1">Highest pair correlation</p>
+                                <p className="text-xs text-slate-500 mt-1">{t('highestPairCorrelation')}</p>
                             </div>
                             <div className="p-4 rounded-xl border-2 bg-white text-center hover:shadow-md transition-shadow">
                                 <div className="flex items-center justify-center gap-2 mb-2">
                                     <TrendingDown className="h-4 w-4 text-green-500" />
-                                    <span className="text-xs font-semibold text-slate-500 uppercase">Min Correlation</span>
+                                    <span className="text-xs font-semibold text-slate-500 uppercase">{t('minCorrelation')}</span>
                                 </div>
                                 <p className="text-2xl font-bold text-green-600">
                                     {formatNumber(result.min_correlation, 3)}
                                 </p>
-                                <p className="text-xs text-slate-500 mt-1">Lowest pair correlation</p>
+                                <p className="text-xs text-slate-500 mt-1">{t('lowestPairCorrelation')}</p>
                             </div>
                         </div>
 
                         {/* Recommendations */}
                         <div className="space-y-3">
                             <h4 className="font-semibold text-slate-700 flex items-center gap-2">
-                                <Info className="h-4 w-4" /> Recommendations
+                                <Info className="h-4 w-4" /> {t('recommendations')}
                             </h4>
                             {result.recommendations.slice(0, 3).map((rec, index) => (
                                 <div
@@ -265,8 +267,8 @@ export function DiversificationAnalysis() {
                                     <PieChart className="h-5 w-5 text-rose-600" />
                                 </div>
                                 <div className="text-sm text-rose-800">
-                                    <p className="font-semibold">Portfolio Summary</p>
-                                    <p><strong>Assets:</strong> {result.portfolio_assets.join(", ")} | <strong>Score:</strong> {formatNumber(result.diversification_score, 0)}/100 | <strong>Risk Level:</strong> {result.avg_correlation > 0.6 ? "High" : result.avg_correlation > 0.3 ? "Moderate" : "Low"}</p>
+                                    <p className="font-semibold">{t('portfolioSummary')}</p>
+                                    <p><strong>{t('assets')}</strong> {result.portfolio_assets.join(", ")} | <strong>{t('score')}</strong> {formatNumber(result.diversification_score, 0)}/100 | <strong>{t('riskLevel')}</strong> {result.avg_correlation > 0.6 ? t('high') : result.avg_correlation > 0.3 ? t('moderate') : t('low')}</p>
                                 </div>
                             </div>
                         </div>
@@ -277,8 +279,8 @@ export function DiversificationAnalysis() {
                             <div className="p-4 bg-rose-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                                 <Shield className="h-8 w-8 text-rose-600" />
                             </div>
-                            <p className="text-lg font-medium">Analyze Diversification</p>
-                            <p className="text-sm mt-1">Add assets and click Analyze to check portfolio health</p>
+                            <p className="text-lg font-medium">{t('analyzeDiversification')}</p>
+                            <p className="text-sm mt-1">{t('addAssetsAnalyze')}</p>
                         </div>
                     </div>
                 )}

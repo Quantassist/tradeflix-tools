@@ -11,6 +11,7 @@ import { correlationApi } from "@/lib/api/correlation"
 import type { MultiPeriodCorrelationResponse } from "@/types"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
+import { useTranslations } from 'next-intl'
 
 const AVAILABLE_ASSETS = [
     { value: "GOLD", label: "Gold" },
@@ -24,6 +25,7 @@ const AVAILABLE_ASSETS = [
 ]
 
 export function MultiPeriodComparison() {
+    const t = useTranslations('correlation.multiPeriodComparison')
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState<MultiPeriodCorrelationResponse | null>(null)
     const [asset1, setAsset1] = useState("GOLD")
@@ -88,16 +90,16 @@ export function MultiPeriodComparison() {
     }
 
     const getTrendBadge = (trend: string) => {
-        if (trend === "strengthening") return <Badge className="bg-green-100 text-green-700">Strengthening</Badge>
-        if (trend === "weakening") return <Badge className="bg-red-100 text-red-700">Weakening</Badge>
-        return <Badge className="bg-gray-100 text-gray-700">Stable</Badge>
+        if (trend === "strengthening") return <Badge className="bg-green-100 text-green-700">{t('strengthening')}</Badge>
+        if (trend === "weakening") return <Badge className="bg-red-100 text-red-700">{t('weakening')}</Badge>
+        return <Badge className="bg-gray-100 text-gray-700">{t('stable')}</Badge>
     }
 
     const getPeriodLabel = (days: number) => {
-        if (days === 30) return "30 Days"
-        if (days === 90) return "90 Days"
-        if (days === 180) return "6 Months"
-        if (days === 365) return "1 Year"
+        if (days === 30) return t('days30')
+        if (days === 90) return t('days90')
+        if (days === 180) return t('months6')
+        if (days === 365) return t('year1')
         return `${days} Days`
     }
 
@@ -105,15 +107,15 @@ export function MultiPeriodComparison() {
         <StyledCard variant="indigo">
             <StyledCardHeader
                 icon={Clock}
-                title="Multi-Period Correlation Analysis"
-                description="Compare correlation across different time periods (30d, 90d, 6m, 1y)"
+                title={t('title')}
+                description={t('description')}
                 variant="indigo"
             />
             <StyledCardContent>
                 {/* Input Section */}
                 <div className="grid grid-cols-3 gap-4 mb-6">
                     <div className="space-y-2">
-                        <Label className="text-xs font-medium text-indigo-700">Asset 1</Label>
+                        <Label className="text-xs font-medium text-indigo-700">{t('asset1')}</Label>
                         <Select value={asset1} onValueChange={setAsset1}>
                             <SelectTrigger className="bg-white border-indigo-200">
                                 <SelectValue placeholder="Select asset" />
@@ -126,7 +128,7 @@ export function MultiPeriodComparison() {
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label className="text-xs font-medium text-violet-700">Asset 2</Label>
+                        <Label className="text-xs font-medium text-violet-700">{t('asset2')}</Label>
                         <Select value={asset2} onValueChange={setAsset2}>
                             <SelectTrigger className="bg-white border-violet-200">
                                 <SelectValue placeholder="Select asset" />
@@ -148,7 +150,7 @@ export function MultiPeriodComparison() {
                                 <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (
                                 <span className="flex items-center gap-2">
-                                    Compare <ArrowRight className="h-4 w-4" />
+                                    {t('compare')} <ArrowRight className="h-4 w-4" />
                                 </span>
                             )}
                         </Button>
@@ -213,7 +215,7 @@ export function MultiPeriodComparison() {
                             <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-3">
                                     {getTrendIcon(result.trend)}
-                                    <span className="text-lg font-semibold">Trend Analysis</span>
+                                    <span className="text-lg font-semibold">{t('trendAnalysis')}</span>
                                 </div>
                                 {getTrendBadge(result.trend)}
                             </div>
@@ -225,10 +227,10 @@ export function MultiPeriodComparison() {
                             <table className="w-full">
                                 <thead className="bg-slate-50">
                                     <tr>
-                                        <th className="text-left py-3 px-4 text-xs font-semibold text-slate-600 uppercase">Period</th>
-                                        <th className="text-center py-3 px-4 text-xs font-semibold text-slate-600 uppercase">Correlation</th>
-                                        <th className="text-center py-3 px-4 text-xs font-semibold text-slate-600 uppercase">Strength</th>
-                                        <th className="text-right py-3 px-4 text-xs font-semibold text-slate-600 uppercase">Date Range</th>
+                                        <th className="text-left py-3 px-4 text-xs font-semibold text-slate-600 uppercase">{t('period')}</th>
+                                        <th className="text-center py-3 px-4 text-xs font-semibold text-slate-600 uppercase">{t('correlation')}</th>
+                                        <th className="text-center py-3 px-4 text-xs font-semibold text-slate-600 uppercase">{t('strength')}</th>
+                                        <th className="text-right py-3 px-4 text-xs font-semibold text-slate-600 uppercase">{t('dateRange')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -264,10 +266,10 @@ export function MultiPeriodComparison() {
                             <div className="flex items-start gap-3">
                                 <Info className="h-5 w-5 text-blue-600 shrink-0" />
                                 <div className="text-sm text-blue-800">
-                                    <p className="font-medium mb-1">Key Insights</p>
-                                    <p><strong>Short-term (30d):</strong> {formatNumber(result.periods[0]?.correlation ?? 0, 3)} | <strong>Long-term (1y):</strong> {formatNumber(result.periods[result.periods.length - 1]?.correlation ?? 0, 3)}</p>
+                                    <p className="font-medium mb-1">{t('keyInsights')}</p>
+                                    <p><strong>{t('shortTerm')}</strong> {formatNumber(result.periods[0]?.correlation ?? 0, 3)} | <strong>{t('longTerm')}</strong> {formatNumber(result.periods[result.periods.length - 1]?.correlation ?? 0, 3)}</p>
                                     {result.trend !== "stable" && (
-                                        <p className="mt-1 text-xs">{result.trend === "strengthening" ? "⚠️ Relationship stronger than historical norm - may revert to mean" : "⚠️ Relationship weaker than historical norm - watch for regime change"}</p>
+                                        <p className="mt-1 text-xs">⚠️ {result.trend === "strengthening" ? t('strongerThanNorm') : t('weakerThanNorm')}</p>
                                     )}
                                 </div>
                             </div>
@@ -279,8 +281,8 @@ export function MultiPeriodComparison() {
                             <div className="p-4 bg-indigo-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                                 <Clock className="h-8 w-8 text-indigo-600" />
                             </div>
-                            <p className="text-lg font-medium">Compare Time Periods</p>
-                            <p className="text-sm mt-1">Select two assets and click Compare to analyze</p>
+                            <p className="text-lg font-medium">{t('compareTimePeriods')}</p>
+                            <p className="text-sm mt-1">{t('selectAssetsCompare')}</p>
                         </div>
                     </div>
                 )}

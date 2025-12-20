@@ -123,7 +123,7 @@ export default function CorrelationMatrixPage() {
             </div>
           </div>
           <p className="text-white/90 text-lg max-w-2xl">
-            Analyze correlation between multiple assets to build a well-diversified portfolio
+            {t('headerDescription')}
           </p>
         </div>
         <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
@@ -142,19 +142,19 @@ export default function CorrelationMatrixPage() {
                   </div>
                   <div className="text-left">
                     <div className="font-semibold text-foreground flex items-center gap-2">
-                      Understanding Correlation Analysis
+                      {t('understandingCorrelation')}
                       <Badge variant="outline" className="text-xs bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 border-violet-300 dark:border-violet-700">
-                        Guide
+                        {t('guide')}
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      Learn how correlation values help build diversified portfolios
+                      {t('learnCorrelation')}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-violet-600 dark:text-violet-400 group-hover:text-violet-700 dark:group-hover:text-violet-300 transition-colors">
-                    {guideOpen ? "Hide Guide" : "Show Guide"}
+                    {guideOpen ? t('hideGuide') : t('showGuide')}
                   </span>
                   <ChevronDown className={`h-5 w-5 text-violet-600 dark:text-violet-400 transition-transform duration-300 ${guideOpen ? "rotate-180" : ""}`} />
                 </div>
@@ -172,10 +172,10 @@ export default function CorrelationMatrixPage() {
                     <div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/50">
                       <ArrowUpDown className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                     </div>
-                    +1 Correlation
+                    {t('positiveCorrelation')}
                   </div>
                   <p className="text-sm text-emerald-700 dark:text-emerald-400 leading-relaxed">
-                    Perfect positive - assets move together in the same direction.
+                    {t('positiveCorrelationDesc')}
                   </p>
                 </div>
               </div>
@@ -186,10 +186,10 @@ export default function CorrelationMatrixPage() {
                     <div className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800">
                       <GitBranch className="h-4 w-4 text-slate-600 dark:text-slate-400" />
                     </div>
-                    0 Correlation
+                    {t('zeroCorrelation')}
                   </div>
                   <p className="text-sm text-slate-700 dark:text-slate-400 leading-relaxed">
-                    No relationship - assets move independently of each other.
+                    {t('zeroCorrelationDesc')}
                   </p>
                 </div>
               </div>
@@ -200,10 +200,10 @@ export default function CorrelationMatrixPage() {
                     <div className="p-1.5 rounded-lg bg-red-100 dark:bg-red-900/50">
                       <ArrowUpDown className="h-4 w-4 text-red-600 dark:text-red-400 rotate-90" />
                     </div>
-                    -1 Correlation
+                    {t('negativeCorrelation')}
                   </div>
                   <p className="text-sm text-red-700 dark:text-red-400 leading-relaxed">
-                    Perfect negative - assets move in opposite directions.
+                    {t('negativeCorrelationDesc')}
                   </p>
                 </div>
               </div>
@@ -214,10 +214,10 @@ export default function CorrelationMatrixPage() {
                     <div className="p-1.5 rounded-lg bg-violet-100 dark:bg-violet-900/50">
                       <Scale className="h-4 w-4 text-violet-600 dark:text-violet-400" />
                     </div>
-                    Diversification
+                    {t('diversification')}
                   </div>
                   <p className="text-sm text-violet-700 dark:text-violet-400 leading-relaxed">
-                    Low correlation between assets provides better risk reduction.
+                    {t('diversificationDesc')}
                   </p>
                 </div>
               </div>
@@ -231,17 +231,17 @@ export default function CorrelationMatrixPage() {
         <StyledCard variant="purple">
           <StyledCardHeader
             icon={Info}
-            title="Input Parameters"
-            description="Enter assets and time period"
+            title={t('inputParameters')}
+            description={t('inputDescription')}
             variant="purple"
           />
           <StyledCardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Assets Group */}
               <div className="p-4 rounded-xl bg-slate-50 border space-y-3">
-                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">Assets</div>
+                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">{t('assets')}</div>
                 <div className="space-y-1">
-                  <Label htmlFor="assets" className="text-xs text-purple-600 font-medium">Assets (comma-separated)</Label>
+                  <Label htmlFor="assets" className="text-xs text-purple-600 font-medium">{t('assetsLabel')}</Label>
                   <Input
                     id="assets"
                     placeholder="GOLD,SILVER,CRUDE,USDINR"
@@ -251,16 +251,16 @@ export default function CorrelationMatrixPage() {
                     className="bg-white border-purple-200 focus:border-purple-400"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Enter 2-5 asset symbols separated by commas
+                    {t('assetsHint')}
                   </p>
                 </div>
               </div>
 
               {/* Parameters Group */}
               <div className="p-4 rounded-xl bg-slate-50 border space-y-3">
-                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">Parameters</div>
+                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">{t('parametersLabel')}</div>
                 <div className="space-y-1">
-                  <Label htmlFor="period" className="text-xs text-violet-600 font-medium">Period (days)</Label>
+                  <Label htmlFor="period" className="text-xs text-violet-600 font-medium">{t('periodLabel')}</Label>
                   <Input
                     id="period"
                     type="number"
@@ -281,11 +281,11 @@ export default function CorrelationMatrixPage() {
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Analyzing Correlations...
+                    {t('analyzingCorrelations')}
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    Calculate Correlation
+                    {t('calculateCorrelation')}
                     <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </span>
                 )}
@@ -298,8 +298,8 @@ export default function CorrelationMatrixPage() {
         <StyledCard variant="pink">
           <StyledCardHeader
             icon={Sparkles}
-            title="Correlation Matrix"
-            description={result ? `${result.assets.length} assets analyzed` : "Results will appear here after calculation"}
+            title={t('correlationMatrix')}
+            description={result ? `${result.assets.length} ${t('assetsAnalyzed')}` : t('resultsDescription')}
             variant="pink"
           />
           <StyledCardContent>
@@ -341,11 +341,11 @@ export default function CorrelationMatrixPage() {
 
                 {/* Legend */}
                 <div className="flex flex-wrap gap-2 text-xs">
-                  <Badge variant="outline" className="bg-green-100">Strong Positive (&gt;0.7)</Badge>
-                  <Badge variant="outline" className="bg-blue-100">Moderate (0.3-0.7)</Badge>
-                  <Badge variant="outline" className="bg-gray-100">Weak (-0.3 to 0.3)</Badge>
-                  <Badge variant="outline" className="bg-orange-100">Moderate Negative (-0.7 to -0.3)</Badge>
-                  <Badge variant="outline" className="bg-red-100">Strong Negative (&lt;-0.7)</Badge>
+                  <Badge variant="outline" className="bg-green-100">{t('strongPositive')}</Badge>
+                  <Badge variant="outline" className="bg-blue-100">{t('moderate')}</Badge>
+                  <Badge variant="outline" className="bg-gray-100">{t('weak')}</Badge>
+                  <Badge variant="outline" className="bg-orange-100">{t('moderateNegative')}</Badge>
+                  <Badge variant="outline" className="bg-red-100">{t('strongNegative')}</Badge>
                 </div>
               </div>
             ) : (
@@ -354,8 +354,8 @@ export default function CorrelationMatrixPage() {
                   <div className="p-4 bg-linear-to-br from-violet-100 to-fuchsia-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
                     <AlertCircle className="h-10 w-10 text-violet-600" />
                   </div>
-                  <p className="text-lg font-medium">Enter assets and calculate</p>
-                  <p className="text-sm mt-1">to see correlation matrix</p>
+                  <p className="text-lg font-medium">{t('enterAssetsCalculate')}</p>
+                  <p className="text-sm mt-1">{t('toSeeMatrix')}</p>
                 </div>
               </div>
             )}
@@ -380,7 +380,7 @@ export default function CorrelationMatrixPage() {
           >
             <div className="flex items-center gap-2">
               <Activity className="h-4 w-4" />
-              <span className="hidden sm:inline">Rolling</span>
+              <span className="hidden sm:inline">{t('rolling')}</span>
             </div>
           </TabsTrigger>
           <TabsTrigger
@@ -389,7 +389,7 @@ export default function CorrelationMatrixPage() {
           >
             <div className="flex items-center gap-2">
               <Calculator className="h-4 w-4" />
-              <span className="hidden sm:inline">Beta</span>
+              <span className="hidden sm:inline">{t('beta')}</span>
             </div>
           </TabsTrigger>
           <TabsTrigger
@@ -398,7 +398,7 @@ export default function CorrelationMatrixPage() {
           >
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
-              <span className="hidden sm:inline">Multi-Period</span>
+              <span className="hidden sm:inline">{t('multiPeriod')}</span>
             </div>
           </TabsTrigger>
           <TabsTrigger
@@ -407,7 +407,7 @@ export default function CorrelationMatrixPage() {
           >
             <div className="flex items-center gap-2">
               <PieChart className="h-4 w-4" />
-              <span className="hidden sm:inline">Diversification</span>
+              <span className="hidden sm:inline">{t('diversificationTab')}</span>
             </div>
           </TabsTrigger>
           <TabsTrigger
@@ -416,7 +416,7 @@ export default function CorrelationMatrixPage() {
           >
             <div className="flex items-center gap-2">
               <Zap className="h-4 w-4" />
-              <span className="hidden sm:inline">Signals</span>
+              <span className="hidden sm:inline">{t('signals')}</span>
             </div>
           </TabsTrigger>
         </TabsList>
@@ -463,6 +463,7 @@ function RollingCorrelationSection({
   rollingLoading: boolean
   setRollingLoading: (loading: boolean) => void
 }) {
+  const t = useTranslations('correlation')
   const [asset1, setAsset1] = useState("GOLD")
   const [asset2, setAsset2] = useState("USDINR")
   const [windowDays, setWindowDays] = useState("30")
@@ -497,14 +498,14 @@ function RollingCorrelationSection({
       <StyledCard variant="purple">
         <StyledCardHeader
           icon={Activity}
-          title="Rolling Correlation Analysis"
-          description="Track how correlation changes over time between two assets"
+          title={t('rollingCorrelationAnalysis')}
+          description={t('rollingDescription')}
           variant="purple"
         />
         <StyledCardContent>
           <div className="grid md:grid-cols-5 gap-4">
             <div className="space-y-2">
-              <Label className="text-xs text-purple-600 font-medium">Asset 1</Label>
+              <Label className="text-xs text-purple-600 font-medium">{t('asset1')}</Label>
               <Select value={asset1} onValueChange={setAsset1}>
                 <SelectTrigger className="bg-white border-purple-200 focus:border-purple-400">
                   <SelectValue>
@@ -519,7 +520,7 @@ function RollingCorrelationSection({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs text-violet-600 font-medium">Asset 2</Label>
+              <Label className="text-xs text-violet-600 font-medium">{t('asset2')}</Label>
               <Select value={asset2} onValueChange={setAsset2}>
                 <SelectTrigger className="bg-white border-violet-200 focus:border-violet-400">
                   <SelectValue>
@@ -534,7 +535,7 @@ function RollingCorrelationSection({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs text-slate-600 font-medium">Window (days)</Label>
+              <Label className="text-xs text-slate-600 font-medium">{t('windowDays')}</Label>
               <Input
                 type="number"
                 value={windowDays}
@@ -544,7 +545,7 @@ function RollingCorrelationSection({
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs text-slate-600 font-medium">Period (days)</Label>
+              <Label className="text-xs text-slate-600 font-medium">{t('periodDays')}</Label>
               <Input
                 type="number"
                 value={periodDays}
@@ -563,7 +564,7 @@ function RollingCorrelationSection({
                   <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <span className="flex items-center gap-2">
-                    Calculate
+                    {t('calculate')}
                     <ArrowRight className="h-4 w-4" />
                   </span>
                 )}

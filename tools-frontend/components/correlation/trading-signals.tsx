@@ -24,6 +24,7 @@ import { correlationApi } from "@/lib/api/correlation"
 import type { TradingSignalsResponse } from "@/types"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
+import { useTranslations } from 'next-intl'
 
 const AVAILABLE_ASSETS = [
     { value: "GOLD", label: "Gold" },
@@ -37,6 +38,7 @@ const AVAILABLE_ASSETS = [
 ]
 
 export function TradingSignals() {
+    const t = useTranslations('correlation.tradingSignals')
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState<TradingSignalsResponse | null>(null)
     const [asset1, setAsset1] = useState("GOLD")
@@ -118,17 +120,17 @@ export function TradingSignals() {
             <CardHeader className="pb-4 bg-amber-50/50">
                 <CardTitle className="text-lg flex items-center gap-2">
                     <Zap className="h-5 w-5 text-amber-600" />
-                    Correlation-Based Trading Signals
+                    {t('title')}
                 </CardTitle>
                 <CardDescription>
-                    Generate trading signals based on divergence, lead-lag, and correlation analysis
+                    {t('description')}
                 </CardDescription>
             </CardHeader>
             <CardContent className="pt-4">
                 {/* Input Section */}
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                     <div className="space-y-1">
-                        <Label className="text-xs font-medium text-amber-700">Asset 1</Label>
+                        <Label className="text-xs font-medium text-amber-700">{t('asset1')}</Label>
                         <Select value={asset1} onValueChange={setAsset1}>
                             <SelectTrigger className="bg-white border-amber-200">
                                 <SelectValue placeholder="Select" />
@@ -141,7 +143,7 @@ export function TradingSignals() {
                         </Select>
                     </div>
                     <div className="space-y-1">
-                        <Label className="text-xs font-medium text-orange-700">Asset 2</Label>
+                        <Label className="text-xs font-medium text-orange-700">{t('asset2')}</Label>
                         <Select value={asset2} onValueChange={setAsset2}>
                             <SelectTrigger className="bg-white border-orange-200">
                                 <SelectValue placeholder="Select" />
@@ -154,11 +156,11 @@ export function TradingSignals() {
                         </Select>
                     </div>
                     <div className="space-y-1">
-                        <Label className="text-xs font-medium text-slate-600">History (days)</Label>
+                        <Label className="text-xs font-medium text-slate-600">{t('historyDays')}</Label>
                         <Input type="number" value={periodDays} onChange={(e) => setPeriodDays(e.target.value)} className="bg-white" />
                     </div>
                     <div className="space-y-1">
-                        <Label className="text-xs font-medium text-slate-600">Lookback (days)</Label>
+                        <Label className="text-xs font-medium text-slate-600">{t('lookbackDays')}</Label>
                         <Input type="number" value={lookbackDays} onChange={(e) => setLookbackDays(e.target.value)} className="bg-white" />
                     </div>
                     <div className="flex items-end">
@@ -166,7 +168,7 @@ export function TradingSignals() {
                             {loading ? (
                                 <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (
-                                <span className="flex items-center gap-2">Generate <ArrowRight className="h-4 w-4" /></span>
+                                <span className="flex items-center gap-2">{t('generate')} <ArrowRight className="h-4 w-4" /></span>
                             )}
                         </Button>
                     </div>
@@ -190,9 +192,9 @@ export function TradingSignals() {
                                 <div className="text-right">
                                     <div className="flex items-center gap-2 mb-1">
                                         <div className={`w-3 h-3 rounded-full ${getConfidenceColor(result.confidence)}`} />
-                                        <span className="font-semibold capitalize">{result.confidence} confidence</span>
+                                        <span className="font-semibold capitalize">{result.confidence} {t('confidence')}</span>
                                     </div>
-                                    <span className="text-sm opacity-75">{result.signal_count} signal(s) detected</span>
+                                    <span className="text-sm opacity-75">{result.signal_count} {t('signalsDetected')}</span>
                                 </div>
                             </div>
                         </div>
@@ -200,22 +202,22 @@ export function TradingSignals() {
                         {/* Metrics Grid */}
                         <div className="grid grid-cols-4 gap-4">
                             <div className="p-4 rounded-xl border-2 bg-blue-50 border-blue-200 text-center">
-                                <p className="text-xs text-blue-600 uppercase font-medium mb-1">Correlation</p>
+                                <p className="text-xs text-blue-600 uppercase font-medium mb-1">{t('correlation')}</p>
                                 <p className="text-2xl font-bold text-blue-700">{formatNumber(result.correlation, 3)}</p>
                             </div>
                             <div className="p-4 rounded-xl border-2 bg-purple-50 border-purple-200 text-center">
-                                <p className="text-xs text-purple-600 uppercase font-medium mb-1">Beta</p>
+                                <p className="text-xs text-purple-600 uppercase font-medium mb-1">{t('beta')}</p>
                                 <p className="text-2xl font-bold text-purple-700">{formatNumber(result.beta, 3)}</p>
                             </div>
                             <div className="p-4 rounded-xl border-2 bg-amber-50 border-amber-200 text-center">
-                                <p className="text-xs text-amber-600 uppercase font-medium mb-1">Z-Score</p>
+                                <p className="text-xs text-amber-600 uppercase font-medium mb-1">{t('zScore')}</p>
                                 <p className="text-2xl font-bold text-amber-700">{formatNumber(result.divergence.z_score, 2)}</p>
                             </div>
                             <div className={`p-4 rounded-xl border-2 text-center ${result.divergence.has_divergence ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'}`}>
-                                <p className="text-xs uppercase font-medium mb-1">Divergence</p>
+                                <p className="text-xs uppercase font-medium mb-1">{t('divergence')}</p>
                                 <div className="flex items-center justify-center gap-2">
                                     {result.divergence.has_divergence ? <XCircle className="h-6 w-6 text-red-600" /> : <CheckCircle className="h-6 w-6 text-green-600" />}
-                                    <span className="text-xl font-bold">{result.divergence.has_divergence ? "Yes" : "No"}</span>
+                                    <span className="text-xl font-bold">{result.divergence.has_divergence ? t('yes') : t('no')}</span>
                                 </div>
                             </div>
                         </div>
@@ -224,19 +226,19 @@ export function TradingSignals() {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-xl">
                                 <h5 className="font-semibold text-amber-900 mb-3 flex items-center gap-2">
-                                    <AlertTriangle className="h-4 w-4" /> Divergence Analysis
+                                    <AlertTriangle className="h-4 w-4" /> {t('divergenceAnalysis')}
                                 </h5>
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-sm text-amber-700">Expected Move:</span>
+                                        <span className="text-sm text-amber-700">{t('expectedMove')}</span>
                                         <span className="font-bold">{formatNumber(result.divergence.expected_move, 2)}%</span>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-sm text-amber-700">Actual Move:</span>
+                                        <span className="text-sm text-amber-700">{t('actualMove')}</span>
                                         <span className="font-bold">{formatNumber(result.divergence.actual_move, 2)}%</span>
                                     </div>
                                     <div className="flex justify-between items-center pt-2 border-t border-amber-200">
-                                        <span className="text-sm text-amber-700">Difference:</span>
+                                        <span className="text-sm text-amber-700">{t('difference')}</span>
                                         <span className={`font-bold ${result.divergence.divergence_pct > 0 ? 'text-green-600' : 'text-red-600'}`}>
                                             {result.divergence.divergence_pct > 0 ? '+' : ''}{formatNumber(result.divergence.divergence_pct, 2)}%
                                         </span>
@@ -245,19 +247,19 @@ export function TradingSignals() {
                             </div>
                             <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-xl">
                                 <h5 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                                    <Clock className="h-4 w-4" /> Lead-Lag Analysis
+                                    <Clock className="h-4 w-4" /> {t('leadLagAnalysis')}
                                 </h5>
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-sm text-blue-700">Leading Asset:</span>
+                                        <span className="text-sm text-blue-700">{t('leadingAsset')}</span>
                                         <span className="font-bold uppercase">
                                             {result.lead_lag.leading_asset === "asset1" ? result.asset1 :
                                                 result.lead_lag.leading_asset === "asset2" ? result.asset2 : "N/A"}
                                         </span>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-sm text-blue-700">Lag Period:</span>
-                                        <span className="font-bold">{result.lead_lag.lag_periods} day(s)</span>
+                                        <span className="text-sm text-blue-700">{t('lagPeriod')}</span>
+                                        <span className="font-bold">{result.lead_lag.lag_periods} {t('days')}</span>
                                     </div>
                                     <div className="pt-2 border-t border-blue-200">
                                         <p className="text-xs text-blue-800">{result.lead_lag.interpretation}</p>
@@ -270,7 +272,7 @@ export function TradingSignals() {
                         {result.signals.length > 0 && (
                             <div className="space-y-3">
                                 <h4 className="font-semibold flex items-center gap-2">
-                                    <Zap className="h-4 w-4 text-amber-600" /> Active Signals ({result.signals.length})
+                                    <Zap className="h-4 w-4 text-amber-600" /> {t('activeSignals')} ({result.signals.length})
                                 </h4>
                                 {result.signals.map((signal, index) => (
                                     <div key={index} className="p-4 rounded-xl border-2 bg-white hover:shadow-md transition-shadow">
@@ -297,8 +299,8 @@ export function TradingSignals() {
                             <div className="p-4 bg-amber-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                                 <Zap className="h-8 w-8 text-amber-600" />
                             </div>
-                            <p className="text-lg font-medium">Generate Trading Signals</p>
-                            <p className="text-sm mt-1">Select assets and click Generate to analyze</p>
+                            <p className="text-lg font-medium">{t('generateTradingSignals')}</p>
+                            <p className="text-sm mt-1">{t('selectAssetsGenerate')}</p>
                         </div>
                     </div>
                 )}

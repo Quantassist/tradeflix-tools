@@ -269,22 +269,22 @@ export default function ArbitrageCalculatorPage() {
                 {autoFetchLoading ? (
                   <span className="flex items-center gap-2 text-purple-600">
                     <RefreshCw className="h-4 w-4 animate-spin" />
-                    Fetching Live Prices from COMEX & MCX...
+                    {t('fetchingPrices')}
                   </span>
                 ) : (
                   <span className="flex items-center gap-2 text-purple-600">
                     <RefreshCw className="h-4 w-4" />
-                    Auto-Fetch COMEX, MCX & USD/INR
+                    {t('autoFetch')}
                   </span>
                 )}
               </Button>
 
               {/* Price Data Group */}
               <div className="p-4 rounded-xl bg-slate-50 border space-y-3">
-                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">Price Data</div>
+                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">{t('priceData')}</div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label htmlFor="comex_price_usd" className="text-xs text-blue-600 font-medium">COMEX ($/oz)</Label>
+                    <Label htmlFor="comex_price_usd" className="text-xs text-blue-600 font-medium">{t('comexLabel')}</Label>
                     <Input
                       id="comex_price_usd"
                       type="number"
@@ -299,7 +299,7 @@ export default function ArbitrageCalculatorPage() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label htmlFor="mcx_price_inr" className="text-xs text-purple-600 font-medium">MCX (₹/10g)</Label>
+                    <Label htmlFor="mcx_price_inr" className="text-xs text-purple-600 font-medium">{t('mcxLabel')}</Label>
                     <Input
                       id="mcx_price_inr"
                       type="number"
@@ -315,7 +315,7 @@ export default function ArbitrageCalculatorPage() {
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="usdinr_rate" className="text-xs text-green-600 font-medium">USD/INR Rate</Label>
+                  <Label htmlFor="usdinr_rate" className="text-xs text-green-600 font-medium">{t('usdinrLabel')}</Label>
                   <Input
                     id="usdinr_rate"
                     type="number"
@@ -333,10 +333,10 @@ export default function ArbitrageCalculatorPage() {
 
               {/* Parameters Group */}
               <div className="p-4 rounded-xl bg-slate-50 border space-y-3">
-                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">Parameters</div>
+                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">{t('parameters')}</div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label htmlFor="import_duty_percent" className="text-xs text-orange-600 font-medium">Import Duty (%)</Label>
+                    <Label htmlFor="import_duty_percent" className="text-xs text-orange-600 font-medium">{t('importDutyLabel')}</Label>
                     <Input
                       id="import_duty_percent"
                       type="number"
@@ -351,7 +351,7 @@ export default function ArbitrageCalculatorPage() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label htmlFor="contract_size_grams" className="text-xs text-slate-600 font-medium">Quote Unit (g)</Label>
+                    <Label htmlFor="contract_size_grams" className="text-xs text-slate-600 font-medium">{t('quoteUnitLabel')}</Label>
                     <Input
                       id="contract_size_grams"
                       type="number"
@@ -393,7 +393,7 @@ export default function ArbitrageCalculatorPage() {
           <StyledCardHeader
             icon={Sparkles}
             title={t('arbitrageAnalysis')}
-            description={result ? "Live market opportunity analysis" : t('resultsDescription')}
+            description={result ? t('liveMarketAnalysis') : t('resultsDescription')}
             variant="orange"
           />
           <StyledCardContent>
@@ -423,11 +423,11 @@ export default function ArbitrageCalculatorPage() {
 
                 {/* Modern Recommendation Card */}
                 <div className="rounded-2xl border-2 border-blue-200 p-5 bg-linear-to-br from-blue-50 to-cyan-50 shadow-md hover:shadow-lg transition-all duration-300">
-                  <div className="text-sm font-medium mb-1">Recommendation</div>
+                  <div className="text-sm font-medium mb-1">{t('recommendation')}</div>
                   <p className="text-sm">{result.recommendation}</p>
                   <div className="mt-2">
                     <Badge variant={result.risk_level === "low" ? "default" : result.risk_level === "high" ? "destructive" : "outline"}>
-                      Risk: {result.risk_level.toUpperCase()}
+                      {t('risk')}: {result.risk_level.toUpperCase()}
                     </Badge>
                   </div>
                 </div>
@@ -435,14 +435,14 @@ export default function ArbitrageCalculatorPage() {
                 {/* Modern Price Comparison with Gradients */}
                 <div className="space-y-3">
                   <div className="flex justify-between items-center p-4 rounded-xl border-2 border-purple-100 bg-linear-to-r from-purple-50 to-pink-50 hover:shadow-md transition-all duration-300">
-                    <span className="text-sm font-semibold text-purple-900">MCX Price</span>
+                    <span className="text-sm font-semibold text-purple-900">{t('mcxPrice')}</span>
                     <span className="font-mono font-bold text-lg text-purple-700">
                       {formatCurrency(result.arbitrage.mcx_price)}
                     </span>
                   </div>
 
                   <div className="flex justify-between items-center p-4 rounded-xl border-2 border-blue-100 bg-linear-to-r from-blue-50 to-cyan-50 hover:shadow-md transition-all duration-300">
-                    <span className="text-sm font-semibold text-blue-900">Fair Value</span>
+                    <span className="text-sm font-semibold text-blue-900">{t('fairValue')}</span>
                     <span className="font-mono font-bold text-lg text-blue-700">
                       {formatCurrency(result.arbitrage.fair_value)}
                     </span>
@@ -453,7 +453,7 @@ export default function ArbitrageCalculatorPage() {
                     : "border-red-200 from-red-50 to-rose-50"
                     }`}>
                     <span className={`text-sm font-semibold ${result.arbitrage.premium > 0 ? "text-green-900" : "text-red-900"
-                      }`}>Premium</span>
+                      }`}>{t('premium')}</span>
                     <span className={`font-mono font-bold text-lg ${result.arbitrage.premium > 0 ? "text-green-700" : "text-red-700"
                       }`}>
                       {formatCurrency(result.arbitrage.premium)}
@@ -463,35 +463,35 @@ export default function ArbitrageCalculatorPage() {
 
                 {/* Fair Value Details */}
                 <div className="space-y-2">
-                  <div className="text-sm font-medium text-muted-foreground">Fair Value Calculation</div>
+                  <div className="text-sm font-medium text-muted-foreground">{t('fairValueCalculation')}</div>
 
                   <div className="flex justify-between p-2 rounded border text-sm">
-                    <span>COMEX Price</span>
+                    <span>{t('comexPrice')}</span>
                     <span className="font-mono">${formatNumber(result.fair_value.comex_price_usd)}</span>
                   </div>
 
                   <div className="flex justify-between p-2 rounded border text-sm">
-                    <span>USD/INR Rate</span>
+                    <span>{t('usdinrRate')}</span>
                     <span className="font-mono">₹{formatNumber(result.fair_value.usdinr_rate)}</span>
                   </div>
 
                   <div className="flex justify-between p-2 rounded border text-sm">
-                    <span>Price per Gram</span>
+                    <span>{t('pricePerGram')}</span>
                     <span className="font-mono">₹{formatNumber(result.fair_value.price_per_gram_inr)}</span>
                   </div>
 
                   <div className="flex justify-between p-2 rounded border text-sm">
-                    <span>Import Duty</span>
+                    <span>{t('importDuty')}</span>
                     <span className="font-mono">{formatNumber(result.fair_value.import_duty_percent)}%</span>
                   </div>
                 </div>
 
                 {/* Profit Analysis */}
                 <div className="space-y-2">
-                  <div className="text-sm font-medium text-muted-foreground">Profit Analysis</div>
+                  <div className="text-sm font-medium text-muted-foreground">{t('profitAnalysis')}</div>
 
                   <div className="flex justify-between p-2 rounded border text-sm">
-                    <span>Gross Profit</span>
+                    <span>{t('grossProfit')}</span>
                     <span className={`font-mono font-semibold ${result.profit_analysis.gross_profit > 0 ? "text-green-600" : "text-red-600"
                       }`}>
                       {formatCurrency(result.profit_analysis.gross_profit)}
@@ -499,14 +499,14 @@ export default function ArbitrageCalculatorPage() {
                   </div>
 
                   <div className="flex justify-between p-2 rounded border text-sm">
-                    <span>Total Costs</span>
+                    <span>{t('totalCosts')}</span>
                     <span className="font-mono">
                       {formatCurrency(result.profit_analysis.total_costs)}
                     </span>
                   </div>
 
                   <div className="flex justify-between p-2 rounded border text-sm bg-primary/5">
-                    <span className="font-medium">Net Profit</span>
+                    <span className="font-medium">{t('netProfit')}</span>
                     <span className={`font-mono font-semibold ${result.profit_analysis.net_profit > 0 ? "text-green-600" : "text-red-600"
                       }`}>
                       {formatCurrency(result.profit_analysis.net_profit)}
@@ -514,7 +514,7 @@ export default function ArbitrageCalculatorPage() {
                   </div>
 
                   <div className="flex justify-between p-2 rounded border text-sm">
-                    <span>Net Profit %</span>
+                    <span>{t('netProfitPercent')}</span>
                     <span className={`font-mono font-semibold ${result.profit_analysis.net_profit_percent > 0 ? "text-green-600" : "text-red-600"
                       }`}>
                       {formatPercent(result.profit_analysis.net_profit_percent)}
@@ -528,8 +528,8 @@ export default function ArbitrageCalculatorPage() {
                   <div className="p-4 bg-linear-to-br from-purple-100 to-pink-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
                     <AlertCircle className="h-10 w-10 text-purple-600" />
                   </div>
-                  <p className="text-lg font-medium">Enter values and calculate</p>
-                  <p className="text-sm mt-1">to see arbitrage analysis</p>
+                  <p className="text-lg font-medium">{t('enterValues')}</p>
+                  <p className="text-sm mt-1">{t('toSeeAnalysis')}</p>
                 </div>
               </div>
             )}

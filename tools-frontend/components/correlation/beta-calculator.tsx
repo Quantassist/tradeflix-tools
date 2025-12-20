@@ -12,6 +12,7 @@ import { correlationApi } from "@/lib/api/correlation"
 import type { BetaCalculationResponse } from "@/types"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
+import { useTranslations } from 'next-intl'
 
 const AVAILABLE_ASSETS = [
     { value: "GOLD", label: "Gold" },
@@ -25,6 +26,7 @@ const AVAILABLE_ASSETS = [
 ]
 
 export function BetaCalculator() {
+    const t = useTranslations('correlation.betaCalculator')
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState<BetaCalculationResponse | null>(null)
     const [asset, setAsset] = useState("SILVER")
@@ -80,26 +82,26 @@ export function BetaCalculator() {
     }
 
     const getBetaInterpretation = (beta: number) => {
-        if (beta > 1.5) return { label: "Very High", color: "text-red-600 bg-red-50 border-red-200" }
-        if (beta > 1.2) return { label: "High", color: "text-orange-600 bg-orange-50 border-orange-200" }
-        if (beta > 0.8) return { label: "Similar", color: "text-blue-600 bg-blue-50 border-blue-200" }
-        if (beta > 0.5) return { label: "Lower", color: "text-green-600 bg-green-50 border-green-200" }
-        return { label: "Low", color: "text-gray-600 bg-gray-50 border-gray-200" }
+        if (beta > 1.5) return { label: t('veryHigh'), color: "text-red-600 bg-red-50 border-red-200" }
+        if (beta > 1.2) return { label: t('high'), color: "text-orange-600 bg-orange-50 border-orange-200" }
+        if (beta > 0.8) return { label: t('similar'), color: "text-blue-600 bg-blue-50 border-blue-200" }
+        if (beta > 0.5) return { label: t('lower'), color: "text-green-600 bg-green-50 border-green-200" }
+        return { label: t('low'), color: "text-gray-600 bg-gray-50 border-gray-200" }
     }
 
     return (
         <StyledCard variant="green">
             <StyledCardHeader
                 icon={Calculator}
-                title="Beta (Sensitivity) Calculator"
-                description="Calculate how much an asset moves relative to a benchmark"
+                title={t('title')}
+                description={t('description')}
                 variant="green"
             />
             <StyledCardContent>
                 {/* Input Section */}
                 <div className="grid grid-cols-4 gap-4 mb-6">
                     <div className="space-y-2">
-                        <Label className="text-xs font-medium text-emerald-700">Asset</Label>
+                        <Label className="text-xs font-medium text-emerald-700">{t('asset')}</Label>
                         <Select value={asset} onValueChange={setAsset}>
                             <SelectTrigger className="bg-white border-emerald-200">
                                 <SelectValue placeholder="Select" />
@@ -112,7 +114,7 @@ export function BetaCalculator() {
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label className="text-xs font-medium text-teal-700">Benchmark</Label>
+                        <Label className="text-xs font-medium text-teal-700">{t('benchmark')}</Label>
                         <Select value={benchmark} onValueChange={setBenchmark}>
                             <SelectTrigger className="bg-white border-teal-200">
                                 <SelectValue placeholder="Select" />
@@ -125,17 +127,17 @@ export function BetaCalculator() {
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label className="text-xs font-medium text-slate-600">Period</Label>
+                        <Label className="text-xs font-medium text-slate-600">{t('period')}</Label>
                         <Select value={periodDays} onValueChange={setPeriodDays}>
                             <SelectTrigger className="bg-white">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="30">30 days</SelectItem>
-                                <SelectItem value="60">60 days</SelectItem>
-                                <SelectItem value="90">90 days</SelectItem>
-                                <SelectItem value="180">180 days</SelectItem>
-                                <SelectItem value="365">1 year</SelectItem>
+                                <SelectItem value="30">{t('days30')}</SelectItem>
+                                <SelectItem value="60">{t('days60')}</SelectItem>
+                                <SelectItem value="90">{t('days90')}</SelectItem>
+                                <SelectItem value="180">{t('days180')}</SelectItem>
+                                <SelectItem value="365">{t('year1')}</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -149,7 +151,7 @@ export function BetaCalculator() {
                                 <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (
                                 <span className="flex items-center gap-2">
-                                    Calculate <ArrowRight className="h-4 w-4" />
+                                    {t('calculate')} <ArrowRight className="h-4 w-4" />
                                 </span>
                             )}
                         </Button>
@@ -165,10 +167,10 @@ export function BetaCalculator() {
                                 <div className="text-center">
                                     <div className="flex items-center justify-center gap-2 mb-1">
                                         <Gauge className="h-5 w-5" />
-                                        <span className="text-sm font-semibold uppercase">Beta Value</span>
+                                        <span className="text-sm font-semibold uppercase">{t('betaValue')}</span>
                                     </div>
                                     <p className="text-5xl font-bold">{formatNumber(result.beta, 3)}</p>
-                                    <Badge className="mt-2">{getBetaInterpretation(result.beta).label} Sensitivity</Badge>
+                                    <Badge className="mt-2">{getBetaInterpretation(result.beta).label} {t('sensitivity')}</Badge>
                                 </div>
                             </div>
                         </div>
@@ -178,26 +180,26 @@ export function BetaCalculator() {
                             <div className="p-4 rounded-xl border-2 bg-white hover:shadow-md transition-shadow">
                                 <div className="flex items-center gap-2 mb-2">
                                     <Percent className="h-4 w-4 text-blue-500" />
-                                    <span className="text-xs font-semibold text-slate-500 uppercase">R² (Explained)</span>
+                                    <span className="text-xs font-semibold text-slate-500 uppercase">{t('rSquared')}</span>
                                 </div>
                                 <p className="text-2xl font-bold text-blue-700">{formatNumber(result.r_squared * 100, 1)}%</p>
-                                <p className="text-xs text-slate-500 mt-1">Variance explained by benchmark</p>
+                                <p className="text-xs text-slate-500 mt-1">{t('varianceExplained')}</p>
                             </div>
                             <div className="p-4 rounded-xl border-2 bg-white hover:shadow-md transition-shadow">
                                 <div className="flex items-center gap-2 mb-2">
                                     <BarChart2 className="h-4 w-4 text-purple-500" />
-                                    <span className="text-xs font-semibold text-slate-500 uppercase">Correlation</span>
+                                    <span className="text-xs font-semibold text-slate-500 uppercase">{t('correlation')}</span>
                                 </div>
                                 <p className="text-2xl font-bold text-purple-700">{formatNumber(result.correlation, 3)}</p>
-                                <p className="text-xs text-slate-500 mt-1">Linear relationship strength</p>
+                                <p className="text-xs text-slate-500 mt-1">{t('linearRelationship')}</p>
                             </div>
                             <div className="p-4 rounded-xl border-2 bg-white hover:shadow-md transition-shadow">
                                 <div className="flex items-center gap-2 mb-2">
                                     <TrendingUp className="h-4 w-4 text-slate-500" />
-                                    <span className="text-xs font-semibold text-slate-500 uppercase">Vol Ratio</span>
+                                    <span className="text-xs font-semibold text-slate-500 uppercase">{t('volRatio')}</span>
                                 </div>
                                 <p className="text-2xl font-bold text-slate-700">{formatNumber(result.volatility_ratio, 2)}x</p>
-                                <p className="text-xs text-slate-500 mt-1">Relative volatility</p>
+                                <p className="text-xs text-slate-500 mt-1">{t('relativeVolatility')}</p>
                             </div>
                         </div>
 
@@ -206,7 +208,7 @@ export function BetaCalculator() {
                             <div className="flex items-start gap-3">
                                 <Info className="h-5 w-5 text-emerald-600 shrink-0" />
                                 <div>
-                                    <p className="font-medium text-emerald-900 mb-1">Analysis</p>
+                                    <p className="font-medium text-emerald-900 mb-1">{t('analysis')}</p>
                                     <p className="text-sm text-emerald-800">{result.interpretation}</p>
                                 </div>
                             </div>
@@ -215,20 +217,20 @@ export function BetaCalculator() {
                         {/* Scenario Calculator */}
                         <div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-xl">
                             <h5 className="font-semibold text-amber-900 mb-3 flex items-center gap-2">
-                                <TrendingUp className="h-4 w-4" /> Scenario Calculator
+                                <TrendingUp className="h-4 w-4" /> {t('scenarioCalculator')}
                             </h5>
                             <div className="flex items-center gap-3 flex-wrap">
-                                <span className="text-sm text-amber-800">If {result.benchmark} moves</span>
+                                <span className="text-sm text-amber-800">{t('ifMoves')} {result.benchmark} {t('moves')}</span>
                                 <Input
                                     type="number"
                                     step="0.1"
-                                    placeholder="Enter %"
+                                    placeholder={t('enterPercent')}
                                     value={expectedMove}
                                     onChange={(e) => setExpectedMove(e.target.value)}
                                     className="w-24 bg-white"
                                 />
                                 <Button size="sm" variant="outline" onClick={handleScenarioCalculation} className="border-amber-300 hover:bg-amber-100">
-                                    Calculate
+                                    {t('calculate')}
                                 </Button>
                                 {calculatedMove !== null && (
                                     <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border-2 shadow-sm">
@@ -247,8 +249,8 @@ export function BetaCalculator() {
                             <div className="p-4 bg-emerald-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                                 <Calculator className="h-8 w-8 text-emerald-600" />
                             </div>
-                            <p className="text-lg font-medium">Calculate Beta</p>
-                            <p className="text-sm mt-1">Select assets and click Calculate to analyze</p>
+                            <p className="text-lg font-medium">{t('calculateBeta')}</p>
+                            <p className="text-sm mt-1">{t('selectAssetsAnalyze')}</p>
                         </div>
                     </div>
                 )}

@@ -5,12 +5,14 @@ import { formatNumber } from "@/lib/utils"
 import { TrendingUp, TrendingDown, Activity, AlertTriangle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { RollingCorrelationResponse } from "@/types"
+import { useTranslations } from 'next-intl'
 
 type RollingCorrelationChartProps = {
     data: RollingCorrelationResponse
 }
 
 export function RollingCorrelationChart({ data }: RollingCorrelationChartProps) {
+    const t = useTranslations('correlation.rollingChart')
     const { data_points, current_correlation, avg_correlation, max_correlation, min_correlation } = data
 
     // Calculate chart dimensions
@@ -64,11 +66,11 @@ export function RollingCorrelationChart({ data }: RollingCorrelationChartProps) 
     }
 
     const getRegimeLabel = (corr: number) => {
-        if (corr > 0.7) return "Strong Positive"
-        if (corr > 0.3) return "Moderate Positive"
-        if (corr > -0.3) return "Weak/Neutral"
-        if (corr > -0.7) return "Moderate Negative"
-        return "Strong Negative"
+        if (corr > 0.7) return t('strongPositive')
+        if (corr > 0.3) return t('moderatePositive')
+        if (corr > -0.3) return t('weakNeutral')
+        if (corr > -0.7) return t('moderateNegative')
+        return t('strongNegative')
     }
 
     // Calculate volatility of correlation
@@ -82,21 +84,21 @@ export function RollingCorrelationChart({ data }: RollingCorrelationChartProps) 
                     <div>
                         <CardTitle className="text-2xl flex items-center gap-2">
                             <Activity className="h-6 w-6 text-purple-600" />
-                            Rolling Correlation: {data.asset1} vs {data.asset2}
+                            {t('title')}: {data.asset1} vs {data.asset2}
                         </CardTitle>
                         <CardDescription className="text-base mt-1">
-                            {data.window_days}-day rolling window over {data.period_days} days
+                            {data.window_days}-{t('description')} {data.period_days} {t('days')}
                         </CardDescription>
                     </div>
                     <div className="flex gap-3">
                         <div className="bg-white px-4 py-2 rounded-lg border-2 border-purple-200">
-                            <p className="text-xs text-muted-foreground">Current</p>
+                            <p className="text-xs text-muted-foreground">{t('current')}</p>
                             <p className={`text-xl font-bold ${current_correlation >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                 {current_correlation > 0 ? '+' : ''}{formatNumber(current_correlation, 3)}
                             </p>
                         </div>
                         <div className="bg-white px-4 py-2 rounded-lg border-2 border-blue-200">
-                            <p className="text-xs text-muted-foreground">Average</p>
+                            <p className="text-xs text-muted-foreground">{t('average')}</p>
                             <p className="text-xl font-bold text-blue-600">{formatNumber(avg_correlation, 3)}</p>
                         </div>
                     </div>
@@ -108,27 +110,27 @@ export function RollingCorrelationChart({ data }: RollingCorrelationChartProps) 
                     <div className="p-3 bg-green-50 rounded-lg border border-green-200">
                         <div className="flex items-center gap-2">
                             <TrendingUp className="h-4 w-4 text-green-600" />
-                            <span className="text-xs text-muted-foreground">Max</span>
+                            <span className="text-xs text-muted-foreground">{t('max')}</span>
                         </div>
                         <p className="text-lg font-bold text-green-700">{formatNumber(max_correlation, 3)}</p>
                     </div>
                     <div className="p-3 bg-red-50 rounded-lg border border-red-200">
                         <div className="flex items-center gap-2">
                             <TrendingDown className="h-4 w-4 text-red-600" />
-                            <span className="text-xs text-muted-foreground">Min</span>
+                            <span className="text-xs text-muted-foreground">{t('min')}</span>
                         </div>
                         <p className="text-lg font-bold text-red-700">{formatNumber(min_correlation, 3)}</p>
                     </div>
                     <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
                         <div className="flex items-center gap-2">
                             <Activity className="h-4 w-4 text-purple-600" />
-                            <span className="text-xs text-muted-foreground">Range</span>
+                            <span className="text-xs text-muted-foreground">{t('range')}</span>
                         </div>
                         <p className="text-lg font-bold text-purple-700">{formatNumber(correlationVolatility, 3)}</p>
                     </div>
                     <div className={`p-3 rounded-lg border ${getRegimeColor(current_correlation)}`}>
                         <div className="flex items-center gap-2">
-                            <span className="text-xs">Current Regime</span>
+                            <span className="text-xs">{t('currentRegime')}</span>
                         </div>
                         <p className="text-lg font-bold">{getRegimeLabel(current_correlation)}</p>
                     </div>
@@ -141,15 +143,15 @@ export function RollingCorrelationChart({ data }: RollingCorrelationChartProps) 
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-1">
                                 <div className="w-3 h-0.5 bg-green-500"></div>
-                                <span className="text-green-600">Strong Positive (≥0.7)</span>
+                                <span className="text-green-600">{t('strongPositiveThreshold')}</span>
                             </div>
                             <div className="flex items-center gap-1">
                                 <div className="w-3 h-0.5 bg-gray-400"></div>
-                                <span className="text-gray-600">Neutral (0)</span>
+                                <span className="text-gray-600">{t('neutral')}</span>
                             </div>
                             <div className="flex items-center gap-1">
                                 <div className="w-3 h-0.5 bg-red-500"></div>
-                                <span className="text-red-600">Strong Negative (≤-0.7)</span>
+                                <span className="text-red-600">{t('strongNegativeThreshold')}</span>
                             </div>
                         </div>
                     </div>
@@ -206,7 +208,7 @@ export function RollingCorrelationChart({ data }: RollingCorrelationChartProps) 
 
                     {/* X-axis label */}
                     <div className="text-center text-xs text-gray-500 mt-2">
-                        Time Period ({data.period_days} days) →
+                        {t('timePeriod')} ({data.period_days} {t('days')}) →
                     </div>
                 </div>
 
@@ -215,7 +217,7 @@ export function RollingCorrelationChart({ data }: RollingCorrelationChartProps) 
                     <div className="mt-4 p-4 bg-amber-50 border-2 border-amber-200 rounded-lg">
                         <h5 className="font-semibold text-sm text-amber-900 mb-2 flex items-center gap-2">
                             <AlertTriangle className="h-4 w-4" />
-                            Regime Changes Detected ({regimeChanges.length})
+                            {t('regimeChangesDetected')} ({regimeChanges.length})
                         </h5>
                         <div className="flex flex-wrap gap-2">
                             {regimeChanges.slice(-5).map((change, idx) => (
@@ -232,11 +234,10 @@ export function RollingCorrelationChart({ data }: RollingCorrelationChartProps) 
                     <div className="mt-4 p-4 bg-orange-50 border-2 border-orange-200 rounded-lg">
                         <h5 className="font-semibold text-sm text-orange-900 flex items-center gap-2">
                             <AlertTriangle className="h-4 w-4" />
-                            High Correlation Volatility
+                            {t('highCorrelationVolatility')}
                         </h5>
                         <p className="text-xs text-orange-800 mt-1">
-                            The correlation between these assets has varied significantly (range: {formatNumber(correlationVolatility, 2)}).
-                            This relationship may be unstable and less reliable for trading decisions.
+                            {t('volatilityWarning')} {formatNumber(correlationVolatility, 2)}{t('volatilityWarningEnd')}
                         </p>
                     </div>
                 )}
@@ -245,12 +246,12 @@ export function RollingCorrelationChart({ data }: RollingCorrelationChartProps) 
                 <div className="mt-4 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
                     <h5 className="font-semibold text-sm text-blue-900 mb-2 flex items-center gap-2">
                         <TrendingUp className="h-4 w-4" />
-                        Interpretation
+                        {t('interpretation')}
                     </h5>
                     <ul className="text-xs text-blue-800 space-y-1">
-                        <li>• <strong>Current vs Average:</strong> {current_correlation > avg_correlation ? 'Above' : 'Below'} historical average by {formatNumber(Math.abs(current_correlation - avg_correlation), 3)}</li>
-                        <li>• <strong>Stability:</strong> {isVolatile ? 'Unstable relationship - use with caution' : 'Relatively stable relationship'}</li>
-                        <li>• <strong>Regime:</strong> Currently in {getRegimeLabel(current_correlation).toLowerCase()} correlation regime</li>
+                        <li>• <strong>{t('currentVsAverage')}</strong> {current_correlation > avg_correlation ? t('above') : t('below')} {t('historicalAverageBy')} {formatNumber(Math.abs(current_correlation - avg_correlation), 3)}</li>
+                        <li>• <strong>{t('stability')}</strong> {isVolatile ? t('unstableRelationship') : t('stableRelationship')}</li>
+                        <li>• <strong>{t('regime')}</strong> {t('currentlyIn')} {getRegimeLabel(current_correlation).toLowerCase()} {t('correlationRegime')}</li>
                     </ul>
                 </div>
             </CardContent>

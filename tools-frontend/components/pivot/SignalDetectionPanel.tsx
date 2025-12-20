@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { StyledCard, StyledCardHeader, StyledCardContent } from "@/components/ui/styled-card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -21,6 +22,7 @@ type Signal = {
 }
 
 export function SignalDetectionPanel({ pivotData, currentPrice }: SignalDetectionPanelProps) {
+    const t = useTranslations('pivot.signalDetection')
     const price = currentPrice || pivotData.ohlc.close
     const signals: Signal[] = []
 
@@ -212,15 +214,15 @@ export function SignalDetectionPanel({ pivotData, currentPrice }: SignalDetectio
         <StyledCard variant="orange">
             <StyledCardHeader
                 icon={Zap}
-                title="Signal Detection"
-                description="Trading signals from pivot analysis"
+                title={t('title')}
+                description={t('description')}
                 variant="orange"
                 action={
                     <Dialog>
                         <DialogTrigger asChild>
                             <Button size="sm" className="bg-linear-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-sm">
                                 <BookOpen className="h-3 w-3 mr-1" />
-                                Guide
+                                {t('guide')}
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-md">
@@ -229,31 +231,31 @@ export function SignalDetectionPanel({ pivotData, currentPrice }: SignalDetectio
                                     <div className="p-2 bg-linear-to-br from-amber-500 to-orange-600 rounded-lg text-white">
                                         <Zap className="h-4 w-4" />
                                     </div>
-                                    Signal Detection Guide
+                                    {t('guideTitle')}
                                 </DialogTitle>
-                                <DialogDescription>Understanding trading signals</DialogDescription>
+                                <DialogDescription>{t('guideDescription')}</DialogDescription>
                             </DialogHeader>
                             <div className="space-y-3 mt-3 text-sm">
                                 <div className="p-3 rounded-lg bg-green-50 border border-green-100">
                                     <div className="flex items-center gap-2 font-semibold text-green-700 mb-1">
                                         <TrendingUp className="h-4 w-4" />
-                                        Bullish Signals
+                                        {t('bullishSignals')}
                                     </div>
-                                    <p className="text-green-600 text-xs">Price above CPR or approaching support levels. Consider long positions.</p>
+                                    <p className="text-green-600 text-xs">{t('bullishSignalsDesc')}</p>
                                 </div>
                                 <div className="p-3 rounded-lg bg-red-50 border border-red-100">
                                     <div className="flex items-center gap-2 font-semibold text-red-700 mb-1">
                                         <TrendingDown className="h-4 w-4" />
-                                        Bearish Signals
+                                        {t('bearishSignals')}
                                     </div>
-                                    <p className="text-red-600 text-xs">Price below CPR or approaching resistance levels. Consider short positions.</p>
+                                    <p className="text-red-600 text-xs">{t('bearishSignalsDesc')}</p>
                                 </div>
                                 <div className="p-3 rounded-lg bg-amber-50 border border-amber-100">
                                     <div className="flex items-center gap-2 font-semibold text-amber-700 mb-1">
                                         <AlertTriangle className="h-4 w-4" />
-                                        Warning Signals
+                                        {t('warningSignals')}
                                     </div>
-                                    <p className="text-amber-600 text-xs">Price near key levels or narrow CPR detected. Be cautious and watch for breakouts.</p>
+                                    <p className="text-amber-600 text-xs">{t('warningSignalsDesc')}</p>
                                 </div>
                             </div>
                         </DialogContent>
@@ -263,7 +265,7 @@ export function SignalDetectionPanel({ pivotData, currentPrice }: SignalDetectio
             <StyledCardContent>
                 {/* Overall Bias Badge */}
                 <div className="flex items-center justify-between mb-3 p-2 rounded-lg bg-slate-50 border">
-                    <span className="text-xs text-slate-500">Overall Bias:</span>
+                    <span className="text-xs text-slate-500">{t('overallBias')}:</span>
                     <Badge
                         className={`text-xs ${overallBias === "bullish" ? "bg-green-100 text-green-700 border-green-300" :
                             overallBias === "bearish" ? "bg-red-100 text-red-700 border-red-300" :
@@ -272,7 +274,7 @@ export function SignalDetectionPanel({ pivotData, currentPrice }: SignalDetectio
                     >
                         {overallBias === "bullish" && <TrendingUp className="h-3 w-3 mr-1" />}
                         {overallBias === "bearish" && <TrendingDown className="h-3 w-3 mr-1" />}
-                        {overallBias.toUpperCase()} BIAS
+                        {overallBias.toUpperCase()} {t('bias')}
                     </Badge>
                 </div>
 
@@ -282,19 +284,19 @@ export function SignalDetectionPanel({ pivotData, currentPrice }: SignalDetectio
                     <div className="grid grid-cols-4 gap-1.5 text-center">
                         <div className="p-1.5 rounded bg-green-50 border border-green-100">
                             <div className="text-base font-bold text-green-600">{bullishCount}</div>
-                            <div className="text-[10px] text-green-600">Bullish</div>
+                            <div className="text-[10px] text-green-600">{t('bullish')}</div>
                         </div>
                         <div className="p-1.5 rounded bg-red-50 border border-red-100">
                             <div className="text-base font-bold text-red-600">{bearishCount}</div>
-                            <div className="text-[10px] text-red-600">Bearish</div>
+                            <div className="text-[10px] text-red-600">{t('bearish')}</div>
                         </div>
                         <div className="p-1.5 rounded bg-amber-50 border border-amber-100">
                             <div className="text-base font-bold text-amber-600">{warningSignals.length}</div>
-                            <div className="text-[10px] text-amber-600">Warning</div>
+                            <div className="text-[10px] text-amber-600">{t('warning')}</div>
                         </div>
                         <div className="p-1.5 rounded bg-slate-50 border border-slate-100">
                             <div className="text-base font-bold text-slate-600">{neutralSignals.length}</div>
-                            <div className="text-[10px] text-slate-600">Neutral</div>
+                            <div className="text-[10px] text-slate-600">{t('neutral')}</div>
                         </div>
                     </div>
 
@@ -302,7 +304,7 @@ export function SignalDetectionPanel({ pivotData, currentPrice }: SignalDetectio
                     {signals.length === 0 ? (
                         <div className="text-center py-4 text-muted-foreground text-sm">
                             <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                            <p>No signals at current price</p>
+                            <p>{t('noSignals')}</p>
                         </div>
                     ) : (
                         <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">

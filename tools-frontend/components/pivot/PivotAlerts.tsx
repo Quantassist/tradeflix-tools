@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
+import { useTranslations } from "next-intl"
 import { StyledCard, StyledCardHeader, StyledCardContent } from "@/components/ui/styled-card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -39,6 +40,7 @@ const ALERT_TYPE_LABELS: Record<AlertType, string> = {
 }
 
 export function PivotAlerts({ pivotData }: PivotAlertsProps) {
+    const t = useTranslations('pivot.alerts')
     const [alerts, setAlerts] = useState<PivotAlert[]>([])
     const [showAddForm, setShowAddForm] = useState(false)
     const [newAlert, setNewAlert] = useState({
@@ -126,19 +128,19 @@ export function PivotAlerts({ pivotData }: PivotAlertsProps) {
         <StyledCard variant="pink">
             <StyledCardHeader
                 icon={BellRing}
-                title="Pivot Alerts"
-                description="Set alerts for price proximity, breakouts, and rejections"
+                title={t('title')}
+                description={t('description')}
                 variant="pink"
                 action={
                     <div className="flex items-center gap-2">
                         <Badge className="bg-rose-100 text-rose-700 border-rose-200">
-                            {alerts.filter(a => a.enabled).length} Active
+                            {alerts.filter(a => a.enabled).length} {t('active')}
                         </Badge>
                         <Dialog>
                             <DialogTrigger asChild>
                                 <Button className="bg-linear-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white shadow-md">
                                     <BookOpen className="h-4 w-4 mr-2" />
-                                    Alert Guide
+                                    {t('alertGuide')}
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-lg">
@@ -147,38 +149,38 @@ export function PivotAlerts({ pivotData }: PivotAlertsProps) {
                                         <div className="p-2 bg-linear-to-br from-rose-500 to-pink-600 rounded-lg text-white">
                                             <BellRing className="h-4 w-4" />
                                         </div>
-                                        Pivot Alerts Guide
+                                        {t('guideTitle')}
                                     </DialogTitle>
-                                    <DialogDescription>How to set up and use pivot alerts effectively</DialogDescription>
+                                    <DialogDescription>{t('guideDescription')}</DialogDescription>
                                 </DialogHeader>
                                 <div className="space-y-3 mt-3 text-sm">
                                     <div className="p-3 rounded-lg bg-blue-50 border border-blue-100">
                                         <div className="flex items-center gap-2 font-semibold text-blue-700 mb-1">
                                             <Eye className="h-4 w-4" />
-                                            Price Approaching
+                                            {t('priceApproaching')}
                                         </div>
-                                        <p className="text-blue-600 text-xs">Get notified when price comes within a threshold of a pivot level. Great for preparing entries.</p>
+                                        <p className="text-blue-600 text-xs">{t('priceApproachingDesc')}</p>
                                     </div>
                                     <div className="p-3 rounded-lg bg-green-50 border border-green-100">
                                         <div className="flex items-center gap-2 font-semibold text-green-700 mb-1">
                                             <Zap className="h-4 w-4" />
-                                            Breakout Alert
+                                            {t('breakoutAlert')}
                                         </div>
-                                        <p className="text-green-600 text-xs">Triggered when price breaks through a level with momentum. Useful for trend-following trades.</p>
+                                        <p className="text-green-600 text-xs">{t('breakoutAlertDesc')}</p>
                                     </div>
                                     <div className="p-3 rounded-lg bg-red-50 border border-red-100">
                                         <div className="flex items-center gap-2 font-semibold text-red-700 mb-1">
                                             <TrendingDown className="h-4 w-4" />
-                                            Rejection Alert
+                                            {t('rejectionAlert')}
                                         </div>
-                                        <p className="text-red-600 text-xs">Triggered when price tests a level and reverses. Perfect for counter-trend or bounce trades.</p>
+                                        <p className="text-red-600 text-xs">{t('rejectionAlertDesc')}</p>
                                     </div>
                                     <div className="p-3 rounded-lg bg-amber-50 border border-amber-100">
-                                        <h4 className="font-semibold text-amber-700 mb-1">Pro Tips</h4>
+                                        <h4 className="font-semibold text-amber-700 mb-1">{t('proTips')}</h4>
                                         <ul className="text-amber-600 text-xs space-y-1">
-                                            <li>• Set proximity alerts on R1/S1 for high-probability setups</li>
-                                            <li>• Use breakout alerts on R2/S2 for extended moves</li>
-                                            <li>• Rejection alerts work best at R3/S3 extremes</li>
+                                            <li>• {t('proTip1')}</li>
+                                            <li>• {t('proTip2')}</li>
+                                            <li>• {t('proTip3')}</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -192,7 +194,7 @@ export function PivotAlerts({ pivotData }: PivotAlertsProps) {
                     {!pivotData ? (
                         <div className="text-center py-8 text-muted-foreground">
                             <Bell className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                            <p>Calculate pivot levels first to set up alerts</p>
+                            <p>{t('calculateFirst')}</p>
                         </div>
                     ) : (
                         <>
@@ -219,7 +221,7 @@ export function PivotAlerts({ pivotData }: PivotAlertsProps) {
                                                 {alert.triggered && (
                                                     <Badge variant="destructive" className="text-xs">
                                                         <AlertTriangle className="h-3 w-3 mr-1" />
-                                                        Triggered
+                                                        {t('triggered')}
                                                     </Badge>
                                                 )}
                                                 <Switch
@@ -241,7 +243,7 @@ export function PivotAlerts({ pivotData }: PivotAlertsProps) {
                             ) : !showAddForm && (
                                 <div className="text-center py-6 text-muted-foreground border-2 border-dashed rounded-lg">
                                     <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                                    <p className="text-sm">No alerts configured</p>
+                                    <p className="text-sm">{t('noAlerts')}</p>
                                 </div>
                             )}
 
@@ -250,10 +252,10 @@ export function PivotAlerts({ pivotData }: PivotAlertsProps) {
                                 <div className="p-4 rounded-lg border-2 border-dashed bg-muted/30 space-y-3">
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>
-                                            <Label className="text-xs">Level</Label>
+                                            <Label className="text-xs">{t('level')}</Label>
                                             <Select value={newAlert.level} onValueChange={(v) => setNewAlert({ ...newAlert, level: v })}>
                                                 <SelectTrigger>
-                                                    <SelectValue placeholder="Select level" />
+                                                    <SelectValue placeholder={t('selectLevel')} />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {availableLevels.map((level) => (
@@ -265,35 +267,35 @@ export function PivotAlerts({ pivotData }: PivotAlertsProps) {
                                             </Select>
                                         </div>
                                         <div>
-                                            <Label className="text-xs">Alert Type</Label>
+                                            <Label className="text-xs">{t('alertType')}</Label>
                                             <Select value={newAlert.type} onValueChange={(v) => setNewAlert({ ...newAlert, type: v as AlertType })}>
                                                 <SelectTrigger>
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="proximity">Price Approaching</SelectItem>
-                                                    <SelectItem value="breakout">Breakout</SelectItem>
-                                                    <SelectItem value="rejection">Rejection</SelectItem>
+                                                    <SelectItem value="proximity">{t('priceApproaching')}</SelectItem>
+                                                    <SelectItem value="breakout">{t('breakout')}</SelectItem>
+                                                    <SelectItem value="rejection">{t('rejection')}</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>
-                                            <Label className="text-xs">Direction</Label>
+                                            <Label className="text-xs">{t('direction')}</Label>
                                             <Select value={newAlert.direction} onValueChange={(v) => setNewAlert({ ...newAlert, direction: v as AlertDirection })}>
                                                 <SelectTrigger>
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="both">Both</SelectItem>
-                                                    <SelectItem value="above">From Above</SelectItem>
-                                                    <SelectItem value="below">From Below</SelectItem>
+                                                    <SelectItem value="both">{t('both')}</SelectItem>
+                                                    <SelectItem value="above">{t('fromAbove')}</SelectItem>
+                                                    <SelectItem value="below">{t('fromBelow')}</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </div>
                                         <div>
-                                            <Label className="text-xs">Threshold (%)</Label>
+                                            <Label className="text-xs">{t('threshold')}</Label>
                                             <Input
                                                 type="number"
                                                 step="0.1"
@@ -304,10 +306,10 @@ export function PivotAlerts({ pivotData }: PivotAlertsProps) {
                                     </div>
                                     <div className="flex gap-2">
                                         <Button onClick={handleAddAlert} className="flex-1">
-                                            Add Alert
+                                            {t('addAlert')}
                                         </Button>
                                         <Button variant="outline" onClick={() => setShowAddForm(false)}>
-                                            Cancel
+                                            {t('cancel')}
                                         </Button>
                                     </div>
                                 </div>
@@ -318,14 +320,13 @@ export function PivotAlerts({ pivotData }: PivotAlertsProps) {
                                     onClick={() => setShowAddForm(true)}
                                 >
                                     <Plus className="h-4 w-4 mr-2" />
-                                    Add New Alert
+                                    {t('addNewAlert')}
                                 </Button>
                             )}
 
                             {/* Info Note */}
                             <div className="text-xs text-muted-foreground p-3 bg-muted rounded-lg">
-                                <strong>Note:</strong> Alerts are stored locally in your browser. For real-time notifications,
-                                connect to a WebSocket service or enable browser notifications.
+                                <strong>{t('note')}:</strong> {t('alertsNote')}
                             </div>
                         </>
                     )}

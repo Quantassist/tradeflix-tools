@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useTranslations } from 'next-intl'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -96,6 +97,7 @@ const DEFAULT_STRATEGY: VisualStrategy = {
 }
 
 export default function BacktestPage() {
+  const t = useTranslations('backtest')
   const { toast } = useToast()
   const { data: session } = useSession()
   const userId = session?.user?.id
@@ -534,7 +536,7 @@ export default function BacktestPage() {
             <div className="flex items-center gap-2">
               <div className="w-1 h-6 bg-linear-to-b from-indigo-500 to-purple-500 rounded-full" />
               <h1 className="text-lg font-bold bg-linear-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                Strategy Backtester
+                {t('pageTitle')}
               </h1>
             </div>
 
@@ -559,7 +561,7 @@ export default function BacktestPage() {
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 text-xs text-slate-500">
               <CalendarIcon size={12} />
-              <span>Period:</span>
+              <span>{t('period')}:</span>
             </div>
             <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
@@ -651,7 +653,7 @@ export default function BacktestPage() {
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 text-xs text-slate-500">
               <IndianRupee size={12} />
-              <span>Capital:</span>
+              <span>{t('capital')}:</span>
             </div>
             <Input
               type="number"
@@ -675,7 +677,7 @@ export default function BacktestPage() {
             ) : (
               <Play size={14} className="mr-2" fill="currentColor" />
             )}
-            {loading ? "Running..." : "Run Backtest"}
+            {loading ? t('running') : t('runBacktest')}
           </Button>
         </div>
       </header>
@@ -694,19 +696,19 @@ export default function BacktestPage() {
                     </div>
                     <div className="text-left">
                       <div className="font-semibold text-foreground flex items-center gap-2">
-                        Understanding Strategy Backtesting
+                        {t('guide.title')}
                         <Badge variant="outline" className="text-xs bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-700">
                           Guide
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground mt-0.5">
-                        Learn how to build, test, and evaluate trading strategies
+                        {t('guide.description')}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors">
-                      {guideOpen ? "Hide Guide" : "Show Guide"}
+                      {guideOpen ? t('guide.hideGuide') : t('guide.showGuide')}
                     </span>
                     <ChevronDown className={`h-5 w-5 text-indigo-600 dark:text-indigo-400 transition-transform duration-300 ${guideOpen ? "rotate-180" : ""}`} />
                   </div>
@@ -724,10 +726,10 @@ export default function BacktestPage() {
                       <div className="p-1.5 rounded-lg bg-indigo-100 dark:bg-indigo-900/50">
                         <Settings className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                       </div>
-                      Entry & Exit Rules
+                      {t('concepts.entryExitRules.title')}
                     </div>
                     <p className="text-sm text-indigo-700 dark:text-indigo-400 leading-relaxed">
-                      Define conditions using indicators like RSI, EMA, MACD for automated signals.
+                      {t('concepts.entryExitRules.description')}
                     </p>
                   </div>
                 </div>
@@ -738,10 +740,10 @@ export default function BacktestPage() {
                       <div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/50">
                         <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                       </div>
-                      Win Rate & Returns
+                      {t('concepts.winRateReturns.title')}
                     </div>
                     <p className="text-sm text-emerald-700 dark:text-emerald-400 leading-relaxed">
-                      Track total return, win rate, and Sharpe ratio to measure performance.
+                      {t('concepts.winRateReturns.description')}
                     </p>
                   </div>
                 </div>
@@ -752,10 +754,10 @@ export default function BacktestPage() {
                       <div className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/50">
                         <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                       </div>
-                      Risk Management
+                      {t('concepts.riskManagement.title')}
                     </div>
                     <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
-                      Set stop-loss and take-profit levels to protect capital and lock gains.
+                      {t('concepts.riskManagement.description')}
                     </p>
                   </div>
                 </div>
@@ -766,10 +768,10 @@ export default function BacktestPage() {
                       <div className="p-1.5 rounded-lg bg-purple-100 dark:bg-purple-900/50">
                         <Target className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                       </div>
-                      Max Drawdown
+                      {t('concepts.maxDrawdown.title')}
                     </div>
                     <p className="text-sm text-purple-700 dark:text-purple-400 leading-relaxed">
-                      Monitor the largest peak-to-trough decline to assess strategy risk.
+                      {t('concepts.maxDrawdown.description')}
                     </p>
                   </div>
                 </div>
@@ -786,7 +788,7 @@ export default function BacktestPage() {
                 className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white rounded-md px-4 h-8 text-sm font-medium text-slate-600"
               >
                 <Settings size={14} className="mr-1.5" />
-                Strategy
+                {t('tabs.strategy')}
               </TabsTrigger>
               <TabsTrigger
                 value="results"
@@ -794,7 +796,7 @@ export default function BacktestPage() {
                 className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white rounded-md px-4 h-8 text-sm font-medium text-slate-600 disabled:opacity-40"
               >
                 <BarChart3 size={14} className="mr-1.5" />
-                Results
+                {t('tabs.results')}
                 {result && (
                   <span className="ml-1.5 text-xs opacity-80">
                     ({result.metrics.tradesCount})
@@ -830,7 +832,7 @@ export default function BacktestPage() {
                   className="h-8 text-slate-600 border-slate-300 hover:bg-slate-50"
                 >
                   <Library size={14} className="mr-1.5" />
-                  Strategy Library
+                  {t('strategyLibrary.title')}
                 </Button>
                 <Button
                   onClick={handleOpenSaveDialog}
@@ -839,7 +841,7 @@ export default function BacktestPage() {
                   className="h-8 text-slate-600 border-slate-300 hover:bg-slate-50"
                 >
                   <Save size={14} className="mr-1.5" />
-                  Save
+                  {t('strategyLibrary.save')}
                 </Button>
               </div>
             </div>
@@ -850,10 +852,10 @@ export default function BacktestPage() {
             <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
               <div className="mb-5">
                 <h2 className="text-sm font-semibold text-slate-800">
-                  Build Your Strategy
+                  {t('strategyBuilder.title')}
                 </h2>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Define entry and exit conditions using technical indicators
+                  {t('strategyBuilder.description')}
                 </p>
               </div>
 
@@ -883,8 +885,8 @@ export default function BacktestPage() {
                           <BarChart3 size={16} className="text-indigo-600" />
                         </div>
                         <div className="text-left">
-                          <h3 className="text-sm font-semibold text-slate-800">Trade History</h3>
-                          <p className="text-xs text-slate-500">{result.trades.length} completed trades</p>
+                          <h3 className="text-sm font-semibold text-slate-800">{t('results.tradeHistory.title')}</h3>
+                          <p className="text-xs text-slate-500">{result.trades.length} {t('results.tradeHistory.completedTrades')}</p>
                         </div>
                       </div>
                       <ChevronDown
@@ -898,11 +900,11 @@ export default function BacktestPage() {
                         {/* Table Header */}
                         <div className="grid grid-cols-6 gap-4 px-5 py-2.5 bg-slate-50 text-xs font-medium text-slate-500 uppercase tracking-wide">
                           <div>#</div>
-                          <div>Entry Date</div>
-                          <div className="text-right">Entry Price</div>
-                          <div>Exit Date</div>
-                          <div className="text-right">Exit Price</div>
-                          <div className="text-right">P&L</div>
+                          <div>{t('results.tradeHistory.entryDate')}</div>
+                          <div className="text-right">{t('results.tradeHistory.entryPrice')}</div>
+                          <div>{t('results.tradeHistory.exitDate')}</div>
+                          <div className="text-right">{t('results.tradeHistory.exitPrice')}</div>
+                          <div className="text-right">{t('results.tradeHistory.pnl')}</div>
                         </div>
 
                         {/* Trade Rows */}
@@ -1093,10 +1095,10 @@ export default function BacktestPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Library size={18} className="text-indigo-600" />
-              Strategy Library
+              {t('strategyLibrary.title')}
             </DialogTitle>
             <DialogDescription>
-              Select a prebuilt strategy or load one of your saved strategies.
+              {t('strategyLibrary.description')}
             </DialogDescription>
           </DialogHeader>
 
@@ -1109,7 +1111,7 @@ export default function BacktestPage() {
                 : "text-slate-500 hover:text-slate-700"
                 }`}
             >
-              Prebuilt Strategies ({prebuiltStrategies.length})
+              {t('strategyLibrary.prebuiltStrategies')} ({prebuiltStrategies.length})
             </button>
             <button
               onClick={() => setStrategyListTab("my")}
@@ -1118,7 +1120,7 @@ export default function BacktestPage() {
                 : "text-slate-500 hover:text-slate-700"
                 }`}
             >
-              My Saved ({savedStrategies.length})
+              {t('strategyLibrary.mySaved')} ({savedStrategies.length})
             </button>
           </div>
 

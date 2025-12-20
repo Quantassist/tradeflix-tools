@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import { useTranslations } from 'next-intl'
 import { TrendingUp, Target, BarChart3, TrendingDown, Activity } from "lucide-react"
 import type { VisualBacktestResult } from "@/types"
 
@@ -9,13 +10,15 @@ interface StatsPanelProps {
 }
 
 export function StatsPanel({ result }: StatsPanelProps) {
+    const t = useTranslations('backtest')
+
     if (!result) {
         return null
     }
 
     const stats = [
         {
-            label: "Total Return",
+            label: t('totalReturn'),
             value: `${(result.metrics.totalReturn * 100).toFixed(2)}%`,
             positive: result.metrics.totalReturn >= 0,
             icon: TrendingUp,
@@ -23,21 +26,21 @@ export function StatsPanel({ result }: StatsPanelProps) {
             iconColor: result.metrics.totalReturn >= 0 ? "text-emerald-500" : "text-rose-500",
         },
         {
-            label: "Win Rate",
+            label: t('winRate'),
             value: `${(result.metrics.winRate * 100).toFixed(1)}%`,
             icon: Target,
             bgColor: "bg-blue-50",
             iconColor: "text-blue-500",
         },
         {
-            label: "Trades",
+            label: t('totalTrades'),
             value: result.metrics.tradesCount,
             icon: BarChart3,
             bgColor: "bg-indigo-50",
             iconColor: "text-indigo-500",
         },
         {
-            label: "Max Drawdown",
+            label: t('maxDrawdown'),
             value: `${(result.metrics.maxDrawdown * 100).toFixed(2)}%`,
             negative: true,
             icon: TrendingDown,
@@ -45,7 +48,7 @@ export function StatsPanel({ result }: StatsPanelProps) {
             iconColor: "text-rose-500",
         },
         {
-            label: "Sharpe Ratio",
+            label: t('sharpeRatio'),
             value: result.metrics.sharpeRatio.toFixed(2),
             icon: Activity,
             bgColor: "bg-violet-50",
@@ -64,10 +67,10 @@ export function StatsPanel({ result }: StatsPanelProps) {
                             <span className="text-xs text-slate-600 font-medium">{stat.label}</span>
                         </div>
                         <div className={`text-xl font-bold tabular-nums ${stat.positive !== undefined
-                                ? stat.positive ? "text-emerald-700" : "text-rose-700"
-                                : stat.negative
-                                    ? "text-rose-700"
-                                    : "text-slate-800"
+                            ? stat.positive ? "text-emerald-700" : "text-rose-700"
+                            : stat.negative
+                                ? "text-rose-700"
+                                : "text-slate-800"
                             }`}>
                             {stat.value}
                         </div>

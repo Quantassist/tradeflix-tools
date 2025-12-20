@@ -16,42 +16,46 @@ import {
     FlaskConical
 } from "lucide-react"
 import Link from "next/link"
+import { useTranslations } from 'next-intl'
 
 export default function DashboardPage() {
+    const t = useTranslations('dashboard')
+    const tTools = useTranslations('tools')
+
     const tools = [
         {
-            name: "Pivot Calculator",
-            shortDesc: "Intraday Support & Resistance",
-            description: "Generate CPR, Floor, and Fibonacci pivot levels instantly. Identify key price zones where reversals and breakouts commonly occur.",
-            features: ["Central Pivot Range (CPR)", "Fibonacci Retracements", "Floor Pivot Points", "Multi-timeframe Analysis"],
+            name: tTools('pivot.name'),
+            shortDesc: tTools('pivot.shortDesc'),
+            description: tTools('pivot.description'),
+            features: [tTools('pivot.features.cpr'), tTools('pivot.features.fibonacci'), tTools('pivot.features.floor'), tTools('pivot.features.multiTimeframe')],
             icon: TrendingUp,
             href: "/pivot",
             gradient: "from-blue-500 to-indigo-600",
             lightGradient: "from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30",
             iconBg: "bg-blue-100 dark:bg-blue-900/50",
             iconColor: "text-blue-600 dark:text-blue-400",
-            badge: "Popular",
+            badge: tTools('pivot.badge'),
             badgeColor: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300",
         },
         {
-            name: "Arbitrage Heatmap",
-            shortDesc: "COMEX vs MCX Opportunities",
-            description: "Real-time price comparison identifying when MCX is overpriced or underpriced relative to global COMEX prices and USDINR rates.",
-            features: ["Fair Value Calculator", "Premium/Discount Alerts", "Historical Analysis", "Multi-commodity Tracking"],
+            name: tTools('arbitrage.name'),
+            shortDesc: tTools('arbitrage.shortDesc'),
+            description: tTools('arbitrage.description'),
+            features: [tTools('arbitrage.features.fairValue'), tTools('arbitrage.features.alerts'), tTools('arbitrage.features.historical'), tTools('arbitrage.features.multiCommodity')],
             icon: DollarSign,
             href: "/arbitrage",
             gradient: "from-emerald-500 to-teal-600",
             lightGradient: "from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30",
             iconBg: "bg-emerald-100 dark:bg-emerald-900/50",
             iconColor: "text-emerald-600 dark:text-emerald-400",
-            badge: "Pro",
+            badge: tTools('arbitrage.badge'),
             badgeColor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300",
         },
         {
-            name: "Seasonal Trends",
-            shortDesc: "Calendar-Based Patterns",
-            description: "Analyze how gold and silver prices historically behave around Diwali, Akshaya Tritiya, Fed meetings, and other key events.",
-            features: ["Festival Impact Analysis", "Economic Event Tracking", "Monthly Seasonality", "Win Rate Statistics"],
+            name: tTools('seasonal.name'),
+            shortDesc: tTools('seasonal.shortDesc'),
+            description: tTools('seasonal.description'),
+            features: [tTools('seasonal.features.festival'), tTools('seasonal.features.economic'), tTools('seasonal.features.monthly'), tTools('seasonal.features.winRate')],
             icon: Calendar,
             href: "/seasonal",
             gradient: "from-violet-500 to-purple-600",
@@ -62,10 +66,10 @@ export default function DashboardPage() {
             badgeColor: "",
         },
         {
-            name: "Correlation Matrix",
-            shortDesc: "Multi-Asset Relationships",
-            description: "Quantify relationships between Gold, USDINR, DXY, Crude Oil, and more. Identify divergence opportunities and hedge positions.",
-            features: ["Real-time Correlations", "Beta Sensitivity", "Divergence Alerts", "Portfolio Hedging"],
+            name: tTools('correlation.name'),
+            shortDesc: tTools('correlation.shortDesc'),
+            description: tTools('correlation.description'),
+            features: [tTools('correlation.features.realtime'), tTools('correlation.features.beta'), tTools('correlation.features.divergence'), tTools('correlation.features.hedging')],
             icon: Network,
             href: "/correlation",
             gradient: "from-orange-500 to-amber-600",
@@ -76,39 +80,39 @@ export default function DashboardPage() {
             badgeColor: "",
         },
         {
-            name: "COT Report",
-            shortDesc: "Smart Money Positioning",
-            description: "Decode CFTC Commitment of Traders data. Track hedge fund positioning, commercial hedger activity, and identify market turning points.",
-            features: ["Position Visualization", "Percentile Rankings", "Sentiment Gauges", "Contrarian Signals"],
+            name: tTools('cot.name'),
+            shortDesc: tTools('cot.shortDesc'),
+            description: tTools('cot.description'),
+            features: [tTools('cot.features.position'), tTools('cot.features.percentile'), tTools('cot.features.sentiment'), tTools('cot.features.contrarian')],
             icon: BarChart3,
             href: "/cot",
             gradient: "from-rose-500 to-pink-600",
             lightGradient: "from-rose-50 to-pink-50 dark:from-rose-950/30 dark:to-pink-950/30",
             iconBg: "bg-rose-100 dark:bg-rose-900/50",
             iconColor: "text-rose-600 dark:text-rose-400",
-            badge: "Updated",
+            badge: tTools('cot.badge'),
             badgeColor: "bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300",
         },
         {
-            name: "Backtest Engine",
-            shortDesc: "Strategy Validation",
-            description: "Test your Gold & Silver trading strategies against 10+ years of historical data. Validate ideas before risking real capital.",
-            features: ["Historical Simulation", "Performance Metrics", "Drawdown Analysis", "Risk-Adjusted Returns"],
+            name: tTools('backtest.name'),
+            shortDesc: tTools('backtest.shortDesc'),
+            description: tTools('backtest.description'),
+            features: [tTools('backtest.features.simulation'), tTools('backtest.features.metrics'), tTools('backtest.features.drawdown'), tTools('backtest.features.riskAdjusted')],
             icon: FlaskConical,
             href: "/backtest",
             gradient: "from-cyan-500 to-blue-600",
             lightGradient: "from-cyan-50 to-blue-50 dark:from-cyan-950/30 dark:to-blue-950/30",
             iconBg: "bg-cyan-100 dark:bg-cyan-900/50",
             iconColor: "text-cyan-600 dark:text-cyan-400",
-            badge: "New",
+            badge: tTools('backtest.badge'),
             badgeColor: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300",
         },
     ]
 
     const stats = [
-        { label: "Analytics Tools", value: "6", icon: Zap },
-        { label: "Years of Data", value: "10+", icon: Clock },
-        { label: "Analysis Types", value: "15+", icon: LineChart },
+        { label: t('stats.analyticsTools'), value: "6", icon: Zap },
+        { label: t('stats.yearsOfData'), value: "10+", icon: Clock },
+        { label: t('stats.analysisTypes'), value: "15+", icon: LineChart },
     ]
 
     return (
@@ -125,16 +129,15 @@ export default function DashboardPage() {
                             <Sparkles className="h-5 w-5 text-white" />
                         </div>
                         <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 hover:bg-amber-500/30">
-                            Commodities Intelligence Platform
+                            {t('platformBadge')}
                         </Badge>
                     </div>
 
                     <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">
-                        Welcome to <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Bullion Brain</span>
+                        {t('welcome')} <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{t('brandName')}</span>
                     </h1>
                     <p className="text-slate-300 text-base md:text-lg max-w-2xl mb-6">
-                        Professional-grade analytics for Gold, Silver & Commodities trading.
-                        Make data-driven decisions with institutional-level tools.
+                        {t('subtitle')}
                     </p>
 
                     {/* Quick Stats */}
@@ -158,8 +161,8 @@ export default function DashboardPage() {
             <div>
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h2 className="text-xl md:text-2xl font-bold text-foreground">Analytics Suite</h2>
-                        <p className="text-sm text-muted-foreground">Powerful tools to gain your trading edge</p>
+                        <h2 className="text-xl md:text-2xl font-bold text-foreground">{t('analyticsSuite')}</h2>
+                        <p className="text-sm text-muted-foreground">{t('analyticsSuiteDescription')}</p>
                     </div>
                 </div>
 
@@ -229,9 +232,9 @@ export default function DashboardPage() {
                         <div className="p-3 rounded-xl bg-blue-100 dark:bg-blue-900/50 w-fit mb-4">
                             <Target className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
-                        <h3 className="text-sm font-semibold mb-2">Data-Driven Decisions</h3>
+                        <h3 className="text-sm font-semibold mb-2">{t('whyUse.dataDecisions.title')}</h3>
                         <p className="text-xs text-muted-foreground leading-relaxed">
-                            Replace guesswork with quantified analysis. Every tool provides statistical backing for your trading decisions.
+                            {t('whyUse.dataDecisions.description')}
                         </p>
                     </CardContent>
                 </Card>
@@ -241,9 +244,9 @@ export default function DashboardPage() {
                         <div className="p-3 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 w-fit mb-4">
                             <Shield className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                         </div>
-                        <h3 className="text-sm font-semibold mb-2">Risk Management</h3>
+                        <h3 className="text-sm font-semibold mb-2">{t('whyUse.riskManagement.title')}</h3>
                         <p className="text-xs text-muted-foreground leading-relaxed">
-                            Identify extreme positioning, correlation breakdowns, and arbitrage opportunities before they become obvious.
+                            {t('whyUse.riskManagement.description')}
                         </p>
                     </CardContent>
                 </Card>
@@ -253,9 +256,9 @@ export default function DashboardPage() {
                         <div className="p-3 rounded-xl bg-violet-100 dark:bg-violet-900/50 w-fit mb-4">
                             <Clock className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                         </div>
-                        <h3 className="text-sm font-semibold mb-2">Save Time</h3>
+                        <h3 className="text-sm font-semibold mb-2">{t('whyUse.saveTime.title')}</h3>
                         <p className="text-xs text-muted-foreground leading-relaxed">
-                            Automate your pre-market prep. Get pivot levels, sentiment readings, and arbitrage scans in seconds, not hours.
+                            {t('whyUse.saveTime.description')}
                         </p>
                     </CardContent>
                 </Card>
@@ -267,11 +270,9 @@ export default function DashboardPage() {
                     <Sparkles className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div>
-                    <h4 className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-1">Quick Start Tip</h4>
+                    <h4 className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-1">{t('quickStartTip.title')}</h4>
                     <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
-                        New to Bullion Brain? Start with the <strong>COT Report</strong> to understand market sentiment,
-                        then use <strong>Pivot Calculator</strong> for your daily trading levels.
-                        Check <strong>Arbitrage Heatmap</strong> when MCX premiums seem unusual.
+                        {t('quickStartTip.description')}
                     </p>
                 </div>
             </div>

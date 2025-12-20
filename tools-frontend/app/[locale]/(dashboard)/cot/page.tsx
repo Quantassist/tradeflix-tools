@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -37,6 +38,7 @@ import { AdvancedTab, AlertsTab, AnalysisTab, ChartsTab, PositionsTab, Sentiment
 
 
 export default function COTReportPage() {
+  const t = useTranslations('cot')
   const [loading, setLoading] = useState(false)
   const [guideOpen, setGuideOpen] = useState(false)
   const [result, setResult] = useState<DisaggCOTAnalysisResponse | null>(null)
@@ -188,10 +190,10 @@ export default function COTReportPage() {
               <BarChart3 className="h-8 w-8" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold tracking-tight">COT Report Visualizer</h1>
+              <h1 className="text-4xl font-bold tracking-tight">{t('pageTitle')}</h1>
               <div className="flex items-center gap-2 mt-1">
                 <Activity className="h-4 w-4" />
-                <span className="text-sm font-medium opacity-90">Disaggregated Futures Only Report</span>
+                <span className="text-sm font-medium opacity-90">{t('pageSubtitle')}</span>
               </div>
             </div>
           </div>

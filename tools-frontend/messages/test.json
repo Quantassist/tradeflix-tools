@@ -1,0 +1,16 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "navigation": {
+    "mainMenu": "Main Menu",
+    "dashboard": "Dashboard"
+  },
+  "locale": {
+    "switchLanguage": "Switch Language",
+    "english": "English",
+    "hindi": "Hindi"
+  }
+}

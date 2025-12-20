@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useTranslations } from "next-intl"
 import { StyledCard, StyledCardHeader, StyledCardContent } from "@/components/ui/styled-card"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -119,6 +120,8 @@ function TimeframeCard({
 }
 
 export function MultiTimeframePivots() {
+    const t = useTranslations('pivot.multiTimeframe')
+    const tSymbols = useTranslations('pivot.symbols')
     const [loading, setLoading] = useState(false)
     const [symbol, setSymbol] = useState("GOLD")
     const [data, setData] = useState<MultiTimeframePivotResponse | null>(null)
@@ -150,15 +153,15 @@ export function MultiTimeframePivots() {
             <StyledCard variant="purple">
                 <StyledCardHeader
                     icon={Layers}
-                    title="Multi-Timeframe Pivots"
-                    description="Daily, Weekly & Monthly with Confluence Detection"
+                    title={t('title')}
+                    description={t('description')}
                     variant="purple"
                     action={
                         <Dialog>
                             <DialogTrigger asChild>
                                 <Button className="bg-linear-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-md">
                                     <BookOpen className="h-4 w-4 mr-2" />
-                                    Learn How It Works
+                                    {t('learnHow')}
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-2xl">
@@ -167,9 +170,9 @@ export function MultiTimeframePivots() {
                                         <div className="p-2 bg-linear-to-br from-violet-500 to-purple-600 rounded-lg text-white">
                                             <Layers className="h-5 w-5" />
                                         </div>
-                                        Multi-Timeframe Pivot Guide
+                                        {t('guideTitle')}
                                     </DialogTitle>
-                                    <DialogDescription>Master confluence trading with pivot levels</DialogDescription>
+                                    <DialogDescription>{t('guideDescription')}</DialogDescription>
                                 </DialogHeader>
 
                                 <div className="space-y-6 mt-4">
@@ -177,18 +180,18 @@ export function MultiTimeframePivots() {
                                     <div className="grid grid-cols-3 gap-3">
                                         <div className="p-4 rounded-xl bg-linear-to-br from-blue-50 to-cyan-50 border border-blue-100">
                                             <Clock className="h-6 w-6 text-blue-600 mb-2" />
-                                            <h4 className="font-bold text-blue-800">Daily</h4>
-                                            <p className="text-xs text-blue-600 mt-1">Intraday levels, recalculated each day</p>
+                                            <h4 className="font-bold text-blue-800">{t('daily')}</h4>
+                                            <p className="text-xs text-blue-600 mt-1">{t('dailyDesc')}</p>
                                         </div>
                                         <div className="p-4 rounded-xl bg-linear-to-br from-violet-50 to-purple-50 border border-violet-100">
                                             <Calendar className="h-6 w-6 text-violet-600 mb-2" />
-                                            <h4 className="font-bold text-violet-800">Weekly</h4>
-                                            <p className="text-xs text-violet-600 mt-1">Swing trading levels, updated weekly</p>
+                                            <h4 className="font-bold text-violet-800">{t('weekly')}</h4>
+                                            <p className="text-xs text-violet-600 mt-1">{t('weeklyDesc')}</p>
                                         </div>
                                         <div className="p-4 rounded-xl bg-linear-to-br from-amber-50 to-orange-50 border border-amber-100">
                                             <CalendarDays className="h-6 w-6 text-amber-600 mb-2" />
-                                            <h4 className="font-bold text-amber-800">Monthly</h4>
-                                            <p className="text-xs text-amber-600 mt-1">Major levels, highest significance</p>
+                                            <h4 className="font-bold text-amber-800">{t('monthly')}</h4>
+                                            <p className="text-xs text-amber-600 mt-1">{t('monthlyDesc')}</p>
                                         </div>
                                     </div>
 
@@ -196,24 +199,24 @@ export function MultiTimeframePivots() {
                                     <div className="p-4 rounded-xl bg-slate-50 border">
                                         <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
                                             <Info className="h-4 w-4 text-slate-600" />
-                                            Level Abbreviations
+                                            {t('levelAbbreviations')}
                                         </h4>
                                         <div className="grid grid-cols-2 gap-3 text-sm">
                                             <div className="flex items-center gap-2">
                                                 <Badge className="bg-blue-100 text-blue-700 border-blue-200">D_S1</Badge>
-                                                <span className="text-slate-600">Daily Support 1</span>
+                                                <span className="text-slate-600">{t('dailySupport1')}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <Badge className="bg-blue-100 text-blue-700 border-blue-200">D_R2</Badge>
-                                                <span className="text-slate-600">Daily Resistance 2</span>
+                                                <span className="text-slate-600">{t('dailyResistance2')}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <Badge className="bg-violet-100 text-violet-700 border-violet-200">W_CPR_TC</Badge>
-                                                <span className="text-slate-600">Weekly CPR Top Central</span>
+                                                <span className="text-slate-600">{t('weeklyCprTc')}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <Badge className="bg-amber-100 text-amber-700 border-amber-200">M_Fib_618</Badge>
-                                                <span className="text-slate-600">Monthly Fib 61.8%</span>
+                                                <span className="text-slate-600">{t('monthlyFib618')}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -222,15 +225,15 @@ export function MultiTimeframePivots() {
                                     <div className="p-4 rounded-xl bg-linear-to-r from-amber-50 to-orange-50 border border-amber-200">
                                         <h4 className="font-bold text-amber-800 mb-3 flex items-center gap-2">
                                             <Zap className="h-4 w-4" />
-                                            What is Confluence?
+                                            {t('whatIsConfluence')}
                                         </h4>
                                         <p className="text-sm text-amber-700 mb-3">
-                                            When pivot levels from different timeframes align within a small range, they create a <strong>confluence zone</strong> - a high-probability support/resistance area.
+                                            {t('confluenceExplanation')}
                                         </p>
                                         <div className="flex gap-2">
-                                            <Badge className="bg-amber-200 text-amber-800">2x = Moderate</Badge>
-                                            <Badge className="bg-orange-200 text-orange-800">3x = Strong</Badge>
-                                            <Badge className="bg-red-200 text-red-800">4x+ = Very Strong</Badge>
+                                            <Badge className="bg-amber-200 text-amber-800">2x = {t('moderate')}</Badge>
+                                            <Badge className="bg-orange-200 text-orange-800">3x = {t('strong')}</Badge>
+                                            <Badge className="bg-red-200 text-red-800">4x+ = {t('veryStrong')}</Badge>
                                         </div>
                                     </div>
                                 </div>
@@ -246,22 +249,22 @@ export function MultiTimeframePivots() {
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="GOLD">Gold</SelectItem>
-                                <SelectItem value="SILVER">Silver</SelectItem>
-                                <SelectItem value="CRUDE">Crude Oil</SelectItem>
-                                <SelectItem value="COPPER">Copper</SelectItem>
-                                <SelectItem value="NATURALGAS">Natural Gas</SelectItem>
+                                <SelectItem value="GOLD">{tSymbols('gold')}</SelectItem>
+                                <SelectItem value="SILVER">{tSymbols('silver')}</SelectItem>
+                                <SelectItem value="CRUDE">{tSymbols('crudeOil')}</SelectItem>
+                                <SelectItem value="COPPER">{tSymbols('copper')}</SelectItem>
+                                <SelectItem value="NATURALGAS">{tSymbols('naturalGas')}</SelectItem>
                             </SelectContent>
                         </Select>
                         <Button onClick={() => handleFetch()} disabled={loading} className="gap-2">
                             {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                            Fetch All Timeframes
+                            {t('fetchAllTimeframes')}
                         </Button>
 
                         {data && (
                             <div className="ml-auto flex items-center gap-4">
                                 <div className="px-4 py-2 rounded-lg bg-slate-100">
-                                    <span className="text-xs text-slate-500">Current Price</span>
+                                    <span className="text-xs text-slate-500">{t('currentPrice')}</span>
                                     <div className="font-mono font-bold text-lg text-slate-800">${formatNumber(data.current_price)}</div>
                                 </div>
                                 <Badge
@@ -272,7 +275,7 @@ export function MultiTimeframePivots() {
                                 >
                                     {data.market_bias === "bullish" && <TrendingUp className="h-4 w-4 mr-1" />}
                                     {data.market_bias === "bearish" && <TrendingDown className="h-4 w-4 mr-1" />}
-                                    {data.market_bias.toUpperCase()} BIAS
+                                    {data.market_bias.toUpperCase()} {t('bias')}
                                 </Badge>
                             </div>
                         )}
@@ -290,10 +293,10 @@ export function MultiTimeframePivots() {
                                     <CardHeader className="pb-3">
                                         <CardTitle className="text-lg flex items-center gap-2 text-amber-700">
                                             <Zap className="h-5 w-5" />
-                                            Confluence Zones Detected
+                                            {t('confluenceZonesDetected')}
                                         </CardTitle>
                                         <CardDescription>
-                                            High-probability levels where multiple timeframes align
+                                            {t('highProbabilityLevels')}
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
@@ -306,7 +309,7 @@ export function MultiTimeframePivots() {
                                                     <div className="flex items-center justify-between mb-2">
                                                         <span className="font-mono font-bold text-lg">${formatNumber(zone.value)}</span>
                                                         <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-300">
-                                                            {zone.strength}x Confluence
+                                                            {zone.strength}x {t('confluence')}
                                                         </Badge>
                                                     </div>
                                                     <div className="flex flex-wrap gap-1">
@@ -331,10 +334,10 @@ export function MultiTimeframePivots() {
                                             <div className="mt-4 p-3 bg-amber-100 rounded-lg border border-amber-300">
                                                 <div className="flex items-center gap-2 text-amber-800">
                                                     <Target className="h-4 w-4" />
-                                                    <span className="font-medium">Nearest Confluence:</span>
+                                                    <span className="font-medium">{t('nearestConfluence')}:</span>
                                                     <span className="font-mono font-bold">${formatNumber(data.nearest_confluence.value)}</span>
                                                     <span className="text-sm">
-                                                        ({data.nearest_confluence.distance_percent.toFixed(2)}% away)
+                                                        ({data.nearest_confluence.distance_percent.toFixed(2)}% {t('away')})
                                                     </span>
                                                 </div>
                                             </div>
@@ -368,7 +371,7 @@ export function MultiTimeframePivots() {
                         <CardContent className="flex flex-col items-center justify-center py-12">
                             <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
                             <p className="text-muted-foreground text-center">
-                                Select a symbol and click &quot;Fetch All Timeframes&quot; to view multi-timeframe pivot analysis
+                                {t('selectSymbolPrompt')}
                             </p>
                         </CardContent>
                     </Card>

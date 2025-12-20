@@ -9,8 +9,10 @@ import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Separator } from "@/components/ui/separator";
 import { useSession, client } from "@/lib/auth-client";
+import { useTranslations } from 'next-intl';
 
 export default function SettingsPage() {
+    const t = useTranslations('settings');
     const { data: session, isPending: isSessionLoading } = useSession();
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -66,24 +68,24 @@ export default function SettingsPage() {
     return (
         <div className="space-y-6 max-w-2xl">
             <div>
-                <h1 className="text-3xl font-bold">Settings</h1>
+                <h1 className="text-3xl font-bold">{t('title')}</h1>
                 <p className="text-muted-foreground">
-                    Manage your account settings and preferences
+                    {t('subtitle')}
                 </p>
             </div>
 
             {/* Password Change */}
             <Card>
                 <CardHeader>
-                    <CardTitle>Change Password</CardTitle>
+                    <CardTitle>{t('changePassword')}</CardTitle>
                     <CardDescription>
-                        Update your password to keep your account secure
+                        {t('changePasswordDescription')}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handlePasswordChange} className="space-y-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="current-password">Current Password</Label>
+                            <Label htmlFor="current-password">{t('currentPassword')}</Label>
                             <PasswordInput
                                 id="current-password"
                                 value={currentPassword}
@@ -94,7 +96,7 @@ export default function SettingsPage() {
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="new-password">New Password</Label>
+                            <Label htmlFor="new-password">{t('newPassword')}</Label>
                             <PasswordInput
                                 id="new-password"
                                 value={newPassword}
@@ -105,7 +107,7 @@ export default function SettingsPage() {
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="confirm-password">Confirm New Password</Label>
+                            <Label htmlFor="confirm-password">{t('confirmNewPassword')}</Label>
                             <PasswordInput
                                 id="confirm-password"
                                 value={confirmPassword}
@@ -117,7 +119,7 @@ export default function SettingsPage() {
 
                         <Button type="submit" disabled={isPending}>
                             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Change Password
+                            {t('changePassword')}
                         </Button>
                     </form>
                 </CardContent>
@@ -126,20 +128,20 @@ export default function SettingsPage() {
             {/* Session Info */}
             <Card>
                 <CardHeader>
-                    <CardTitle>Active Session</CardTitle>
+                    <CardTitle>{t('activeSession')}</CardTitle>
                     <CardDescription>
-                        Information about your current session
+                        {t('activeSessionDescription')}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Session ID</span>
+                        <span className="text-sm text-muted-foreground">{t('sessionId')}</span>
                         <span className="text-sm font-mono truncate max-w-[200px]">
                             {session?.session?.id}
                         </span>
                     </div>
                     <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Expires At</span>
+                        <span className="text-sm text-muted-foreground">{t('expiresAt')}</span>
                         <span className="text-sm">
                             {session?.session?.expiresAt
                                 ? new Date(session.session.expiresAt).toLocaleDateString()
@@ -152,22 +154,22 @@ export default function SettingsPage() {
             {/* Danger Zone */}
             <Card className="border-destructive">
                 <CardHeader>
-                    <CardTitle className="text-destructive">Danger Zone</CardTitle>
+                    <CardTitle className="text-destructive">{t('dangerZone')}</CardTitle>
                     <CardDescription>
-                        Irreversible and destructive actions
+                        {t('dangerZoneDescription')}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <Separator />
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="font-medium">Delete Account</p>
+                            <p className="font-medium">{t('deleteAccount')}</p>
                             <p className="text-sm text-muted-foreground">
-                                Permanently delete your account and all associated data
+                                {t('deleteAccountDescription')}
                             </p>
                         </div>
                         <Button variant="destructive" disabled>
-                            Delete Account
+                            {t('deleteAccount')}
                         </Button>
                     </div>
                 </CardContent>

@@ -9,8 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSession, client } from "@/lib/auth-client";
+import { useTranslations } from 'next-intl';
 
 export default function ProfilePage() {
+    const t = useTranslations('profile');
     const { data: session, isPending: isSessionLoading } = useSession();
     const [name, setName] = useState(session?.user?.name || "");
     const [image, setImage] = useState<File | null>(null);
@@ -97,17 +99,17 @@ export default function ProfilePage() {
     return (
         <div className="space-y-6 max-w-2xl">
             <div>
-                <h1 className="text-3xl font-bold">Profile</h1>
+                <h1 className="text-3xl font-bold">{t('title')}</h1>
                 <p className="text-muted-foreground">
-                    Manage your account information
+                    {t('subtitle')}
                 </p>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Personal Information</CardTitle>
+                    <CardTitle>{t('personalInfo')}</CardTitle>
                     <CardDescription>
-                        Update your profile details and photo
+                        {t('personalInfoDescription')}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -141,18 +143,18 @@ export default function ProfilePage() {
 
                         {/* Name */}
                         <div className="grid gap-2">
-                            <Label htmlFor="name">Full Name</Label>
+                            <Label htmlFor="name">{t('fullName')}</Label>
                             <Input
                                 id="name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                placeholder="Enter your name"
+                                placeholder={t('enterName')}
                             />
                         </div>
 
                         {/* Email (read-only) */}
                         <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
+                            <Label htmlFor="email">{t('email')}</Label>
                             <Input
                                 id="email"
                                 value={session?.user?.email || ""}
@@ -160,13 +162,13 @@ export default function ProfilePage() {
                                 className="bg-muted"
                             />
                             <p className="text-xs text-muted-foreground">
-                                Email cannot be changed
+                                {t('emailCannotChange')}
                             </p>
                         </div>
 
                         <Button type="submit" disabled={isPending}>
                             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Save Changes
+                            {t('saveChanges')}
                         </Button>
                     </form>
                 </CardContent>
@@ -175,22 +177,22 @@ export default function ProfilePage() {
             {/* Account Info */}
             <Card>
                 <CardHeader>
-                    <CardTitle>Account Information</CardTitle>
+                    <CardTitle>{t('accountInfo')}</CardTitle>
                     <CardDescription>
-                        Details about your account
+                        {t('accountInfoDescription')}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Account ID</span>
+                        <span className="text-sm text-muted-foreground">{t('accountId')}</span>
                         <span className="text-sm font-mono">{session?.user?.id}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Role</span>
+                        <span className="text-sm text-muted-foreground">{t('role')}</span>
                         <span className="text-sm capitalize">{session?.user?.role || "user"}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Email Verified</span>
+                        <span className="text-sm text-muted-foreground">{t('emailVerified')}</span>
                         <span className="text-sm">{session?.user?.emailVerified ? "Yes" : "No"}</span>
                     </div>
                 </CardContent>

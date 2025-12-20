@@ -1,6 +1,7 @@
 "use client";
 
 import { Bell, LogOut, Settings, User, Menu, Search, ChevronRight } from "lucide-react";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
@@ -17,28 +18,42 @@ import {
 import { useSession, signOut } from "@/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSidebar } from "./sidebar-context";
-
-// Map routes to page titles and descriptions
-const pageInfo: Record<string, { title: string; description: string }> = {
-  "/dashboard": { title: "Dashboard", description: "Overview & Analytics" },
-  "/backtest": { title: "Backtest Engine", description: "Strategy Testing" },
-  "/pivot": { title: "Pivot Calculator", description: "Technical Levels" },
-  "/arbitrage": { title: "Arbitrage Heatmap", description: "Price Differentials" },
-  "/seasonal": { title: "Seasonal Trends", description: "Pattern Analysis" },
-  "/correlation": { title: "Correlation Matrix", description: "Asset Relationships" },
-  "/cot": { title: "COT Report", description: "Market Positioning" },
-  "/settings": { title: "Settings", description: "Preferences" },
-  "/profile": { title: "Profile", description: "Account Details" },
-};
+import { useTranslations } from 'next-intl';
+import { routing } from '@/i18n/routing';
 
 export function Header() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const { toggle } = useSidebar();
+  const t = useTranslations('navigation');
 
-  // Get current page info
-  const currentPage = pageInfo[pathname] || { title: "Dashboard", description: "Overview" };
+  // Helper to strip locale prefix from pathname
+  const getPathnameWithoutLocale = (path: string): string => {
+    const localePattern = new RegExp(`^/(${routing.locales.join('|')})(/|$)`);
+    return path.replace(localePattern, '$2') || '/';
+  };
+
+  const pathnameWithoutLocale = getPathnameWithoutLocale(pathname);
+
+  // Map routes to translation keys
+  const pageInfoMap: Record<string, { titleKey: string; descKey: string }> = {
+    "/dashboard": { titleKey: "dashboard", descKey: "overview" },
+    "/backtest": { titleKey: "backtest", descKey: "strategyTesting" },
+    "/pivot": { titleKey: "pivot", descKey: "technicalLevels" },
+    "/arbitrage": { titleKey: "arbitrage", descKey: "priceDifferentials" },
+    "/seasonal": { titleKey: "seasonal", descKey: "patternAnalysis" },
+    "/correlation": { titleKey: "correlation", descKey: "assetRelationships" },
+    "/cot": { titleKey: "cot", descKey: "marketPositioning" },
+    "/settings": { titleKey: "settings", descKey: "preferences" },
+    "/profile": { titleKey: "profile", descKey: "accountDetails" },
+  };
+
+  const pageKeys = pageInfoMap[pathnameWithoutLocale] || { titleKey: "dashboard", descKey: "overview" };
+  const currentPage = {
+    title: t(pageKeys.titleKey),
+    description: t(pageKeys.titleKey)
+  };
 
   const handleSignOut = async () => {
     await signOut({
@@ -119,6 +134,9 @@ export function Header() {
               <Bell className="h-5 w-5 text-slate-600 dark:text-slate-400" />
               <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-white dark:ring-slate-900" />
             </Button>
+
+            {/* Language Switcher */}
+            <LocaleSwitcher />
 
             {/* Settings */}
             <Link href="/settings">

@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useSidebar } from "./sidebar-context"
+import { useTranslations } from 'next-intl'
 import {
   LayoutDashboard,
   TrendingUp,
@@ -15,54 +16,55 @@ import {
   X,
 } from "lucide-react"
 
-const navigation = [
-  {
-    name: "Dashboard",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-    gradient: "from-blue-500 to-cyan-500",
-  },
-  {
-    name: "Backtest Engine",
-    href: "/backtest",
-    icon: Activity,
-    gradient: "from-indigo-500 to-purple-500",
-  },
-  {
-    name: "Pivot Calculator",
-    href: "/pivot",
-    icon: TrendingUp,
-    gradient: "from-cyan-500 to-teal-500",
-  },
-  {
-    name: "Arbitrage Heatmap",
-    href: "/arbitrage",
-    icon: DollarSign,
-    gradient: "from-emerald-500 to-green-500",
-  },
-  {
-    name: "Seasonal Trends",
-    href: "/seasonal",
-    icon: Calendar,
-    gradient: "from-amber-500 to-orange-500",
-  },
-  {
-    name: "Correlation Matrix",
-    href: "/correlation",
-    icon: Network,
-    gradient: "from-pink-500 to-rose-500",
-  },
-  {
-    name: "COT Report",
-    href: "/cot",
-    icon: BarChart3,
-    gradient: "from-violet-500 to-purple-500",
-  },
-]
-
 export function Sidebar() {
   const pathname = usePathname()
   const { isOpen, close } = useSidebar()
+  const t = useTranslations('navigation')
+
+  const navigation = [
+    {
+      name: t('dashboard'),
+      href: "/dashboard",
+      icon: LayoutDashboard,
+      gradient: "from-blue-500 to-cyan-500",
+    },
+    {
+      name: t('backtest'),
+      href: "/backtest",
+      icon: Activity,
+      gradient: "from-indigo-500 to-purple-500",
+    },
+    {
+      name: t('pivot'),
+      href: "/pivot",
+      icon: TrendingUp,
+      gradient: "from-cyan-500 to-teal-500",
+    },
+    {
+      name: t('arbitrage'),
+      href: "/arbitrage",
+      icon: DollarSign,
+      gradient: "from-emerald-500 to-green-500",
+    },
+    {
+      name: t('seasonal'),
+      href: "/seasonal",
+      icon: Calendar,
+      gradient: "from-amber-500 to-orange-500",
+    },
+    {
+      name: t('correlation'),
+      href: "/correlation",
+      icon: Network,
+      gradient: "from-pink-500 to-rose-500",
+    },
+    {
+      name: t('cot'),
+      href: "/cot",
+      icon: BarChart3,
+      gradient: "from-violet-500 to-purple-500",
+    },
+  ]
 
   return (
     <>
@@ -110,7 +112,7 @@ export function Sidebar() {
           {/* Navigation */}
           <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             <p className="px-3 mb-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-              Main Menu
+              {t('mainMenu')}
             </p>
             {navigation.map((item) => {
               const isActive = pathname === item.href

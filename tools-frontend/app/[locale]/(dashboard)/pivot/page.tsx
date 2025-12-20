@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
+import { useTranslations } from 'next-intl'
 import { StyledCard, StyledCardHeader, StyledCardContent } from "@/components/ui/styled-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -169,6 +170,7 @@ function ExportModalContent({ pivotData }: { pivotData: PivotResponse }) {
 }
 
 export default function PivotCalculatorPage() {
+  const t = useTranslations('pivot')
   const [loading, setLoading] = useState(false)
   const [autoFetchLoading, setAutoFetchLoading] = useState(false)
   const [guideOpen, setGuideOpen] = useState(false)
@@ -283,10 +285,10 @@ export default function PivotCalculatorPage() {
                 <Calculator className="h-8 w-8" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold tracking-tight">Pivot Calculator</h1>
+                <h1 className="text-4xl font-bold tracking-tight">{t('pageTitle')}</h1>
                 <div className="flex items-center gap-2 mt-1">
                   <Target className="h-4 w-4" />
-                  <span className="text-sm font-medium opacity-90">Precision Trading Levels</span>
+                  <span className="text-sm font-medium opacity-90">{t('pageSubtitle')}</span>
                 </div>
               </div>
             </div>
@@ -299,17 +301,17 @@ export default function PivotCalculatorPage() {
                   disabled={!result}
                 >
                   <Download className="h-5 w-5 mr-2" />
-                  Export Pivot Levels
+                  {t('exportButton')}
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2 text-cyan-600">
                     <Download className="h-5 w-5" />
-                    Export Pivot Levels
+                    {t('exportTitle')}
                   </DialogTitle>
                   <DialogDescription>
-                    Download or share pivot levels for morning prep
+                    {t('exportDescription')}
                   </DialogDescription>
                 </DialogHeader>
                 {result ? (
@@ -317,14 +319,14 @@ export default function PivotCalculatorPage() {
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">
                     <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                    <p>Calculate pivot levels first to enable export</p>
+                    <p>{t('calculateFirstExport')}</p>
                   </div>
                 )}
               </DialogContent>
             </Dialog>
           </div>
           <p className="text-white/90 text-lg max-w-2xl">
-            Calculate CPR, Floor, and Fibonacci pivot points for precise intraday trading decisions
+            {t('headerDescription')}
           </p>
         </div>
         <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
@@ -343,19 +345,19 @@ export default function PivotCalculatorPage() {
                   </div>
                   <div className="text-left">
                     <div className="font-semibold text-foreground flex items-center gap-2">
-                      Understanding Pivot Points
+                      {t('understandingPivotPoints')}
                       <Badge variant="outline" className="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700">
-                        Guide
+                        {t('guide')}
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      Learn about CPR, Floor Pivots, and Fibonacci levels for intraday trading
+                      {t('guideSubtitle')}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
-                    {guideOpen ? "Hide Guide" : "Show Guide"}
+                    {guideOpen ? t('hideGuide') : t('showGuide')}
                   </span>
                   <ChevronDown className={`h-5 w-5 text-blue-600 dark:text-blue-400 transition-transform duration-300 ${guideOpen ? "rotate-180" : ""}`} />
                 </div>
@@ -373,10 +375,10 @@ export default function PivotCalculatorPage() {
                     <div className="p-1.5 rounded-lg bg-cyan-100 dark:bg-cyan-900/50">
                       <Target className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
                     </div>
-                    CPR (Central Pivot)
+                    {t('cprTitle')}
                   </div>
                   <p className="text-sm text-cyan-700 dark:text-cyan-400 leading-relaxed">
-                    TC, Pivot, BC - Key zone for intraday trend direction and reversals.
+                    {t('cprDescription')}
                   </p>
                 </div>
               </div>
@@ -387,10 +389,10 @@ export default function PivotCalculatorPage() {
                     <div className="p-1.5 rounded-lg bg-purple-100 dark:bg-purple-900/50">
                       <Layers className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                     </div>
-                    Floor Pivots
+                    {t('floorPivotsTitle')}
                   </div>
                   <p className="text-sm text-purple-700 dark:text-purple-400 leading-relaxed">
-                    R1-R3 resistance, S1-S3 support - Classic support/resistance levels.
+                    {t('floorPivotsDescription')}
                   </p>
                 </div>
               </div>
@@ -401,10 +403,10 @@ export default function PivotCalculatorPage() {
                     <div className="p-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/50">
                       <BarChart2 className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                     </div>
-                    Fibonacci Levels
+                    {t('fibonacciTitle')}
                   </div>
                   <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
-                    38.2%, 50%, 61.8% - Golden ratio retracement for precision entries.
+                    {t('fibonacciDescription')}
                   </p>
                 </div>
               </div>
@@ -415,10 +417,10 @@ export default function PivotCalculatorPage() {
                     <div className="p-1.5 rounded-lg bg-emerald-100 dark:bg-emerald-900/50">
                       <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                     </div>
-                    Trading Strategy
+                    {t('tradingStrategyTitle')}
                   </div>
                   <p className="text-sm text-emerald-700 dark:text-emerald-400 leading-relaxed">
-                    Buy near support, sell near resistance with proper stop losses.
+                    {t('tradingStrategyDescription')}
                   </p>
                 </div>
               </div>
@@ -432,15 +434,15 @@ export default function PivotCalculatorPage() {
         <StyledCard variant="blue">
           <StyledCardHeader
             icon={Settings}
-            title="Input Parameters"
-            description="Enter previous day's High, Low, and Close prices"
+            title={t('inputParameters')}
+            description={t('inputDescription')}
             variant="blue"
             action={
               <Dialog>
                 <DialogTrigger asChild>
                   <Button className="bg-linear-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white shadow-md">
                     <BookOpen className="h-4 w-4 mr-2" />
-                    How to Use
+                    {t('howToUse')}
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-lg">
@@ -479,7 +481,7 @@ export default function PivotCalculatorPage() {
               {/* Symbol and Timeframe in a row */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="symbol" className="text-slate-600">Symbol</Label>
+                  <Label htmlFor="symbol" className="text-slate-600">{t('symbol')}</Label>
                   <Select
                     value={formData.symbol}
                     onValueChange={(value: string) =>
@@ -500,7 +502,7 @@ export default function PivotCalculatorPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="timeframe" className="text-slate-600">Timeframe</Label>
+                  <Label htmlFor="timeframe" className="text-slate-600">{t('timeframe')}</Label>
                   <Select
                     value={formData.timeframe}
                     onValueChange={(value: string) =>
@@ -511,9 +513,9 @@ export default function PivotCalculatorPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="daily">Daily</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="daily">{t('daily')}</SelectItem>
+                      <SelectItem value="weekly">{t('weekly')}</SelectItem>
+                      <SelectItem value="monthly">{t('monthly')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -542,10 +544,10 @@ export default function PivotCalculatorPage() {
 
               {/* Price inputs in a visual group */}
               <div className="p-4 rounded-xl bg-slate-50 border space-y-3">
-                <div className="text-xs font-medium text-slate-500 uppercase">Price Data</div>
+                <div className="text-xs font-medium text-slate-500 uppercase">{t('priceData')}</div>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="space-y-1">
-                    <Label htmlFor="high" className="text-xs text-red-600 font-medium">High</Label>
+                    <Label htmlFor="high" className="text-xs text-red-600 font-medium">{t('high')}</Label>
                     <Input
                       id="high"
                       type="number"
@@ -558,7 +560,7 @@ export default function PivotCalculatorPage() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label htmlFor="low" className="text-xs text-green-600 font-medium">Low</Label>
+                    <Label htmlFor="low" className="text-xs text-green-600 font-medium">{t('low')}</Label>
                     <Input
                       id="low"
                       type="number"
@@ -571,7 +573,7 @@ export default function PivotCalculatorPage() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label htmlFor="close" className="text-xs text-blue-600 font-medium">Close</Label>
+                    <Label htmlFor="close" className="text-xs text-blue-600 font-medium">{t('close')}</Label>
                     <Input
                       id="close"
                       type="number"
@@ -594,11 +596,11 @@ export default function PivotCalculatorPage() {
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Calculating Levels...
+                    {t('calculatingLevels')}
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    Calculate Pivots
+                    {t('calculatePivots')}
                     <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </span>
                 )}
@@ -611,7 +613,7 @@ export default function PivotCalculatorPage() {
         <StyledCard variant="green">
           <StyledCardHeader
             icon={Sparkles}
-            title="Pivot Levels"
+            title={t('pivotLevels')}
             description={result ? `${result.symbol} - ${result.timeframe.toUpperCase()} pivots` : "Results will appear here after calculation"}
             variant="green"
             action={

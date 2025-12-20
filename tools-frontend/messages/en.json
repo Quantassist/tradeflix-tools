@@ -1,0 +1,930 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "filter": "Filter",
+    "reset": "Reset",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "or": "or",
+    "and": "and",
+    "more": "more"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "forgotPassword": "Forgot Password",
+    "resetPassword": "Reset Password",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "name": "Name",
+    "rememberMe": "Remember me",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "sendResetLink": "Send Reset Link",
+    "backToSignIn": "Back to Sign In",
+    "resetPasswordDescription": "Enter your email address and we'll send you a link to reset your password.",
+    "newPassword": "New Password",
+    "currentPassword": "Current Password",
+    "passwordChanged": "Password changed successfully",
+    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome",
+    "brandName": "Bullion Brain",
+    "subtitle": "Professional-grade analytics for gold, silver, and commodity trading. Make data-driven decisions with institutional-level tools.",
+    "platformBadge": "Commodity Intelligence Platform",
+    "analyticsSuite": "Analytics Suite",
+    "analyticsSuiteDescription": "Powerful tools to enhance your trading edge",
+    "stats": {
+      "analyticsTools": "Analytics Tools",
+      "yearsOfData": "Years of Data",
+      "analysisTypes": "Analysis Types"
+    },
+    "whyUse": {
+      "dataDecisions": {
+        "title": "Data-Driven Decisions",
+        "description": "Replace guesswork with quantified analysis. Every tool provides statistical backing for your trading decisions."
+      },
+      "riskManagement": {
+        "title": "Risk Management",
+        "description": "Identify extreme positioning, correlation breakdowns, and arbitrage opportunities before they become obvious."
+      },
+      "saveTime": {
+        "title": "Save Time",
+        "description": "Automate your pre-market preparation. Get pivot levels, sentiment readings, and arbitrage scans in seconds."
+      }
+    },
+    "quickStartTip": {
+      "title": "Quick Start Tip",
+      "description": "New to Bullion Brain? Start with the COT Report to understand market sentiment, then use the Pivot Calculator for your daily trading levels."
+    }
+  },
+  "tools": {
+    "pivot": {
+      "name": "Pivot Calculator",
+      "shortDesc": "Intraday Support & Resistance",
+      "description": "Intraday S/R Levels",
+      "features": {
+        "cpr": "Central Pivot Range",
+        "fibonacci": "Fibonacci Levels",
+        "multiTimeframe": "Multi-timeframe"
+      },
+      "badge": "Popular",
+      "details": "Generate CPR, Floor, and Fibonacci pivots instantly. Know exactly where price is likely to reverse or break."
+    },
+    "arbitrage": {
+      "name": "Arbitrage Heatmap",
+      "shortDesc": "COMEX vs MCX Opportunities",
+      "description": "COMEX vs MCX",
+      "features": {
+        "fairValue": "Fair Value Calculator",
+        "alerts": "Premium Alerts",
+        "historical": "Historical Spreads"
+      },
+      "badge": "Pro",
+      "details": "Spot when MCX is overpriced or underpriced vs COMEX. Capture pricing inefficiencies before they disappear."
+    },
+    "seasonal": {
+      "name": "Seasonal Trends",
+      "shortDesc": "Calendar-Based Patterns",
+      "description": "Calendar Patterns",
+      "features": {
+        "festival": "Festival Analysis",
+        "economic": "Event Tracking",
+        "winRate": "Win Rate Stats"
+      },
+      "details": "Know how Gold behaves around Diwali, Akshaya Tritiya, Fed meetings. Trade with historical probabilities on your side."
+    },
+    "correlation": {
+      "name": "Correlation Matrix",
+      "shortDesc": "Multi-Asset Relationships",
+      "description": "Multi-Asset Analysis",
+      "features": {
+        "realtime": "Cross-Asset Correlations",
+        "beta": "Beta Sensitivity",
+        "divergence": "Divergence Alerts"
+      },
+      "details": "Understand how Gold moves with USDINR, DXY, and Crude. Find divergence trades and hedge positions."
+    },
+    "cot": {
+      "name": "COT Report",
+      "shortDesc": "Smart Money Positioning",
+      "description": "Smart Money Positioning",
+      "features": {
+        "position": "Position Visualization",
+        "percentile": "Percentile Rankings",
+        "contrarian": "Contrarian Signals"
+      },
+      "badge": "Updated",
+      "details": "See what hedge funds and commercials are doing. Identify extreme positioning that precedes major moves."
+    },
+    "backtest": {
+      "name": "Backtest Engine",
+      "shortDesc": "Strategy Validation",
+      "description": "Strategy Validation",
+      "features": {
+        "simulation": "Historical Simulation",
+        "metrics": "Performance Metrics",
+        "drawdown": "Drawdown Analysis"
+      },
+      "badge": "New",
+      "details": "Test your Gold & Silver strategies against 10+ years of data. Know your edge before risking real capital."
+    }
+  },
+  "navigation": {
+    "mainMenu": "Main Menu",
+    "dashboard": "Dashboard",
+    "pivot": "Pivot Calculator",
+    "arbitrage": "Arbitrage Heatmap",
+    "correlation": "Correlation Matrix",
+    "seasonal": "Seasonal Trends",
+    "cot": "COT Report",
+    "backtest": "Backtest Engine",
+    "profile": "Profile",
+    "settings": "Settings",
+    "signOut": "Sign Out"
+  },
+  "locale": {
+    "switchLanguage": "Switch Language",
+    "english": "English",
+    "hindi": "Hindi"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account settings and preferences",
+    "changePassword": "Change Password",
+    "changePasswordDescription": "Update your password to keep your account secure",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "enterCurrentPassword": "Enter current password",
+    "enterNewPassword": "Enter new password",
+    "confirmNewPasswordPlaceholder": "Confirm new password",
+    "activeSession": "Active Session",
+    "activeSessionDescription": "Information about your current session",
+    "sessionId": "Session ID",
+    "expiresAt": "Expires At",
+    "dangerZone": "Danger Zone",
+    "dangerZoneDescription": "Irreversible and destructive actions",
+    "deleteAccount": "Delete Account",
+    "deleteAccountDescription": "Permanently delete your account and all associated data"
+  },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Manage your account information",
+    "personalInfo": "Personal Information",
+    "personalInfoDescription": "Update your profile details and photo",
+    "fullName": "Full Name",
+    "enterName": "Enter your name",
+    "email": "Email",
+    "emailCannotChange": "Email cannot be changed",
+    "saveChanges": "Save Changes",
+    "accountInfo": "Account Information",
+    "accountInfoDescription": "Details about your account",
+    "accountId": "Account ID",
+    "role": "Role",
+    "emailVerified": "Email Verified"
+  },
+  "pivot": {
+    "pageTitle": "Pivot Calculator",
+    "pageSubtitle": "Precision Trading Levels",
+    "headerDescription": "Calculate CPR, Floor, and Fibonacci pivot points for precise intraday trading decisions",
+    "exportButton": "Export Pivot Levels",
+    "inputParameters": "Input Parameters",
+    "inputDescription": "Enter the previous day's high, low, and close prices",
+    "howToUse": "How to Use",
+    "pivotLevels": "Pivot Levels",
+    "resultsDescription": "Results will appear here after calculation",
+    "understandingLevels": "Understanding Levels",
+    "symbol": "Symbol",
+    "timeframe": "Timeframe",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "priceData": "Price Data",
+    "high": "High",
+    "low": "Low",
+    "close": "Close",
+    "calculatePivots": "Calculate Pivots",
+    "calculatingLevels": "Calculating levels...",
+    "title": "Pivot Calculator",
+    "subtitle": "Professional pivot point analysis for Gold, Silver & Commodities",
+    "guide": "Guide",
+    "inputForm": {
+      "title": "Calculate Pivots",
+      "description": "Enter OHLC data or fetch from API",
+      "symbol": "Symbol",
+      "exchange": "Exchange",
+      "high": "High",
+      "low": "Low",
+      "close": "Close",
+      "fetchData": "Fetch Data",
+      "calculate": "Calculate",
+      "calculating": "Calculating...",
+      "fetching": "Fetching..."
+    },
+    "multiTimeframe": {
+      "title": "Multi-Timeframe Pivots",
+      "description": "Daily, Weekly & Monthly with Confluence Detection",
+      "learnHow": "Learn How It Works",
+      "guideTitle": "Multi-Timeframe Pivot Guide",
+      "guideDescription": "Master confluence trading with pivot levels",
+      "daily": "Daily",
+      "dailyDesc": "Intraday levels, recalculated each day",
+      "weekly": "Weekly",
+      "weeklyDesc": "Swing trading levels, updated weekly",
+      "monthly": "Monthly",
+      "monthlyDesc": "Major levels, highest significance",
+      "levelAbbreviations": "Level Abbreviations",
+      "dailySupport1": "Daily Support 1",
+      "dailyResistance2": "Daily Resistance 2",
+      "weeklyCprTc": "Weekly CPR Top Central",
+      "monthlyFib618": "Monthly Fib 61.8%",
+      "whatIsConfluence": "What is Confluence?",
+      "confluenceExplanation": "When pivot levels from different timeframes align within a small range, they create a confluence zone - a high-probability support/resistance area.",
+      "moderate": "Moderate",
+      "strong": "Strong",
+      "veryStrong": "Very Strong",
+      "fetchAllTimeframes": "Fetch All Timeframes",
+      "currentPrice": "Current Price",
+      "bias": "BIAS",
+      "confluenceZonesDetected": "Confluence Zones Detected",
+      "highProbabilityLevels": "High-probability levels where multiple timeframes align",
+      "confluence": "Confluence",
+      "nearestConfluence": "Nearest Confluence",
+      "away": "away",
+      "selectSymbolPrompt": "Select a symbol and click \"Fetch All Timeframes\" to view multi-timeframe pivot analysis"
+    },
+    "distanceCalculator": {
+      "title": "Distance Calculator",
+      "description": "Distance to key levels",
+      "guide": "Guide",
+      "guideTitle": "Distance Calculator Guide",
+      "guideDescription": "Understanding price distances to pivot levels",
+      "nextResistance": "Next Resistance",
+      "nextResistanceDesc": "The nearest level above current price. Consider taking profits or placing stop-loss here.",
+      "nextSupport": "Next Support",
+      "nextSupportDesc": "The nearest level below current price. Consider buying or placing stop-loss here.",
+      "nearestLevel": "Nearest Level",
+      "nearestLevelDesc": "The closest pivot level to current price. Watch for reactions here.",
+      "price": "Price",
+      "update": "Update",
+      "noResistance": "No resistance above",
+      "noSupport": "No support below",
+      "distance": "away"
+    },
+    "signalDetection": {
+      "title": "Signal Detection",
+      "description": "Trading signals from pivot analysis",
+      "guide": "Guide",
+      "guideTitle": "Signal Detection Guide",
+      "guideDescription": "Understanding trading signals",
+      "bullishSignals": "Bullish Signals",
+      "bullishSignalsDesc": "Price above CPR or approaching support levels. Consider long positions.",
+      "bearishSignals": "Bearish Signals",
+      "bearishSignalsDesc": "Price below CPR or approaching resistance levels. Consider short positions.",
+      "warningSignals": "Warning Signals",
+      "warningSignalsDesc": "Price near key levels or narrow CPR detected. Be cautious and watch for breakouts.",
+      "overallBias": "Overall Bias",
+      "bias": "BIAS",
+      "bullish": "Bullish",
+      "bearish": "Bearish",
+      "warning": "Warning",
+      "neutral": "Neutral",
+      "noSignals": "No signals at current price"
+    },
+    "historicalAccuracy": {
+      "title": "Historical Accuracy",
+      "description": "Track how often pivot levels are respected over time",
+      "understandingAccuracy": "Understanding Accuracy",
+      "guideTitle": "Historical Accuracy Guide",
+      "guideDescription": "Learn how to interpret pivot level performance",
+      "whatRespectedMean": "What Does \"Respected\" Mean?",
+      "respectedExplanation": "A level is respected when price approaches it and reverses direction within a tolerance (0.3%). This indicates the level acted as support or resistance.",
+      "respectedLabel": "Respected = Price reversed",
+      "notRespectedLabel": "Not respected = Price broke through",
+      "excellent": "Excellent",
+      "good": "Good",
+      "fair": "Fair",
+      "highReliability": "High reliability level",
+      "moderateReliability": "Moderate reliability",
+      "useWithCaution": "Use with caution",
+      "cprWidthCategories": "CPR Width Categories",
+      "narrow": "Narrow (<0.3%)",
+      "normal": "Normal (0.3-0.7%)",
+      "wide": "Wide (>0.7%)",
+      "expectTrendingDay": "Expect trending day",
+      "balancedDay": "Balanced day",
+      "rangeBoundDay": "Range-bound day",
+      "exchange": "Exchange",
+      "symbol": "Symbol",
+      "timeframe": "Timeframe",
+      "period": "Period",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "days30": "30 Days",
+      "days60": "60 Days",
+      "days90": "90 Days",
+      "analyze": "Analyze",
+      "bestPerformingLevels": "Best Performing Levels",
+      "level": "Level",
+      "tested": "Tested",
+      "respected": "Respected",
+      "accuracy": "Accuracy",
+      "rating": "Rating",
+      "narrowCprDays": "Narrow CPR Days",
+      "normalCprDays": "Normal CPR Days",
+      "wideCprDays": "Wide CPR Days",
+      "trendingAccuracy": "trending accuracy",
+      "rangeAccuracy": "range accuracy",
+      "selectParametersPrompt": "Select parameters and click \"Analyze\" to view historical accuracy"
+    },
+    "pivotAlerts": {
+      "title": "Pivot Alerts",
+      "description": "Set price alerts for key levels",
+      "guide": "Guide",
+      "guideTitle": "Pivot Alerts Guide",
+      "guideDescription": "Get notified when price approaches key levels",
+      "addAlert": "Add Alert",
+      "level": "Level",
+      "condition": "Condition",
+      "above": "Above",
+      "below": "Below",
+      "crosses": "Crosses",
+      "active": "Active",
+      "triggered": "Triggered",
+      "noAlerts": "No alerts set",
+      "deleteAlert": "Delete Alert",
+      "alertTriggered": "Alert Triggered"
+    },
+    "intradayRecalc": {
+      "title": "Intraday Recalculation",
+      "description": "Recalculate pivots with live data",
+      "guide": "Guide",
+      "guideTitle": "Intraday Recalculation Guide",
+      "guideDescription": "Update pivot levels as the day progresses",
+      "intradayHigh": "Intraday High",
+      "intradayLow": "Intraday Low",
+      "recalculate": "Recalculate",
+      "originalPivots": "Original Pivots",
+      "updatedPivots": "Updated Pivots",
+      "change": "Change"
+    },
+    "pivotChart": {
+      "title": "Pivot Levels Chart",
+      "description": "Visual representation of pivot levels",
+      "resistance": "Resistance",
+      "support": "Support",
+      "pivot": "Pivot",
+      "currentPrice": "Current Price"
+    },
+    "symbols": {
+      "gold": "Gold",
+      "silver": "Silver",
+      "crudeOil": "Crude Oil",
+      "copper": "Copper",
+      "naturalGas": "Natural Gas"
+    },
+    "exchanges": {
+      "comex": "COMEX",
+      "mcx": "MCX"
+    },
+    "toast": {
+      "fetchSuccess": "Fetched pivot data successfully",
+      "fetchError": "Failed to fetch pivot data",
+      "calculateSuccess": "Pivots calculated successfully",
+      "calculateError": "Failed to calculate pivots",
+      "alertAdded": "Alert added successfully",
+      "alertDeleted": "Alert deleted"
+    },
+    "exportTitle": "Export Pivot Levels",
+    "exportDescription": "Download or share pivot levels for morning prep",
+    "calculateFirstExport": "Calculate pivot levels first to enable export",
+    "understandingPivotPoints": "Understanding Pivot Points",
+    "guideSubtitle": "Learn about CPR, Floor Pivots, and Fibonacci levels for intraday trading",
+    "hideGuide": "Hide Guide",
+    "showGuide": "Show Guide",
+    "cprTitle": "CPR (Central Pivot)",
+    "cprDescription": "TC, Pivot, BC - Key zone for intraday trend direction and reversals.",
+    "floorPivotsTitle": "Floor Pivots",
+    "floorPivotsDescription": "R1-R3 resistance, S1-S3 support - Classic support/resistance levels.",
+    "fibonacciTitle": "Fibonacci Levels",
+    "fibonacciDescription": "38.2%, 50%, 61.8% - Golden ratio retracement for precision entries.",
+    "tradingStrategyTitle": "Trading Strategy",
+    "tradingStrategyDescription": "Buy near support, sell near resistance with proper stop losses.",
+    "multiTimeframePivots": {
+      "title": "Multi-Timeframe Pivots",
+      "description": "Compare pivot levels across daily, weekly, and monthly timeframes",
+      "guide": "Guide",
+      "guideTitle": "Multi-Timeframe Pivot Guide",
+      "guideDescription": "Understanding how to use multiple timeframe analysis",
+      "dailyPivots": "Daily Pivots",
+      "dailyPivotsDesc": "Best for intraday trading. Levels reset each day based on previous session.",
+      "weeklyPivots": "Weekly Pivots",
+      "weeklyPivotsDesc": "Medium-term levels. Great for swing trades and identifying major zones.",
+      "monthlyPivots": "Monthly Pivots",
+      "monthlyPivotsDesc": "Long-term levels. Used for position trading and major support/resistance.",
+      "confluenceZones": "Confluence Zones",
+      "confluenceZonesDesc": "When levels from multiple timeframes align, they become stronger.",
+      "selectSymbol": "Select Symbol",
+      "fetchAllTimeframes": "Fetch All Timeframes",
+      "currentPrice": "Current Price",
+      "bias": "Bias",
+      "confluenceZonesDetected": "Confluence Zones Detected",
+      "highProbabilityLevels": "High-probability levels where multiple timeframes align",
+      "confluence": "Confluence",
+      "nearestConfluence": "Nearest Confluence",
+      "away": "away",
+      "selectSymbolPrompt": "Select a symbol and click \"Fetch All Timeframes\" to view multi-timeframe pivot analysis"
+    },
+    "alerts": {
+      "title": "Pivot Alerts",
+      "description": "Set alerts for price proximity, breakouts, and rejections",
+      "active": "Active",
+      "alertGuide": "Alert Guide",
+      "guideTitle": "Pivot Alerts Guide",
+      "guideDescription": "How to set up and use pivot alerts effectively",
+      "priceApproaching": "Price Approaching",
+      "priceApproachingDesc": "Get notified when price comes within a threshold of a pivot level. Great for preparing entries.",
+      "breakoutAlert": "Breakout Alert",
+      "breakoutAlertDesc": "Triggered when price breaks through a level with momentum. Useful for trend-following trades.",
+      "rejectionAlert": "Rejection Alert",
+      "rejectionAlertDesc": "Triggered when price tests a level and reverses. Perfect for counter-trend or bounce trades.",
+      "proTips": "Pro Tips",
+      "proTip1": "Set proximity alerts on R1/S1 for high-probability setups",
+      "proTip2": "Use breakout alerts on R2/S2 for extended moves",
+      "proTip3": "Rejection alerts work best at R3/S3 extremes",
+      "calculateFirst": "Calculate pivot levels first to set up alerts",
+      "triggered": "Triggered",
+      "noAlerts": "No alerts configured",
+      "level": "Level",
+      "selectLevel": "Select level",
+      "alertType": "Alert Type",
+      "breakout": "Breakout",
+      "rejection": "Rejection",
+      "direction": "Direction",
+      "both": "Both",
+      "fromAbove": "From Above",
+      "fromBelow": "From Below",
+      "threshold": "Threshold (%)",
+      "addAlert": "Add Alert",
+      "cancel": "Cancel",
+      "addNewAlert": "Add New Alert",
+      "note": "Note",
+      "alertsNote": "Alerts are stored locally in your browser. For real-time notifications, connect to a WebSocket service or enable browser notifications."
+    },
+    "intradayRecalculation": {
+      "title": "Intraday Recalculation",
+      "description": "Recalculate pivots using current session's high/low for dynamic levels",
+      "howToUse": "How to Use",
+      "guideTitle": "Intraday Recalculation Guide",
+      "guideDescription": "Master dynamic pivot levels for real-time trading decisions",
+      "whatIsIt": "What is Intraday Recalculation?",
+      "whatIsItDesc": "Traditional pivots use yesterday's high/low/close. Intraday recalculation uses today's developing high/low to create dynamic levels that adapt as the session progresses.",
+      "whenToUse": "When to Use This Feature",
+      "midSession": "Mid-session adjustments",
+      "midSessionDesc": "After a significant move breaks original pivots",
+      "gapDays": "Gap days",
+      "gapDaysDesc": "When market opens far from previous close",
+      "highVolatility": "High volatility",
+      "highVolatilityDesc": "When original pivots become irrelevant",
+      "afternoonTrading": "Afternoon trading",
+      "afternoonTradingDesc": "To get fresh levels for the second half",
+      "realLifeExample": "Real-Life Trading Example",
+      "bullishShift": "Bullish Shift",
+      "bullishShiftDesc": "New pivot is higher than original. Market is showing strength - look for long entries at new supports.",
+      "bearishShift": "Bearish Shift",
+      "bearishShiftDesc": "New pivot is lower than original. Market is showing weakness - look for short entries at new resistances.",
+      "calculateFirst": "Calculate original pivots first to enable intraday recalculation",
+      "intradayHigh": "Intraday High",
+      "intradayLow": "Intraday Low",
+      "currentPriceOptional": "Current Price (optional)",
+      "recalculate": "Recalculate",
+      "reset": "Reset",
+      "cprShift": "CPR Shift",
+      "marketBiasHas": "Market bias has",
+      "recalculatedCpr": "Recalculated CPR",
+      "recalculatedFloorPivots": "Recalculated Floor Pivots",
+      "note": "Note",
+      "intradayNote": "Intraday recalculation uses current session data to provide dynamic pivot levels. These are useful for adjusting your trading plan as the session progresses."
+    }
+  },
+  "arbitrage": {
+    "pageTitle": "Arbitrage Heatmap",
+    "pageSubtitle": "Real-Time Opportunity Analysis",
+    "headerDescription": "Identify profitable arbitrage opportunities between COMEX and MCX markets with advanced analytics",
+    "inputParameters": "Input Parameters",
+    "inputDescription": "Enter market prices and parameters for analysis",
+    "calculateArbitrage": "Calculate Arbitrage",
+    "analyzingMarkets": "Analyzing markets...",
+    "arbitrageAnalysis": "Arbitrage Analysis",
+    "resultsDescription": "Results will appear here after calculation"
+  },
+  "landing": {
+    "nav": {
+      "aboutUs": "About Us",
+      "tools": "Tools",
+      "pricing": "Pricing",
+      "dashboard": "Dashboard",
+      "getStarted": "Get Started"
+    },
+    "hero": {
+      "badge": "Stop guessing. Start trading with data.",
+      "title": "Still doing manual analysis",
+      "titleHighlight": "while opportunities slip away?",
+      "description": "Every hour you spend calculating pivot levels, checking COT reports, or comparing COMEX vs MCX prices is an hour you're not trading. And by the time you're done, the opportunity has already passed.",
+      "notTrading": "not trading",
+      "goToDashboard": "Go to Dashboard",
+      "startFreeTrial": "Start Free Trial",
+      "startYourFreeTrial": "Start Your Free Trial",
+      "learnMore": "Learn More",
+      "stats": {
+        "tools": "Pro Analytics Tools",
+        "data": "Years of Historical Data",
+        "plan": "Plan Available"
+      }
+    },
+    "painPoints": {
+      "title": "The Hidden Cost",
+      "titleHighlight": "of Manual Trading Analysis",
+      "description": "If you're trading gold, silver, or commodities without proper tools, you're probably facing these problems every single day:",
+      "hoursWasted": {
+        "title": "Hours Wasted on Manual Analysis",
+        "description": "Calculating pivot levels, checking COT reports, comparing COMEX vs MCX prices... every single day. Time that could be spent actually trading."
+      },
+      "missingOpportunities": {
+        "title": "Missing Profitable Opportunities",
+        "description": "By the time you finish your analysis, the arbitrage window has closed. The seasonal pattern has already played out. The smart money has already moved."
+      },
+      "gutFeel": {
+        "title": "Trading on Gut Feel",
+        "description": "Without proper data, you're essentially gambling. No statistical edge, no backtested strategies, just hope and intuition."
+      },
+      "costTitle": "What This Is Really Costing You",
+      "costs": {
+        "time": "Daily analysis time you could save",
+        "profit": "Potential arbitrage profits missed per month",
+        "winRate": "Better win rate with seasonal timing"
+      }
+    },
+    "solution": {
+      "title": "There's a Better Way",
+      "description": "What if you could do all your pre-market analysis in under 5 minutes?",
+      "without": "Without Bullion Brain",
+      "with": "With Bullion Brain",
+      "startTradingSmarter": "Start Trading Smarter",
+      "comparisons": {
+        "pivot": {
+          "without": "Manually calculate pivot levels every morning",
+          "with": "Get all pivot levels in 2 seconds"
+        },
+        "arbitrage": {
+          "without": "Miss arbitrage opportunities while doing math",
+          "with": "Instant fair value with premium/discount alerts"
+        },
+        "cot": {
+          "without": "Trade blind without knowing institutional positioning",
+          "with": "See exactly where smart money is positioned"
+        },
+        "seasonal": {
+          "without": "Guess whether it's a good time to buy gold",
+          "with": "Know the historical win rate for current period"
+        },
+        "backtest": {
+          "without": "Risk real money on untested strategies",
+          "with": "Backtest against 10+ years of data first"
+        }
+      },
+      "startSmarter": "Start Trading Smarter"
+    },
+    "toolsSection": {
+      "badge": "Your Complete Analytics Suite",
+      "title": "6 Powerful Tools.",
+      "titleHighlight": "One Platform. Zero Guesswork.",
+      "description": "Stop wasting hours on manual analysis. Get institutional-grade insights in seconds.",
+      "free": "Free",
+      "pro": "Pro",
+      "try": "Try",
+      "freePlan": "Start with our Free plan — no credit card required",
+      "freePlanText": "Start with our free plan — no credit card required"
+    },
+    "footer": {
+      "brandDescription": "Professional trading tools for Gold, Silver, and Commodities markets. Make data-driven decisions with confidence.",
+      "analyticsTools": "Analytics Tools",
+      "researchTools": "Research Tools",
+      "company": "Company",
+      "dashboard": "Dashboard",
+      "aboutUs": "About Us",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "copyright": "© 2024 Bullion Brain. All rights reserved.",
+      "tagline": "Built for serious traders"
+    },
+    "tools": {
+      "backtest": {
+        "name": "Backtest Engine",
+        "description": "Strategy Validation",
+        "details": "Test your Gold & Silver strategies against 10+ years of data. Know your edge before risking real capital.",
+        "features": [
+          "Historical Simulation",
+          "Performance Metrics",
+          "Drawdown Analysis"
+        ]
+      },
+      "pivot": {
+        "name": "Pivot Calculator",
+        "description": "Intraday S/R Levels",
+        "details": "Generate CPR, Floor, and Fibonacci pivots instantly. Know exactly where price is likely to reverse or break.",
+        "features": [
+          "Central Pivot Range",
+          "Fibonacci Levels",
+          "Multi-timeframe"
+        ]
+      },
+      "arbitrage": {
+        "name": "Arbitrage Heatmap",
+        "description": "COMEX vs MCX",
+        "details": "Spot when MCX is overpriced or underpriced vs COMEX. Capture pricing inefficiencies before they disappear.",
+        "features": [
+          "Fair Value Calculator",
+          "Premium Alerts",
+          "Historical Spreads"
+        ]
+      },
+      "correlation": {
+        "name": "Correlation Matrix",
+        "description": "Multi-Asset Analysis",
+        "details": "Understand how Gold moves with USDINR, DXY, and Crude. Find divergence trades and hedge positions.",
+        "features": [
+          "Cross-Asset Correlations",
+          "Beta Sensitivity",
+          "Divergence Alerts"
+        ]
+      },
+      "seasonal": {
+        "name": "Seasonal Trends",
+        "description": "Calendar Patterns",
+        "details": "Know how Gold behaves around Diwali, Akshaya Tritiya, Fed meetings. Trade with historical probabilities on your side.",
+        "features": [
+          "Festival Analysis",
+          "Event Tracking",
+          "Win Rate Stats"
+        ]
+      },
+      "cot": {
+        "name": "COT Report",
+        "description": "Smart Money Positioning",
+        "details": "See what hedge funds and commercials are doing. Identify extreme positioning that precedes major moves.",
+        "features": [
+          "Position Visualization",
+          "Percentile Rankings",
+          "Contrarian Signals"
+        ]
+      }
+    },
+    "whyUs": {
+      "title": "Built for Serious Traders",
+      "description": "Not another generic trading app. Bullion Brain is specifically designed for Gold, Silver & Commodities traders.",
+      "saveTime": {
+        "title": "Save 2+ Hours Daily",
+        "description": "Automate your pre-market analysis. Get all levels and signals in seconds."
+      },
+      "reduceRisk": {
+        "title": "Reduce Risk",
+        "description": "Backtest strategies before risking capital. Know your edge statistically."
+      },
+      "spotOpportunities": {
+        "title": "Spot Opportunities",
+        "description": "Catch arbitrage windows and seasonal patterns before they disappear."
+      },
+      "tradeWithConfidence": {
+        "title": "Trade with Confidence",
+        "description": "Know what smart money is doing. Make decisions backed by data, not gut feel."
+      }
+    },
+    "pricing": {
+      "badge": "Simple, Transparent Pricing",
+      "title": "Start Free,",
+      "titleHighlight": "Upgrade When Ready",
+      "description": "Get started with powerful free tools. Unlock advanced features when you need them.",
+      "free": {
+        "name": "Free",
+        "tagline": "Perfect for getting started",
+        "price": "₹0",
+        "period": "/forever",
+        "cta": "Get Started Free",
+        "features": [
+          "Pivot Calculator (Basic)",
+          "Arbitrage Alerts (Delayed)",
+          "COT Reports (Weekly Summary)",
+          "Seasonal Patterns (Limited)",
+          "Community Support"
+        ]
+      },
+      "pro": {
+        "name": "Pro",
+        "badge": "MOST POPULAR",
+        "tagline": "For serious traders",
+        "price": "₹999",
+        "period": "/month",
+        "cta": "Start 7-Day Free Trial",
+        "features": [
+          "Everything in Free, plus:",
+          "Real-time Arbitrage Alerts",
+          "Full COT Analysis & Charts",
+          "Advanced Pivot Strategies",
+          "Correlation Matrix (All Pairs)",
+          "Backtest Engine (Unlimited)",
+          "Priority Email Support"
+        ]
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "tagline": "For trading firms & teams",
+        "price": "Custom",
+        "cta": "Contact Sales",
+        "features": [
+          "Everything in Pro, plus:",
+          "API Access",
+          "Custom Integrations",
+          "Multi-user Dashboard",
+          "White-label Options",
+          "Dedicated Account Manager",
+          "24/7 Phone Support"
+        ]
+      },
+      "guarantee": "30-day money-back guarantee • Cancel anytime • No questions asked"
+    },
+    "fomo": {
+      "title": "Every Day You Trade Without Data,",
+      "titleHighlight": "You're Leaving Money on the Table",
+      "description": "Professional traders don't guess. They use tools like COT reports, seasonal analysis, and correlation data to stack the odds in their favor.",
+      "question": "how long will you trade at a disadvantage?"
+    },
+    "finalCta": {
+      "badge": "7-Day Free Trial",
+      "title": "Ready to Trade",
+      "titleHighlight": "Like a Pro?",
+      "description": "Join traders who've stopped guessing and started using data. Start with our free plan or unlock all features with Pro.",
+      "signupTime": "Takes 30 seconds to sign up. Start analyzing in under a minute."
+    }
+  },
+  "cot": {
+    "pageTitle": "COT Report Visualizer",
+    "pageSubtitle": "Disaggregated Futures Only Report",
+    "headerDescription": "Decode CFTC Commitment of Traders data to track hedge fund positioning and identify market turning points",
+    "selectCommodity": "Select Commodity",
+    "dateRange": "Date Range",
+    "fetchData": "Fetch Data",
+    "loading": "Loading COT data...",
+    "positions": "Positions",
+    "netPositions": "Net Positions",
+    "commercials": "Commercials",
+    "nonCommercials": "Non-Commercials",
+    "retailers": "Retailers",
+    "longPositions": "Long Positions",
+    "shortPositions": "Short Positions",
+    "percentile": "Percentile",
+    "sentiment": "Sentiment",
+    "bullish": "Bullish",
+    "bearish": "Bearish",
+    "neutral": "Neutral"
+  },
+  "backtest": {
+    "pageTitle": "Strategy Backtester",
+    "pageSubtitle": "Strategy Validation",
+    "headerDescription": "Test your gold and silver trading strategies against historical data before risking real capital",
+    "strategySettings": "Strategy Settings",
+    "strategyDescription": "Configure your trading strategy parameters",
+    "symbol": "Symbol",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "initialCapital": "Initial Capital",
+    "runBacktest": "Run Backtest",
+    "running": "Running...",
+    "results": {
+      "priceAction": "Price Action",
+      "equityCurve": "Equity Curve",
+      "entry": "Entry",
+      "exit": "Exit",
+      "tradeHistory": {
+        "title": "Trade History",
+        "completedTrades": "completed trades",
+        "entryDate": "Entry Date",
+        "entryPrice": "Entry Price",
+        "exitDate": "Exit Date",
+        "exitPrice": "Exit Price",
+        "pnl": "P&L"
+      }
+    },
+    "resultsDescription": "Performance metrics will appear here after backtest",
+    "totalReturn": "Total Return",
+    "maxDrawdown": "Max Drawdown",
+    "winRate": "Win Rate",
+    "sharpeRatio": "Sharpe Ratio",
+    "totalTrades": "Total Trades",
+    "profitFactor": "Profit Factor",
+    "period": "Period",
+    "capital": "Capital",
+    "guide": {
+      "title": "Understanding Strategy Backtesting",
+      "badge": "Guide",
+      "description": "Learn how to build, test, and evaluate trading strategies",
+      "showGuide": "Show Guide",
+      "hideGuide": "Hide Guide"
+    },
+    "concepts": {
+      "entryExitRules": {
+        "title": "Entry & Exit Rules",
+        "description": "Define conditions using indicators like RSI, EMA, MACD for automated signals."
+      },
+      "winRateReturns": {
+        "title": "Win Rate & Returns",
+        "description": "Track total return, win rate, and Sharpe ratio to measure performance."
+      },
+      "riskManagement": {
+        "title": "Risk Management",
+        "description": "Set stop-loss and take-profit levels to protect capital and lock gains."
+      },
+      "maxDrawdown": {
+        "title": "Max Drawdown",
+        "description": "Monitor the largest peak-to-trough decline to assess strategy risk."
+      }
+    },
+    "tabs": {
+      "strategy": "Strategy",
+      "results": "Results"
+    },
+    "strategyBuilder": {
+      "title": "Build Your Strategy",
+      "description": "Define entry and exit conditions using technical indicators",
+      "entry": "ENTRY",
+      "exit": "EXIT",
+      "and": "AND",
+      "or": "OR",
+      "addCondition": "Condition",
+      "addGroup": "Group"
+    },
+    "strategyLibrary": {
+      "title": "Strategy Library",
+      "description": "Select a prebuilt strategy or load one of your saved strategies.",
+      "prebuiltStrategies": "Prebuilt Strategies",
+      "mySaved": "My Saved",
+      "save": "Save",
+      "load": "Load"
+    }
+  },
+  "correlation": {
+    "pageTitle": "Correlation Matrix",
+    "pageSubtitle": "Portfolio Diversification Analysis",
+    "headerDescription": "Measure relationships between Gold, USDINR, DXY, Crude Oil, and more to identify divergence opportunities",
+    "selectAssets": "Select Assets",
+    "timeframe": "Timeframe",
+    "calculateCorrelation": "Calculate Correlation",
+    "calculating": "Calculating...",
+    "correlationMatrix": "Correlation Matrix",
+    "resultsDescription": "Select assets and calculate to view correlation matrix",
+    "strongPositive": "Strong Positive",
+    "weakPositive": "Weak Positive",
+    "neutral": "Neutral",
+    "weakNegative": "Weak Negative",
+    "strongNegative": "Strong Negative"
+  },
+  "seasonal": {
+    "pageTitle": "Seasonal Trends Engine",
+    "pageSubtitle": "Event-Based Trading Patterns",
+    "headerDescription": "Analyze how gold and silver prices have historically behaved around key events and festivals",
+    "selectEvent": "Select Event",
+    "commodity": "Commodity",
+    "analyzePattern": "Analyze Pattern",
+    "analyzing": "Analyzing...",
+    "seasonalAnalysis": "Seasonal Analysis",
+    "resultsDescription": "Select an event to see historical patterns",
+    "historicalWinRate": "Historical Win Rate",
+    "averageReturn": "Average Return",
+    "bestYear": "Best Year",
+    "worstYear": "Worst Year",
+    "events": {
+      "diwali": "Diwali",
+      "akshayaTritiya": "Akshaya Tritiya",
+      "fedMeeting": "Fed Meeting",
+      "nfp": "Non-Farm Payrolls",
+      "cpi": "CPI Release"
+    }
+  }
+}

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 import { StyledCard, StyledCardHeader, StyledCardContent } from "@/components/ui/styled-card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -12,6 +13,8 @@ import type { PivotAccuracyResponse } from "@/types"
 import { toast } from "sonner"
 
 export function HistoricalAccuracy() {
+    const t = useTranslations('pivot.historicalAccuracy')
+    const tSymbols = useTranslations('pivot.symbols')
     const [loading, setLoading] = useState(false)
     const [symbol, setSymbol] = useState("GOLD")
     const [timeframe, setTimeframe] = useState("daily")
@@ -51,15 +54,15 @@ export function HistoricalAccuracy() {
             <StyledCard variant="orange">
                 <StyledCardHeader
                     icon={BarChart3}
-                    title="Historical Accuracy"
-                    description="Track how often pivot levels are respected over time"
+                    title={t('title')}
+                    description={t('description')}
                     variant="orange"
                     action={
                         <Dialog>
                             <DialogTrigger asChild>
                                 <Button className="bg-linear-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white shadow-md">
                                     <BookOpen className="h-4 w-4 mr-2" />
-                                    Understanding Accuracy
+                                    {t('understandingAccuracy')}
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-2xl">
@@ -68,9 +71,9 @@ export function HistoricalAccuracy() {
                                         <div className="p-2 bg-linear-to-br from-orange-500 to-amber-600 rounded-lg text-white">
                                             <BarChart3 className="h-5 w-5" />
                                         </div>
-                                        Historical Accuracy Guide
+                                        {t('guideTitle')}
                                     </DialogTitle>
-                                    <DialogDescription>Learn how to interpret pivot level performance</DialogDescription>
+                                    <DialogDescription>{t('guideDescription')}</DialogDescription>
                                 </DialogHeader>
 
                                 <div className="space-y-6 mt-4">
@@ -78,19 +81,19 @@ export function HistoricalAccuracy() {
                                     <div className="p-4 rounded-xl bg-linear-to-br from-slate-50 to-slate-100 border">
                                         <h4 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
                                             <Target className="h-5 w-5 text-slate-600" />
-                                            What Does &quot;Respected&quot; Mean?
+                                            {t('whatRespectedMean')}
                                         </h4>
                                         <p className="text-sm text-slate-600 mb-3">
-                                            A level is <strong>respected</strong> when price approaches it and reverses direction within a tolerance (0.3%). This indicates the level acted as support or resistance.
+                                            {t('respectedExplanation')}
                                         </p>
                                         <div className="flex gap-4">
                                             <div className="flex items-center gap-2 text-sm">
                                                 <CheckCircle2 className="h-4 w-4 text-green-600" />
-                                                <span className="text-green-700">Respected = Price reversed</span>
+                                                <span className="text-green-700">{t('respectedLabel')}</span>
                                             </div>
                                             <div className="flex items-center gap-2 text-sm">
                                                 <XCircle className="h-4 w-4 text-red-600" />
-                                                <span className="text-red-700">Not respected = Price broke through</span>
+                                                <span className="text-red-700">{t('notRespectedLabel')}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -99,18 +102,18 @@ export function HistoricalAccuracy() {
                                     <div className="grid grid-cols-3 gap-3">
                                         <div className="p-4 rounded-xl bg-linear-to-br from-green-50 to-emerald-50 border border-green-100 text-center">
                                             <div className="text-3xl font-bold text-green-600 mb-1">80%+</div>
-                                            <Badge className="bg-green-100 text-green-700">Excellent</Badge>
-                                            <p className="text-xs text-green-600 mt-2">High reliability level</p>
+                                            <Badge className="bg-green-100 text-green-700">{t('excellent')}</Badge>
+                                            <p className="text-xs text-green-600 mt-2">{t('highReliability')}</p>
                                         </div>
                                         <div className="p-4 rounded-xl bg-linear-to-br from-yellow-50 to-amber-50 border border-yellow-100 text-center">
                                             <div className="text-3xl font-bold text-yellow-600 mb-1">70-79%</div>
-                                            <Badge className="bg-yellow-100 text-yellow-700">Good</Badge>
-                                            <p className="text-xs text-yellow-600 mt-2">Moderate reliability</p>
+                                            <Badge className="bg-yellow-100 text-yellow-700">{t('good')}</Badge>
+                                            <p className="text-xs text-yellow-600 mt-2">{t('moderateReliability')}</p>
                                         </div>
                                         <div className="p-4 rounded-xl bg-linear-to-br from-red-50 to-orange-50 border border-red-100 text-center">
                                             <div className="text-3xl font-bold text-red-600 mb-1">&lt;70%</div>
-                                            <Badge className="bg-red-100 text-red-700">Fair</Badge>
-                                            <p className="text-xs text-red-600 mt-2">Use with caution</p>
+                                            <Badge className="bg-red-100 text-red-700">{t('fair')}</Badge>
+                                            <p className="text-xs text-red-600 mt-2">{t('useWithCaution')}</p>
                                         </div>
                                     </div>
 
@@ -118,20 +121,20 @@ export function HistoricalAccuracy() {
                                     <div className="p-4 rounded-xl bg-linear-to-r from-blue-50 to-indigo-50 border border-blue-200">
                                         <h4 className="font-bold text-blue-800 mb-3 flex items-center gap-2">
                                             <Info className="h-4 w-4" />
-                                            CPR Width Categories
+                                            {t('cprWidthCategories')}
                                         </h4>
                                         <div className="grid grid-cols-3 gap-3 text-sm">
                                             <div className="p-2 bg-white rounded-lg border">
-                                                <div className="font-semibold text-blue-700">Narrow (&lt;0.3%)</div>
-                                                <p className="text-xs text-slate-600">Expect trending day</p>
+                                                <div className="font-semibold text-blue-700">{t('narrow')}</div>
+                                                <p className="text-xs text-slate-600">{t('expectTrendingDay')}</p>
                                             </div>
                                             <div className="p-2 bg-white rounded-lg border">
-                                                <div className="font-semibold text-purple-700">Normal (0.3-0.7%)</div>
-                                                <p className="text-xs text-slate-600">Balanced day</p>
+                                                <div className="font-semibold text-purple-700">{t('normal')}</div>
+                                                <p className="text-xs text-slate-600">{t('balancedDay')}</p>
                                             </div>
                                             <div className="p-2 bg-white rounded-lg border">
-                                                <div className="font-semibold text-orange-700">Wide (&gt;0.7%)</div>
-                                                <p className="text-xs text-slate-600">Range-bound day</p>
+                                                <div className="font-semibold text-orange-700">{t('wide')}</div>
+                                                <p className="text-xs text-slate-600">{t('rangeBoundDay')}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -144,7 +147,7 @@ export function HistoricalAccuracy() {
                     {/* Controls Row */}
                     <div className="flex flex-wrap items-end gap-3">
                         <div>
-                            <label className="text-xs text-slate-500 mb-1 block">Exchange</label>
+                            <label className="text-xs text-slate-500 mb-1 block">{t('exchange')}</label>
                             <Select value={exchange} onValueChange={setExchange}>
                                 <SelectTrigger className="w-28">
                                     <SelectValue />
@@ -156,48 +159,48 @@ export function HistoricalAccuracy() {
                             </Select>
                         </div>
                         <div>
-                            <label className="text-xs text-slate-500 mb-1 block">Symbol</label>
+                            <label className="text-xs text-slate-500 mb-1 block">{t('symbol')}</label>
                             <Select value={symbol} onValueChange={setSymbol}>
                                 <SelectTrigger className="w-28">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="GOLD">Gold</SelectItem>
-                                    <SelectItem value="SILVER">Silver</SelectItem>
-                                    <SelectItem value="CRUDE">Crude</SelectItem>
-                                    <SelectItem value="COPPER">Copper</SelectItem>
+                                    <SelectItem value="GOLD">{tSymbols('gold')}</SelectItem>
+                                    <SelectItem value="SILVER">{tSymbols('silver')}</SelectItem>
+                                    <SelectItem value="CRUDE">{tSymbols('crudeOil')}</SelectItem>
+                                    <SelectItem value="COPPER">{tSymbols('copper')}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                         <div>
-                            <label className="text-xs text-slate-500 mb-1 block">Timeframe</label>
+                            <label className="text-xs text-slate-500 mb-1 block">{t('timeframe')}</label>
                             <Select value={timeframe} onValueChange={setTimeframe}>
                                 <SelectTrigger className="w-28">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="daily">Daily</SelectItem>
-                                    <SelectItem value="weekly">Weekly</SelectItem>
-                                    <SelectItem value="monthly">Monthly</SelectItem>
+                                    <SelectItem value="daily">{t('daily')}</SelectItem>
+                                    <SelectItem value="weekly">{t('weekly')}</SelectItem>
+                                    <SelectItem value="monthly">{t('monthly')}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                         <div>
-                            <label className="text-xs text-slate-500 mb-1 block">Period</label>
+                            <label className="text-xs text-slate-500 mb-1 block">{t('period')}</label>
                             <Select value={days} onValueChange={setDays}>
                                 <SelectTrigger className="w-28">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="30">30 Days</SelectItem>
-                                    <SelectItem value="60">60 Days</SelectItem>
-                                    <SelectItem value="90">90 Days</SelectItem>
+                                    <SelectItem value="30">{t('days30')}</SelectItem>
+                                    <SelectItem value="60">{t('days60')}</SelectItem>
+                                    <SelectItem value="90">{t('days90')}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                         <Button onClick={handleFetch} disabled={loading} className="gap-2">
                             {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                            Analyze
+                            {t('analyze')}
                         </Button>
                     </div>
 
@@ -207,7 +210,7 @@ export function HistoricalAccuracy() {
                             < div className="p-3 rounded-lg bg-amber-50 border border-amber-200" >
                                 <div className="flex items-center gap-2 text-amber-700 font-medium mb-2">
                                     <Trophy className="h-4 w-4" />
-                                    Best Performing Levels
+                                    {t('bestPerformingLevels')}
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                     {data.best_performing_levels.map((level, idx) => (
@@ -221,11 +224,11 @@ export function HistoricalAccuracy() {
                             {/* Level Accuracy Table */}
                             < div className="rounded-lg border overflow-hidden" >
                                 <div className="bg-muted px-4 py-2 text-sm font-medium grid grid-cols-5 gap-2">
-                                    <span>Level</span>
-                                    <span className="text-center">Tested</span>
-                                    <span className="text-center">Respected</span>
-                                    <span className="text-center">Accuracy</span>
-                                    <span className="text-center">Rating</span>
+                                    <span>{t('level')}</span>
+                                    <span className="text-center">{t('tested')}</span>
+                                    <span className="text-center">{t('respected')}</span>
+                                    <span className="text-center">{t('accuracy')}</span>
+                                    <span className="text-center">{t('rating')}</span>
                                 </div>
                                 <div className="divide-y max-h-64 overflow-y-auto">
                                     {Object.entries(data.level_accuracy).map(([level, stats]) => (
@@ -246,20 +249,20 @@ export function HistoricalAccuracy() {
                             < div className="grid grid-cols-3 gap-3" >
                                 <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-center">
                                     <div className="text-2xl font-bold text-blue-600">{data.cpr_statistics.narrow_cpr_days}</div>
-                                    <div className="text-xs text-blue-600">Narrow CPR Days</div>
+                                    <div className="text-xs text-blue-600">{t('narrowCprDays')}</div>
                                     <div className="text-xs text-muted-foreground mt-1">
-                                        {data.cpr_statistics.narrow_cpr_trending_accuracy}% trending accuracy
+                                        {data.cpr_statistics.narrow_cpr_trending_accuracy}% {t('trendingAccuracy')}
                                     </div>
                                 </div>
                                 <div className="p-3 rounded-lg bg-purple-50 border border-purple-200 text-center">
                                     <div className="text-2xl font-bold text-purple-600">{data.cpr_statistics.normal_cpr_days}</div>
-                                    <div className="text-xs text-purple-600">Normal CPR Days</div>
+                                    <div className="text-xs text-purple-600">{t('normalCprDays')}</div>
                                 </div>
                                 <div className="p-3 rounded-lg bg-orange-50 border border-orange-200 text-center">
                                     <div className="text-2xl font-bold text-orange-600">{data.cpr_statistics.wide_cpr_days}</div>
-                                    <div className="text-xs text-orange-600">Wide CPR Days</div>
+                                    <div className="text-xs text-orange-600">{t('wideCprDays')}</div>
                                     <div className="text-xs text-muted-foreground mt-1">
-                                        {data.cpr_statistics.wide_cpr_range_accuracy}% range accuracy
+                                        {data.cpr_statistics.wide_cpr_range_accuracy}% {t('rangeAccuracy')}
                                     </div>
                                 </div>
                             </div >
@@ -273,7 +276,7 @@ export function HistoricalAccuracy() {
                     ) : (
                         <div className="text-center py-8 text-muted-foreground">
                             <TrendingUp className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                            <p>Select parameters and click &quot;Analyze&quot; to view historical accuracy</p>
+                            <p>{t('selectParametersPrompt')}</p>
                         </div>
                     )}
                 </StyledCardContent>

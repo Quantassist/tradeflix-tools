@@ -1,6 +1,8 @@
 import { betterFetch } from "@better-fetch/fetch";
 import { NextRequest, NextResponse } from "next/server";
+import createIntlMiddleware from 'next-intl/middleware';
 import type { Session } from "@/lib/auth";
+import { routing } from './i18n/routing';
 
 const protectedRoutes = [
   "/dashboard",
@@ -16,17 +18,27 @@ const protectedRoutes = [
 
 const authRoutes = ["/sign-in", "/sign-up", "/forget-password", "/reset-password"];
 
-export async function proxy(request: NextRequest) {
-  const pathname = request.nextUrl.pathname;
+// Create the next-intl middleware handler
+const handleI18nRouting = createIntlMiddleware(routing);
 
-  // Check if the route is protected
+// Helper to strip locale prefix from pathname for route matching
+function getPathnameWithoutLocale(pathname: string): string {
+  const localePattern = new RegExp(`^/(${routing.locales.join('|')})(/|$)`);
+  return pathname.replace(localePattern, '$2') || '/';
+}
+
+export default async function proxy(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  const pathnameWithoutLocale = getPathnameWithoutLocale(pathname);
+
+  // Check if the route is protected (check without locale prefix)
   const isProtectedRoute = protectedRoutes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
+    (route) => pathnameWithoutLocale === route || pathnameWithoutLocale.startsWith(`${route}/`)
   );
 
-  // Check if the route is an auth route
+  // Check if the route is an auth route (check without locale prefix)
   const isAuthRoute = authRoutes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
+    (route) => pathnameWithoutLocale === route || pathnameWithoutLocale.startsWith(`${route}/`)
   );
 
   // Get session from better-auth
@@ -52,7 +64,9 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  return NextResponse.next();
+  // Handle i18n routing
+  // This sets the locale cookie and handles locale detection
+  return handleI18nRouting(request);
 }
 
 export const config = {

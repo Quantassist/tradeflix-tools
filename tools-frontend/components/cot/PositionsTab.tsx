@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Building2, Target, Briefcase, Users, Lightbulb } from "lucide-react"
@@ -12,17 +13,14 @@ interface PositionsTabProps {
 }
 
 export function PositionsTab({ result }: PositionsTabProps) {
-    // PASTE TAB CONTENT HERE
-    // From page.tsx, search for: Positions Tab - Modernized
-    // Copy the content INSIDE TabsContent (lines ~1270-1560)
-    // After pasting, add any missing imports at the top
+    const t = useTranslations('cot')
 
     return (
         <div className="space-y-6">
             {/* Header with context */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b">
                 <div>
-                    <h3 className="text-lg font-semibold text-foreground">Current Positions</h3>
+                    <h3 className="text-lg font-semibold text-foreground">{t('positions')}</h3>
                     <p className="text-sm text-muted-foreground">
                         Report date: <span className="font-medium text-foreground">{result.latest_report_date}</span>
                     </p>

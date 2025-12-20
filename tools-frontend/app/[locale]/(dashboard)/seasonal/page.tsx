@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { useTranslations } from 'next-intl'
 import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -286,6 +287,7 @@ function EventsManagementSection({
 }
 
 export default function SeasonalTrendsPage() {
+  const t = useTranslations('seasonal')
   const [loading, setLoading] = useState(false)
   const [events, setEvents] = useState<SeasonalEvent[]>([])
   const [selectedCommodity, setSelectedCommodity] = useState<string>("all")
@@ -390,10 +392,10 @@ export default function SeasonalTrendsPage() {
               <Calendar className="h-10 w-10" />
             </motion.div>
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Seasonal Trends Engine</h1>
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight">{t('pageTitle')}</h1>
               <div className="flex items-center gap-2 mt-2">
                 <Zap className="h-4 w-4 text-yellow-300" />
-                <span className="text-sm font-medium text-white/90">Event-Based Trading Patterns</span>
+                <span className="text-sm font-medium text-white/90">{t('pageSubtitle')}</span>
               </div>
             </div>
           </div>

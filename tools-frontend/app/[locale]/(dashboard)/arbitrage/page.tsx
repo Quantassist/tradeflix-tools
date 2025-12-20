@@ -14,8 +14,10 @@ import { formatCurrency, formatNumber, formatPercent } from "@/lib/utils"
 import { ArbitrageSpreadChart } from "@/components/charts/arbitrage-spread-chart"
 import { ArbitrageHeatmap, MultiCommodityTracker, USDINRSensitivity, ArbitrageHistoryChart } from "@/components/arbitrage"
 import { toast } from "sonner"
+import { useTranslations } from 'next-intl'
 
 export default function ArbitrageCalculatorPage() {
+  const t = useTranslations('arbitrage')
   const [loading, setLoading] = useState(false)
   const [autoFetchLoading, setAutoFetchLoading] = useState(false)
   const [guideOpen, setGuideOpen] = useState(false)
@@ -134,15 +136,15 @@ export default function ArbitrageCalculatorPage() {
               <DollarSign className="h-8 w-8" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold tracking-tight">Arbitrage Heatmap</h1>
+              <h1 className="text-4xl font-bold tracking-tight">{t('pageTitle')}</h1>
               <div className="flex items-center gap-2 mt-1">
                 <Sparkles className="h-4 w-4" />
-                <span className="text-sm font-medium opacity-90">Real-time Opportunity Analysis</span>
+                <span className="text-sm font-medium opacity-90">{t('pageSubtitle')}</span>
               </div>
             </div>
           </div>
           <p className="text-white/90 text-lg max-w-2xl">
-            Identify profitable arbitrage opportunities between COMEX and MCX markets with advanced analytics
+            {t('headerDescription')}
           </p>
         </div>
         <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
@@ -250,8 +252,8 @@ export default function ArbitrageCalculatorPage() {
         <StyledCard variant="purple">
           <StyledCardHeader
             icon={Info}
-            title="Input Parameters"
-            description="Enter market prices and parameters for analysis"
+            title={t('inputParameters')}
+            description={t('inputDescription')}
             variant="purple"
           />
           <StyledCardContent>
@@ -373,11 +375,11 @@ export default function ArbitrageCalculatorPage() {
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Analyzing Markets...
+                    {t('analyzingMarkets')}
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    Calculate Arbitrage
+                    {t('calculateArbitrage')}
                     <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </span>
                 )}
@@ -390,8 +392,8 @@ export default function ArbitrageCalculatorPage() {
         <StyledCard variant="orange">
           <StyledCardHeader
             icon={Sparkles}
-            title="Arbitrage Analysis"
-            description={result ? "Live market opportunity analysis" : "Results will appear here after calculation"}
+            title={t('arbitrageAnalysis')}
+            description={result ? "Live market opportunity analysis" : t('resultsDescription')}
             variant="orange"
           />
           <StyledCardContent>

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { useTranslations } from 'next-intl'
 import { StyledCard, StyledCardHeader, StyledCardContent } from "@/components/ui/styled-card"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -33,6 +34,7 @@ const AVAILABLE_ASSETS = [
 ]
 
 export default function CorrelationMatrixPage() {
+  const t = useTranslations('correlation')
   const [loading, setLoading] = useState(false)
   const [rollingLoading, setRollingLoading] = useState(false)
   const [result, setResult] = useState<CorrelationMatrixResponse | null>(null)
@@ -113,10 +115,10 @@ export default function CorrelationMatrixPage() {
               <Network className="h-8 w-8" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold tracking-tight">Correlation Matrix</h1>
+              <h1 className="text-4xl font-bold tracking-tight">{t('pageTitle')}</h1>
               <div className="flex items-center gap-2 mt-1">
                 <TrendingUp className="h-4 w-4" />
-                <span className="text-sm font-medium opacity-90">Portfolio Diversification Analysis</span>
+                <span className="text-sm font-medium opacity-90">{t('pageSubtitle')}</span>
               </div>
             </div>
           </div>

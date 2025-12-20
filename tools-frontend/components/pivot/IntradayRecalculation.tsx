@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 import { StyledCard, StyledCardHeader, StyledCardContent } from "@/components/ui/styled-card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,6 +17,7 @@ type IntradayRecalculationProps = {
 }
 
 export function IntradayRecalculation({ originalPivotData }: IntradayRecalculationProps) {
+    const t = useTranslations('pivot.intradayRecalculation')
     const [intradayHigh, setIntradayHigh] = useState("")
     const [intradayLow, setIntradayLow] = useState("")
     const [currentPrice, setCurrentPrice] = useState("")
@@ -96,15 +98,15 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
         <StyledCard variant="purple">
             <StyledCardHeader
                 icon={RefreshCcw}
-                title="Intraday Recalculation"
-                description="Recalculate pivots using current session's high/low for dynamic levels"
+                title={t('title')}
+                description={t('description')}
                 variant="purple"
                 action={
                     <Dialog>
                         <DialogTrigger asChild>
                             <Button className="bg-linear-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-md">
                                 <BookOpen className="h-4 w-4 mr-2" />
-                                How to Use
+                                {t('howToUse')}
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-2xl">
@@ -113,19 +115,19 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
                                     <div className="p-2 bg-linear-to-br from-violet-500 to-purple-600 rounded-lg text-white">
                                         <RefreshCcw className="h-4 w-4" />
                                     </div>
-                                    Intraday Recalculation Guide
+                                    {t('guideTitle')}
                                 </DialogTitle>
-                                <DialogDescription>Master dynamic pivot levels for real-time trading decisions</DialogDescription>
+                                <DialogDescription>{t('guideDescription')}</DialogDescription>
                             </DialogHeader>
                             <div className="space-y-4 mt-4 text-sm">
                                 {/* What is it */}
                                 <div className="p-4 rounded-xl bg-linear-to-br from-violet-50 to-purple-50 border border-violet-100">
                                     <h4 className="font-bold text-violet-800 mb-2 flex items-center gap-2">
                                         <Lightbulb className="h-4 w-4" />
-                                        What is Intraday Recalculation?
+                                        {t('whatIsIt')}
                                     </h4>
                                     <p className="text-violet-700 text-xs">
-                                        Traditional pivots use <strong>yesterday&apos;s</strong> high/low/close. Intraday recalculation uses <strong>today&apos;s developing</strong> high/low to create dynamic levels that adapt as the session progresses.
+                                        {t('whatIsItDesc')}
                                     </p>
                                 </div>
 
@@ -133,13 +135,13 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
                                 <div className="p-4 rounded-xl bg-blue-50 border border-blue-100">
                                     <h4 className="font-bold text-blue-800 mb-2 flex items-center gap-2">
                                         <Timer className="h-4 w-4" />
-                                        When to Use This Feature
+                                        {t('whenToUse')}
                                     </h4>
                                     <ul className="text-blue-700 text-xs space-y-1">
-                                        <li>• <strong>Mid-session adjustments:</strong> After a significant move breaks original pivots</li>
-                                        <li>• <strong>Gap days:</strong> When market opens far from previous close</li>
-                                        <li>• <strong>High volatility:</strong> When original pivots become irrelevant</li>
-                                        <li>• <strong>Afternoon trading:</strong> To get fresh levels for the second half</li>
+                                        <li>• <strong>{t('midSession')}:</strong> {t('midSessionDesc')}</li>
+                                        <li>• <strong>{t('gapDays')}:</strong> {t('gapDaysDesc')}</li>
+                                        <li>• <strong>{t('highVolatility')}:</strong> {t('highVolatilityDesc')}</li>
+                                        <li>• <strong>{t('afternoonTrading')}:</strong> {t('afternoonTradingDesc')}</li>
                                     </ul>
                                 </div>
 
@@ -147,7 +149,7 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
                                 <div className="p-4 rounded-xl bg-amber-50 border border-amber-100">
                                     <h4 className="font-bold text-amber-800 mb-2 flex items-center gap-2">
                                         <Target className="h-4 w-4" />
-                                        Real-Life Trading Example
+                                        {t('realLifeExample')}
                                     </h4>
                                     <div className="text-amber-700 text-xs space-y-2">
                                         <p><strong>Scenario:</strong> Gold opens at ₹62,500 (yesterday&apos;s close: ₹62,000). By 11 AM, it has made a high of ₹62,800 and low of ₹62,400.</p>
@@ -162,16 +164,16 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
                                     <div className="p-3 rounded-lg bg-green-50 border border-green-100">
                                         <div className="flex items-center gap-2 font-semibold text-green-700 mb-1">
                                             <TrendingUp className="h-4 w-4" />
-                                            Bullish Shift
+                                            {t('bullishShift')}
                                         </div>
-                                        <p className="text-green-600 text-xs">New pivot is higher than original. Market is showing strength - look for long entries at new supports.</p>
+                                        <p className="text-green-600 text-xs">{t('bullishShiftDesc')}</p>
                                     </div>
                                     <div className="p-3 rounded-lg bg-red-50 border border-red-100">
                                         <div className="flex items-center gap-2 font-semibold text-red-700 mb-1">
                                             <TrendingDown className="h-4 w-4" />
-                                            Bearish Shift
+                                            {t('bearishShift')}
                                         </div>
-                                        <p className="text-red-600 text-xs">New pivot is lower than original. Market is showing weakness - look for short entries at new resistances.</p>
+                                        <p className="text-red-600 text-xs">{t('bearishShiftDesc')}</p>
                                     </div>
                                 </div>
                             </div>
@@ -184,14 +186,14 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
                     {!originalPivotData ? (
                         <div className="text-center py-8 text-muted-foreground">
                             <Clock className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                            <p>Calculate original pivots first to enable intraday recalculation</p>
+                            <p>{t('calculateFirst')}</p>
                         </div>
                     ) : (
                         <>
                             {/* Input Fields - Compact 2-column layout */}
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <Label className="text-xs">Intraday High</Label>
+                                    <Label className="text-xs">{t('intradayHigh')}</Label>
                                     <Input
                                         type="number"
                                         step="0.01"
@@ -202,7 +204,7 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
                                     />
                                 </div>
                                 <div>
-                                    <Label className="text-xs">Intraday Low</Label>
+                                    <Label className="text-xs">{t('intradayLow')}</Label>
                                     <Input
                                         type="number"
                                         step="0.01"
@@ -213,7 +215,7 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
                                     />
                                 </div>
                                 <div className="col-span-2">
-                                    <Label className="text-xs">Current Price (optional)</Label>
+                                    <Label className="text-xs">{t('currentPriceOptional')}</Label>
                                     <Input
                                         type="number"
                                         step="0.01"
@@ -228,10 +230,10 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
                             <div className="flex gap-2">
                                 <Button onClick={handleRecalculate} className="gap-2">
                                     <RefreshCcw className="h-4 w-4" />
-                                    Recalculate
+                                    {t('recalculate')}
                                 </Button>
                                 <Button variant="outline" onClick={handleReset}>
-                                    Reset
+                                    {t('reset')}
                                 </Button>
                             </div>
 
@@ -250,12 +252,12 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
                                             {recalculatedData.comparison.cprShift === "bearish" && <TrendingDown className="h-4 w-4 text-red-600" />}
                                             {recalculatedData.comparison.cprShift === "neutral" && <AlertCircle className="h-4 w-4 text-gray-600" />}
                                             <span className="font-medium">
-                                                CPR Shift: {recalculatedData.comparison.cprShift.toUpperCase()}
+                                                {t('cprShift')}: {recalculatedData.comparison.cprShift.toUpperCase()}
                                             </span>
                                         </div>
                                         {recalculatedData.comparison.biasChange !== "unchanged" && (
                                             <p className="text-sm text-muted-foreground">
-                                                Market bias has {recalculatedData.comparison.biasChange}
+                                                {t('marketBiasHas')} {recalculatedData.comparison.biasChange}
                                             </p>
                                         )}
                                     </div>
@@ -263,7 +265,7 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
                                     {/* New CPR Levels */}
                                     <div>
                                         <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                                            Recalculated CPR
+                                            {t('recalculatedCpr')}
                                         </div>
                                         <div className="grid grid-cols-3 gap-2 text-sm">
                                             <div className="p-2 rounded-lg bg-blue-50 border border-blue-200">
@@ -293,7 +295,7 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
                                     {/* New Floor Pivots */}
                                     <div>
                                         <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                                            Recalculated Floor Pivots
+                                            {t('recalculatedFloorPivots')}
                                         </div>
                                         <div className="grid grid-cols-2 gap-2 text-sm">
                                             <div className="space-y-1">
@@ -329,9 +331,7 @@ export function IntradayRecalculation({ originalPivotData }: IntradayRecalculati
 
                                     {/* Info Note */}
                                     <div className="text-xs text-muted-foreground p-3 bg-muted rounded-lg">
-                                        <strong>Note:</strong> Intraday recalculation uses current session data to provide
-                                        dynamic pivot levels. These are useful for adjusting your trading plan as the
-                                        session progresses.
+                                        <strong>{t('note')}:</strong> {t('intradayNote')}
                                     </div>
                                 </div>
                             )}

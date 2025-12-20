@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 import { StyledCard, StyledCardHeader, StyledCardContent } from "@/components/ui/styled-card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -23,6 +24,7 @@ type LevelInfo = {
 }
 
 export function DistanceCalculator({ pivotData, initialPrice }: DistanceCalculatorProps) {
+    const t = useTranslations('pivot.distanceCalculator')
     const defaultPrice = initialPrice || pivotData.ohlc.close
     const [currentPrice, setCurrentPrice] = useState<number>(defaultPrice)
     const [inputPrice, setInputPrice] = useState<string>(String(defaultPrice))
@@ -98,15 +100,15 @@ export function DistanceCalculator({ pivotData, initialPrice }: DistanceCalculat
         <StyledCard variant="indigo">
             <StyledCardHeader
                 icon={Ruler}
-                title="Distance Calculator"
-                description="Distance to key levels"
+                title={t('title')}
+                description={t('description')}
                 variant="indigo"
                 action={
                     <Dialog>
                         <DialogTrigger asChild>
                             <Button size="sm" className="bg-linear-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-sm">
                                 <BookOpen className="h-3 w-3 mr-1" />
-                                Guide
+                                {t('guide')}
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-md">
@@ -115,31 +117,31 @@ export function DistanceCalculator({ pivotData, initialPrice }: DistanceCalculat
                                     <div className="p-2 bg-linear-to-br from-indigo-500 to-purple-600 rounded-lg text-white">
                                         <Ruler className="h-4 w-4" />
                                     </div>
-                                    Distance Calculator Guide
+                                    {t('guideTitle')}
                                 </DialogTitle>
-                                <DialogDescription>Understanding price distances to pivot levels</DialogDescription>
+                                <DialogDescription>{t('guideDescription')}</DialogDescription>
                             </DialogHeader>
                             <div className="space-y-3 mt-3 text-sm">
                                 <div className="p-3 rounded-lg bg-red-50 border border-red-100">
                                     <div className="flex items-center gap-2 font-semibold text-red-700 mb-1">
                                         <ArrowUp className="h-4 w-4" />
-                                        Next Resistance
+                                        {t('nextResistance')}
                                     </div>
-                                    <p className="text-red-600 text-xs">The nearest level above current price. Consider taking profits or placing stop-loss here.</p>
+                                    <p className="text-red-600 text-xs">{t('nextResistanceDesc')}</p>
                                 </div>
                                 <div className="p-3 rounded-lg bg-green-50 border border-green-100">
                                     <div className="flex items-center gap-2 font-semibold text-green-700 mb-1">
                                         <ArrowDown className="h-4 w-4" />
-                                        Next Support
+                                        {t('nextSupport')}
                                     </div>
-                                    <p className="text-green-600 text-xs">The nearest level below current price. Consider buying or placing stop-loss here.</p>
+                                    <p className="text-green-600 text-xs">{t('nextSupportDesc')}</p>
                                 </div>
                                 <div className="p-3 rounded-lg bg-amber-50 border border-amber-100">
                                     <div className="flex items-center gap-2 font-semibold text-amber-700 mb-1">
                                         <Target className="h-4 w-4" />
-                                        Nearest Level
+                                        {t('nearestLevel')}
                                     </div>
-                                    <p className="text-amber-600 text-xs">The closest pivot level to current price. Watch for reactions here.</p>
+                                    <p className="text-amber-600 text-xs">{t('nearestLevelDesc')}</p>
                                 </div>
                             </div>
                         </DialogContent>
@@ -149,7 +151,7 @@ export function DistanceCalculator({ pivotData, initialPrice }: DistanceCalculat
             <StyledCardContent>
                 {/* Price Input Row */}
                 <div className="flex items-center gap-2 mb-3 p-2 rounded-lg bg-slate-50 border">
-                    <span className="text-xs text-slate-500">Price:</span>
+                    <span className="text-xs text-slate-500">{t('price')}:</span>
                     <Input
                         type="number"
                         step="0.01"
@@ -159,7 +161,7 @@ export function DistanceCalculator({ pivotData, initialPrice }: DistanceCalculat
                         className="font-mono h-7 w-28 text-sm bg-white"
                     />
                     <Button onClick={handlePriceUpdate} variant="outline" size="sm" className="h-7 text-xs">
-                        Update
+                        {t('update')}
                     </Button>
                 </div>
 
@@ -171,7 +173,7 @@ export function DistanceCalculator({ pivotData, initialPrice }: DistanceCalculat
                             <div className="p-3 rounded-lg bg-red-50 border-2 border-red-200">
                                 <div className="flex items-center gap-1 text-red-600 text-[10px] font-semibold uppercase mb-0.5">
                                     <ArrowUp className="h-3 w-3" />
-                                    Next Resistance
+                                    {t('nextResistance')}
                                 </div>
                                 <div className="font-mono font-bold text-lg text-red-700">
                                     ₹{formatNumber(nextResistance.value)}
@@ -183,14 +185,14 @@ export function DistanceCalculator({ pivotData, initialPrice }: DistanceCalculat
                             </div>
                         ) : (
                             <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-center text-muted-foreground text-sm">
-                                No resistance above
+                                {t('noResistance')}
                             </div>
                         )}
                         {nextSupport ? (
                             <div className="p-3 rounded-lg bg-green-50 border-2 border-green-200">
                                 <div className="flex items-center gap-1 text-green-600 text-[10px] font-semibold uppercase mb-0.5">
                                     <ArrowDown className="h-3 w-3" />
-                                    Next Support
+                                    {t('nextSupport')}
                                 </div>
                                 <div className="font-mono font-bold text-lg text-green-700">
                                     ₹{formatNumber(nextSupport.value)}
@@ -202,7 +204,7 @@ export function DistanceCalculator({ pivotData, initialPrice }: DistanceCalculat
                             </div>
                         ) : (
                             <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-center text-muted-foreground text-sm">
-                                No support below
+                                {t('noSupport')}
                             </div>
                         )}
                     </div>
@@ -218,7 +220,7 @@ export function DistanceCalculator({ pivotData, initialPrice }: DistanceCalculat
                         <div className="text-right">
                             <span className="font-mono font-semibold text-sm">₹{formatNumber(nearestLevel.value)}</span>
                             <span className="text-xs text-muted-foreground ml-2">
-                                {Math.abs((nearestLevel.value - currentPrice) / currentPrice * 100).toFixed(2)}% away
+                                {Math.abs((nearestLevel.value - currentPrice) / currentPrice * 100).toFixed(2)}% {t('distance')}
                             </span>
                         </div>
                     </div>

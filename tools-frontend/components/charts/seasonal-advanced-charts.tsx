@@ -286,11 +286,11 @@ export function SeasonalAdvancedCharts({
                                             </p>
                                         </div>
                                         <div className="p-4 rounded-xl bg-slate-50 border">
-                                            <h4 className="font-bold text-slate-800 mb-2">Reading the Chart</h4>
+                                            <h4 className="font-bold text-slate-800 mb-2">{t('readingTheChart')}</h4>
                                             <ul className="text-sm text-slate-600 space-y-2">
-                                                <li>• <strong>Blue Line</strong>: Average cumulative return across all years</li>
-                                                <li>• <strong>Shaded Area</strong>: Upper and lower confidence bands</li>
-                                                <li>• <strong>Day 0</strong>: The event date (vertical reference line)</li>
+                                                <li>• {t('blueLineDesc')}</li>
+                                                <li>• {t('shadedAreaDesc')}</li>
+                                                <li>• {t('day0Desc')}</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -355,7 +355,7 @@ export function SeasonalAdvancedCharts({
                             {selectedEvent && (
                                 <div className="grid grid-cols-4 gap-3 mt-4">
                                     <div className="p-3 rounded-lg bg-purple-50 text-center">
-                                        <p className="text-xs text-muted-foreground">Avg Change</p>
+                                        <p className="text-xs text-muted-foreground">{t('avgChange')}</p>
                                         <p className={`text-lg font-bold ${selectedEvent.avg_price_change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                                             {selectedEvent.avg_price_change >= 0 ? '+' : ''}{selectedEvent.avg_price_change.toFixed(2)}%
                                         </p>
@@ -365,11 +365,11 @@ export function SeasonalAdvancedCharts({
                                         <p className="text-lg font-bold text-blue-600">{selectedEvent.win_rate.toFixed(0)}%</p>
                                     </div>
                                     <div className="p-3 rounded-lg bg-green-50 text-center">
-                                        <p className="text-xs text-muted-foreground">Best Return</p>
+                                        <p className="text-xs text-muted-foreground">{t('bestReturn')}</p>
                                         <p className="text-lg font-bold text-green-600">+{selectedEvent.best_return.toFixed(2)}%</p>
                                     </div>
                                     <div className="p-3 rounded-lg bg-red-50 text-center">
-                                        <p className="text-xs text-muted-foreground">Worst Return</p>
+                                        <p className="text-xs text-muted-foreground">{t('worstReturn')}</p>
                                         <p className="text-lg font-bold text-red-600">{selectedEvent.worst_return.toFixed(2)}%</p>
                                     </div>
                                 </div>
@@ -377,7 +377,7 @@ export function SeasonalAdvancedCharts({
                         </>
                     ) : (
                         <div className="flex items-center justify-center h-64 text-muted-foreground">
-                            Select an event to view its trajectory
+                            {t('selectEventToView')}
                         </div>
                     )}
                 </CardContent>
@@ -387,8 +387,8 @@ export function SeasonalAdvancedCharts({
             <StyledCard variant="orange">
                 <StyledCardHeader
                     icon={TrendingUp}
-                    title="Trading Insights"
-                    description="Best and worst performing events analysis"
+                    title={t('tradingInsightsAdvanced')}
+                    description={t('bestWorstAnalysis')}
                     variant="orange"
                     action={
                         <Dialog>
@@ -404,19 +404,18 @@ export function SeasonalAdvancedCharts({
                                         <div className="p-2 bg-linear-to-br from-orange-500 to-amber-600 rounded-lg text-white">
                                             <TrendingUp className="h-5 w-5" />
                                         </div>
-                                        Trading Insights Guide
+                                        {t('tradingInsightsGuideAdvanced')}
                                     </DialogTitle>
-                                    <DialogDescription>Quick reference for event-based trading decisions</DialogDescription>
+                                    <DialogDescription>{t('quickReference')}</DialogDescription>
                                 </DialogHeader>
                                 <div className="space-y-4 mt-4">
                                     <div className="p-4 rounded-xl bg-linear-to-br from-orange-50 to-amber-50 border border-orange-100">
                                         <h4 className="font-bold text-orange-800 mb-2 flex items-center gap-2">
                                             <Info className="h-4 w-4" />
-                                            What are Trading Insights?
+                                            {t('whatAreTradingInsightsAdvanced')}
                                         </h4>
                                         <p className="text-sm text-orange-700">
-                                            A quick summary of the best and worst performing events, most reliable events by win rate,
-                                            and most volatile events to help inform your trading decisions.
+                                            {t('tradingInsightsDescAdvanced')}
                                         </p>
                                     </div>
                                 </div>
@@ -430,7 +429,7 @@ export function SeasonalAdvancedCharts({
                         <div className="p-4 rounded-lg bg-green-50 border border-green-200">
                             <h4 className="font-semibold text-green-800 flex items-center gap-2 mb-3">
                                 <TrendingUp className="h-4 w-4" />
-                                Best Performing Events
+                                {t('bestPerformingEvents')}
                             </h4>
                             <div className="space-y-2">
                                 {events.filter(e => e.avg_price_change > 0).slice(0, 3).map((event, idx) => (
@@ -446,7 +445,7 @@ export function SeasonalAdvancedCharts({
                         <div className="p-4 rounded-lg bg-red-50 border border-red-200">
                             <h4 className="font-semibold text-red-800 flex items-center gap-2 mb-3">
                                 <TrendingDown className="h-4 w-4" />
-                                Weakest Performing Events
+                                {t('weakestPerformingEvents')}
                             </h4>
                             <div className="space-y-2">
                                 {events.filter(e => e.avg_price_change < 0).slice(-3).reverse().map((event, idx) => (
@@ -462,7 +461,7 @@ export function SeasonalAdvancedCharts({
                         <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
                             <h4 className="font-semibold text-blue-800 flex items-center gap-2 mb-3">
                                 <CheckCircle className="h-4 w-4" />
-                                Most Reliable Events (Win Rate)
+                                {t('mostReliableEvents')}
                             </h4>
                             <div className="space-y-2">
                                 {[...events].sort((a, b) => b.win_rate - a.win_rate).slice(0, 3).map((event, idx) => (
@@ -478,7 +477,7 @@ export function SeasonalAdvancedCharts({
                         <div className="p-4 rounded-lg bg-amber-50 border border-amber-200">
                             <h4 className="font-semibold text-amber-800 flex items-center gap-2 mb-3">
                                 <Activity className="h-4 w-4" />
-                                Most Volatile Events
+                                {t('mostVolatileEvents')}
                             </h4>
                             <div className="space-y-2">
                                 {[...events].sort((a, b) => b.volatility_increase_pct - a.volatility_increase_pct).slice(0, 3).map((event, idx) => (

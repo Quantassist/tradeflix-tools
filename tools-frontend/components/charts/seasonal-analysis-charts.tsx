@@ -387,15 +387,15 @@ export function SeasonalAnalysisCharts({
                     <StyledCard variant="purple">
                         <StyledCardHeader
                             icon={Sparkles}
-                            title="Trading Insights"
-                            description={`Key observations based on ${yearsBack >= 1 ? `${yearsBack} years` : `${Math.round(yearsBack * 12)} months`} of historical data`}
+                            title={t('tradingInsights')}
+                            description={t('keyObservations', { years: yearsBack >= 1 ? `${yearsBack} years` : `${Math.round(yearsBack * 12)} months` })}
                             variant="purple"
                             action={
                                 <Dialog>
                                     <DialogTrigger asChild>
                                         <Button className="bg-linear-to-r from-violet-500 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-700 text-white shadow-md">
                                             <BookOpen className="h-4 w-4 mr-2" />
-                                            Learn How It Works
+                                            {t('learnHowItWorks')}
                                         </Button>
                                     </DialogTrigger>
                                     <DialogContent className="max-w-2xl">
@@ -404,27 +404,26 @@ export function SeasonalAnalysisCharts({
                                                 <div className="p-2 bg-linear-to-br from-violet-500 to-fuchsia-600 rounded-lg text-white">
                                                     <Sparkles className="h-5 w-5" />
                                                 </div>
-                                                Trading Insights Guide
+                                                {t('tradingInsightsGuide')}
                                             </DialogTitle>
-                                            <DialogDescription>Understanding AI-generated trading insights</DialogDescription>
+                                            <DialogDescription>{t('understandingInsights')}</DialogDescription>
                                         </DialogHeader>
                                         <div className="space-y-4 mt-4">
                                             <div className="p-4 rounded-xl bg-linear-to-br from-violet-50 to-fuchsia-50 border border-violet-100">
                                                 <h4 className="font-bold text-violet-800 mb-2 flex items-center gap-2">
                                                     <Info className="h-4 w-4" />
-                                                    What are Trading Insights?
+                                                    {t('whatAreTradingInsights')}
                                                 </h4>
                                                 <p className="text-sm text-violet-700">
-                                                    These are automatically generated observations based on historical seasonal patterns,
-                                                    highlighting the most significant bullish and bearish trends.
+                                                    {t('tradingInsightsDesc')}
                                                 </p>
                                             </div>
                                             <div className="p-4 rounded-xl bg-slate-50 border">
-                                                <h4 className="font-bold text-slate-800 mb-2">Insight Types</h4>
+                                                <h4 className="font-bold text-slate-800 mb-2">{t('insightTypes')}</h4>
                                                 <ul className="text-sm text-slate-600 space-y-2">
-                                                    <li>• <strong className="text-emerald-600">Bullish (Green)</strong>: Historically positive patterns</li>
-                                                    <li>• <strong className="text-red-600">Bearish (Red)</strong>: Historically negative patterns</li>
-                                                    <li>• <strong className="text-gray-600">Neutral (Gray)</strong>: Informational observations</li>
+                                                    <li>• <strong className="text-emerald-600">{t('bullishGreen')}</strong>: {t('bullishDesc')}</li>
+                                                    <li>• <strong className="text-red-600">{t('bearishRed')}</strong>: {t('bearishDesc')}</li>
+                                                    <li>• <strong className="text-gray-600">{t('neutralGray')}</strong>: {t('neutralDesc')}</li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -477,7 +476,7 @@ export function SeasonalAnalysisCharts({
                                         <Award className="h-6 w-6 text-emerald-600" />
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-500">Best Month</p>
+                                        <p className="text-sm text-gray-500">{t('bestMonth')}</p>
                                         <p className="text-2xl font-bold text-emerald-600">{bestMonth.month_name}</p>
                                         <p className="text-sm font-semibold text-emerald-700">+{bestMonth.avg_return.toFixed(2)}% avg</p>
                                     </div>
@@ -493,7 +492,7 @@ export function SeasonalAnalysisCharts({
                                         <AlertCircle className="h-6 w-6 text-red-600" />
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-500">Worst Month</p>
+                                        <p className="text-sm text-gray-500">{t('worstMonth')}</p>
                                         <p className="text-2xl font-bold text-red-600">{worstMonth.month_name}</p>
                                         <p className="text-sm font-semibold text-red-700">{worstMonth.avg_return.toFixed(2)}% avg</p>
                                     </div>
@@ -509,11 +508,11 @@ export function SeasonalAnalysisCharts({
                                         <Target className="h-6 w-6 text-blue-600" />
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-500">Avg Annual Return</p>
+                                        <p className="text-sm text-gray-500">{t('avgAnnualReturn')}</p>
                                         <p className={`text-2xl font-bold ${avgAnnualReturn >= 0 ? "text-emerald-600" : "text-red-600"}`}>
                                             {avgAnnualReturn >= 0 ? "+" : ""}{avgAnnualReturn.toFixed(2)}%
                                         </p>
-                                        <p className="text-sm text-gray-500">Sum of monthly avgs</p>
+                                        <p className="text-sm text-gray-500">{t('sumOfMonthlyAvgs')}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -528,15 +527,15 @@ export function SeasonalAnalysisCharts({
                     <StyledCard variant="orange">
                         <StyledCardHeader
                             icon={Calendar}
-                            title={`Monthly Seasonality - ${selectedMetal}${loading ? ' (Loading...)' : ''}`}
-                            description={`Average monthly returns based on ${yearsBack >= 1 ? `${yearsBack} years` : `${Math.round(yearsBack * 12)} months`} of historical data`}
+                            title={loading ? t('monthlySeasonalityLoading', { metal: selectedMetal }) : `${t('monthlySeasonality')} - ${selectedMetal}`}
+                            description={t('avgMonthlyReturns', { years: yearsBack >= 1 ? `${yearsBack} years` : `${Math.round(yearsBack * 12)} months` })}
                             variant="orange"
                             action={
                                 <Dialog>
                                     <DialogTrigger asChild>
                                         <Button className="bg-linear-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md">
                                             <BookOpen className="h-4 w-4 mr-2" />
-                                            Learn How It Works
+                                            {t('learnHowItWorks')}
                                         </Button>
                                     </DialogTrigger>
                                     <DialogContent className="max-w-2xl">
@@ -545,28 +544,27 @@ export function SeasonalAnalysisCharts({
                                                 <div className="p-2 bg-linear-to-br from-amber-500 to-orange-600 rounded-lg text-white">
                                                     <Calendar className="h-5 w-5" />
                                                 </div>
-                                                Monthly Seasonality Guide
+                                                {t('monthlySeasonalityGuide')}
                                             </DialogTitle>
-                                            <DialogDescription>Understanding seasonal patterns in precious metals</DialogDescription>
+                                            <DialogDescription>{t('understandingSeasonalPatterns')}</DialogDescription>
                                         </DialogHeader>
                                         <div className="space-y-4 mt-4">
                                             <div className="p-4 rounded-xl bg-linear-to-br from-amber-50 to-orange-50 border border-amber-100">
                                                 <h4 className="font-bold text-amber-800 mb-2 flex items-center gap-2">
                                                     <Info className="h-4 w-4" />
-                                                    What is Monthly Seasonality?
+                                                    {t('whatIsMonthlySeasonality')}
                                                 </h4>
                                                 <p className="text-sm text-amber-700">
-                                                    Monthly seasonality shows the average price change for each month based on historical data.
-                                                    Positive months (green) historically show gains, while negative months (red) show losses.
+                                                    {t('monthlySeasonalityDesc')}
                                                 </p>
                                             </div>
                                             <div className="p-4 rounded-xl bg-slate-50 border">
-                                                <h4 className="font-bold text-slate-800 mb-2">How to Use This Data</h4>
+                                                <h4 className="font-bold text-slate-800 mb-2">{t('howToUseData')}</h4>
                                                 <ul className="text-sm text-slate-600 space-y-2">
-                                                    <li>• <strong>Green bars</strong> indicate historically bullish months</li>
-                                                    <li>• <strong>Red bars</strong> indicate historically bearish months</li>
-                                                    <li>• <strong>Win rate %</strong> shows how often the month was positive</li>
-                                                    <li>• Use this to time entries and exits around seasonal patterns</li>
+                                                    <li>• {t('greenBarsIndicate')}</li>
+                                                    <li>• {t('redBarsIndicate')}</li>
+                                                    <li>• {t('winRateShows')}</li>
+                                                    <li>• {t('useToTimeEntries')}</li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -579,7 +577,7 @@ export function SeasonalAnalysisCharts({
                                 <div className="flex items-center justify-center h-[400px]">
                                     <div className="text-center">
                                         <Loader2 className="h-8 w-8 animate-spin text-amber-600 mx-auto mb-2" />
-                                        <p className="text-sm text-gray-500">Loading seasonality data...</p>
+                                        <p className="text-sm text-gray-500">{t('loadingSeasonalityData')}</p>
                                     </div>
                                 </div>
                             ) : (
@@ -628,11 +626,11 @@ export function SeasonalAnalysisCharts({
                             <div className="flex justify-center gap-8 mt-4 flex-wrap">
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 bg-emerald-500 rounded-sm"></div>
-                                    <span className="text-sm text-gray-600">Positive Return</span>
+                                    <span className="text-sm text-gray-600">{t('positiveReturn')}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 bg-red-500 rounded-sm"></div>
-                                    <span className="text-sm text-gray-600">Negative Return</span>
+                                    <span className="text-sm text-gray-600">{t('negativeReturn')}</span>
                                 </div>
                             </div>
                         </CardContent>
@@ -646,8 +644,8 @@ export function SeasonalAnalysisCharts({
                     <StyledCard variant="purple">
                         <StyledCardHeader
                             icon={TrendingUp}
-                            title="Major Events Impact Analysis"
-                            description={`Historical price impact around major events (±${daysWindow} days) • ${processedEventsData.length} events selected`}
+                            title={t('majorEventsImpact')}
+                            description={t('historicalPriceImpact', { days: daysWindow, count: processedEventsData.length })}
                             variant="purple"
                             action={
                                 <div className="flex items-center gap-2">
@@ -665,7 +663,7 @@ export function SeasonalAnalysisCharts({
                                         <DialogTrigger asChild>
                                             <Button className="bg-linear-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-md">
                                                 <BookOpen className="h-4 w-4 mr-2" />
-                                                Learn How It Works
+                                                {t('learnHowItWorks')}
                                             </Button>
                                         </DialogTrigger>
                                         <DialogContent className="max-w-2xl">
@@ -674,28 +672,27 @@ export function SeasonalAnalysisCharts({
                                                     <div className="p-2 bg-linear-to-br from-purple-500 to-pink-600 rounded-lg text-white">
                                                         <TrendingUp className="h-5 w-5" />
                                                     </div>
-                                                    Event Impact Analysis Guide
+                                                    {t('eventImpactGuide')}
                                                 </DialogTitle>
-                                                <DialogDescription>Understanding how events affect precious metal prices</DialogDescription>
+                                                <DialogDescription>{t('understandingEventImpact')}</DialogDescription>
                                             </DialogHeader>
                                             <div className="space-y-4 mt-4">
                                                 <div className="p-4 rounded-xl bg-linear-to-br from-purple-50 to-pink-50 border border-purple-100">
                                                     <h4 className="font-bold text-purple-800 mb-2 flex items-center gap-2">
                                                         <Info className="h-4 w-4" />
-                                                        What is Event Impact Analysis?
+                                                        {t('whatIsEventImpact')}
                                                     </h4>
                                                     <p className="text-sm text-purple-700">
-                                                        This analysis shows how precious metal prices historically react around major events like festivals,
-                                                        economic announcements, and holidays within a specified window (±{daysWindow} days).
+                                                        {t('eventImpactDesc')}
                                                     </p>
                                                 </div>
                                                 <div className="p-4 rounded-xl bg-slate-50 border">
-                                                    <h4 className="font-bold text-slate-800 mb-2">Key Metrics Explained</h4>
+                                                    <h4 className="font-bold text-slate-800 mb-2">{t('keyMetricsExplained')}</h4>
                                                     <ul className="text-sm text-slate-600 space-y-2">
-                                                        <li>• <strong>Avg Change</strong>: Average price movement around the event</li>
-                                                        <li>• <strong>Win Rate</strong>: Percentage of times price moved positively</li>
-                                                        <li>• <strong>Best/Worst</strong>: Maximum gain and loss recorded</li>
-                                                        <li>• <strong>Years</strong>: Number of historical occurrences analyzed</li>
+                                                        <li>• {t('avgChangeMetric')}</li>
+                                                        <li>• {t('winRateMetric')}</li>
+                                                        <li>• {t('bestWorstMetric')}</li>
+                                                        <li>• {t('yearsMetric')}</li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -724,7 +721,7 @@ export function SeasonalAnalysisCharts({
                             {loading && (
                                 <div className="flex items-center justify-center py-12">
                                     <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
-                                    <span className="ml-2 text-gray-500">Loading events data...</span>
+                                    <span className="ml-2 text-gray-500">{t('loadingEventsData')}</span>
                                 </div>
                             )}
 
@@ -732,8 +729,8 @@ export function SeasonalAnalysisCharts({
                             {!loading && processedEventsData.length === 0 && (
                                 <div className="text-center py-12 text-gray-500">
                                     <Calendar className="h-12 w-12 mx-auto mb-3 opacity-40" />
-                                    <p className="font-medium">No events selected</p>
-                                    <p className="text-sm mt-1">Use the dropdown above to add events to analyze</p>
+                                    <p className="font-medium">{t('noEventsSelected')}</p>
+                                    <p className="text-sm mt-1">{t('useDropdownToAdd')}</p>
                                 </div>
                             )}
 
@@ -745,11 +742,11 @@ export function SeasonalAnalysisCharts({
                                         animate={{ opacity: 1, y: 0 }}
                                         className="p-4 bg-linear-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200"
                                     >
-                                        <p className="text-xs text-purple-600 font-medium mb-1">Avg Event Return</p>
+                                        <p className="text-xs text-purple-600 font-medium mb-1">{t('avgEventReturn')}</p>
                                         <p className={`text-2xl font-bold ${majorEventsStats.avgReturn >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                                             {majorEventsStats.avgReturn >= 0 ? '+' : ''}{majorEventsStats.avgReturn.toFixed(2)}%
                                         </p>
-                                        <p className="text-xs text-purple-500 mt-1">±{daysWindow} day window</p>
+                                        <p className="text-xs text-purple-500 mt-1">{t('dayWindow', { days: daysWindow })}</p>
                                     </motion.div>
 
                                     <motion.div
@@ -758,11 +755,11 @@ export function SeasonalAnalysisCharts({
                                         transition={{ delay: 0.1 }}
                                         className="p-4 bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
                                     >
-                                        <p className="text-xs text-blue-600 font-medium mb-1">Avg Win Rate</p>
+                                        <p className="text-xs text-blue-600 font-medium mb-1">{t('avgWinRate')}</p>
                                         <p className="text-2xl font-bold text-blue-600">
                                             {majorEventsStats.avgWinRate.toFixed(0)}%
                                         </p>
-                                        <p className="text-xs text-blue-500 mt-1">Positive returns</p>
+                                        <p className="text-xs text-blue-500 mt-1">{t('positiveReturns')}</p>
                                     </motion.div>
 
                                     <motion.div
@@ -773,7 +770,7 @@ export function SeasonalAnalysisCharts({
                                     >
                                         <div className="flex items-center gap-1 mb-1">
                                             <Sparkles className="h-3 w-3 text-emerald-600" />
-                                            <p className="text-xs text-emerald-600 font-medium">Best Event</p>
+                                            <p className="text-xs text-emerald-600 font-medium">{t('bestEvent')}</p>
                                         </div>
                                         <p className="text-lg font-bold text-emerald-600 truncate">
                                             {majorEventsStats.bestEvent?.name || "N/A"}
@@ -791,7 +788,7 @@ export function SeasonalAnalysisCharts({
                                     >
                                         <div className="flex items-center gap-1 mb-1">
                                             <ArrowDownRight className="h-3 w-3 text-red-600" />
-                                            <p className="text-xs text-red-600 font-medium">Weakest Event</p>
+                                            <p className="text-xs text-red-600 font-medium">{t('weakestEvent')}</p>
                                         </div>
                                         <p className="text-lg font-bold text-red-600 truncate">
                                             {majorEventsStats.worstEvent?.name || "N/A"}
@@ -847,7 +844,7 @@ export function SeasonalAnalysisCharts({
                             {/* Event Detail Cards */}
                             {!loading && processedEventsData.length > 0 && (
                                 <div className="mt-6 mb-6">
-                                    <h4 className="font-semibold text-sm text-gray-700 mb-3">Event Details</h4>
+                                    <h4 className="font-semibold text-sm text-gray-700 mb-3">{t('eventDetails')}</h4>
                                     <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                                         {processedEventsData.map((event, idx) => (
                                             <motion.div
@@ -869,10 +866,10 @@ export function SeasonalAnalysisCharts({
                                                         <p className="text-xs text-gray-500 mt-0.5">{getEventDescription(event.name)}</p>
                                                         <div className="flex items-center gap-3 mt-2 text-xs">
                                                             <span className="text-gray-500">
-                                                                Win Rate: <strong>{event.win_rate.toFixed(0)}%</strong>
+                                                                {t('winRateLabel')}: <strong>{event.win_rate.toFixed(0)}%</strong>
                                                             </span>
                                                             <span className="text-gray-500">
-                                                                {event.occurrences} years
+                                                                {event.occurrences} {t('yearsLabel')}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -886,19 +883,19 @@ export function SeasonalAnalysisCharts({
                             {/* Events Table */}
                             <div className="mt-6 overflow-x-auto">
                                 <p className="text-sm text-gray-500 mb-3">
-                                    Analysis window: ±{daysWindow} days around event
+                                    {t('analysisWindow', { days: daysWindow })}
                                 </p>
                                 <table className="w-full text-sm">
                                     <thead>
                                         <tr className="border-b border-gray-200 bg-gray-50/50">
-                                            <th className="text-left p-3 font-semibold text-gray-700">Event</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Date</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Avg Change</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Win Rate</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Best</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Worst</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Volatility ↑</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Years</th>
+                                            <th className="text-left p-3 font-semibold text-gray-700">{t('eventHeader')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('dateHeader')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('avgChangeHeader')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('winRateHeader')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('bestHeader')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('worstHeader')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('volatilityHeader')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('yearsHeader')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -951,8 +948,8 @@ export function SeasonalAnalysisCharts({
                     <StyledCard variant="indigo">
                         <StyledCardHeader
                             icon={BarChart3}
-                            title="Year-wise Performance Analysis"
-                            description={`${selectedMetal}'s Performance (${selectedCurrency}): ±${daysWindow} days Pre and Post Event`}
+                            title={t('yearWisePerformance')}
+                            description={t('yearWiseDescription', { metal: selectedMetal, currency: selectedCurrency, days: daysWindow })}
                             variant="indigo"
                             action={
                                 <div className="flex items-center gap-2">
@@ -971,7 +968,7 @@ export function SeasonalAnalysisCharts({
                                         <DialogTrigger asChild>
                                             <Button className="bg-linear-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-md">
                                                 <BookOpen className="h-4 w-4 mr-2" />
-                                                Learn How It Works
+                                                {t('learnHowItWorks')}
                                             </Button>
                                         </DialogTrigger>
                                         <DialogContent className="max-w-2xl">
@@ -980,27 +977,26 @@ export function SeasonalAnalysisCharts({
                                                     <div className="p-2 bg-linear-to-br from-indigo-500 to-purple-600 rounded-lg text-white">
                                                         <BarChart3 className="h-5 w-5" />
                                                     </div>
-                                                    Year-wise Performance Guide
+                                                    {t('yearWiseGuide')}
                                                 </DialogTitle>
-                                                <DialogDescription>Understanding historical event performance by year</DialogDescription>
+                                                <DialogDescription>{t('understandingYearWise')}</DialogDescription>
                                             </DialogHeader>
                                             <div className="space-y-4 mt-4">
                                                 <div className="p-4 rounded-xl bg-linear-to-br from-indigo-50 to-purple-50 border border-indigo-100">
                                                     <h4 className="font-bold text-indigo-800 mb-2 flex items-center gap-2">
                                                         <Info className="h-4 w-4" />
-                                                        What is Year-wise Performance?
+                                                        {t('whatIsYearWise')}
                                                     </h4>
                                                     <p className="text-sm text-indigo-700">
-                                                        This chart shows how prices moved before (Pre) and after (Post) a specific event
-                                                        for each historical year, helping identify consistent patterns.
+                                                        {t('yearWiseDesc')}
                                                     </p>
                                                 </div>
                                                 <div className="p-4 rounded-xl bg-slate-50 border">
-                                                    <h4 className="font-bold text-slate-800 mb-2">Reading the Chart</h4>
+                                                    <h4 className="font-bold text-slate-800 mb-2">{t('readingTheChartYearWise')}</h4>
                                                     <ul className="text-sm text-slate-600 space-y-2">
-                                                        <li>• <strong>Pre-Event (Blue)</strong>: Price change in days leading up to the event</li>
-                                                        <li>• <strong>Post-Event (Purple)</strong>: Price change in days after the event</li>
-                                                        <li>• Consistent patterns across years suggest reliable trading opportunities</li>
+                                                        <li>• {t('preEventBlue')}</li>
+                                                        <li>• {t('postEventPurple')}</li>
+                                                        <li>• {t('consistentPatterns')}</li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -1015,7 +1011,7 @@ export function SeasonalAnalysisCharts({
                                 if (!selectedEvent?.yearly_data?.length) {
                                     return (
                                         <div className="flex items-center justify-center h-64 text-gray-400">
-                                            No yearly data available for this event
+                                            {t('noYearlyData')}
                                         </div>
                                     )
                                 }
@@ -1062,14 +1058,14 @@ export function SeasonalAnalysisCharts({
                                                                 <div className="space-y-2">
                                                                     <p className="flex items-center gap-2 text-sm">
                                                                         <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#1e3a5f' }}></span>
-                                                                        <span className="text-gray-500">Pre-Event:</span>
+                                                                        <span className="text-gray-500">{t('preEvent')}:</span>
                                                                         <span className={`font-bold ${(payload[0]?.value as number) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                                                                             {(payload[0]?.value as number) >= 0 ? '+' : ''}{(payload[0]?.value as number)?.toFixed(2)}%
                                                                         </span>
                                                                     </p>
                                                                     <p className="flex items-center gap-2 text-sm">
                                                                         <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#94a3b8' }}></span>
-                                                                        <span className="text-gray-500">Post-Event:</span>
+                                                                        <span className="text-gray-500">{t('postEvent')}:</span>
                                                                         <span className={`font-bold ${(payload[1]?.value as number) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                                                                             {(payload[1]?.value as number) >= 0 ? '+' : ''}{(payload[1]?.value as number)?.toFixed(2)}%
                                                                         </span>
@@ -1116,11 +1112,11 @@ export function SeasonalAnalysisCharts({
                             <div className="flex justify-center gap-8 mt-4">
                                 <div className="flex items-center gap-2">
                                     <div className="w-4 h-4 rounded" style={{ backgroundColor: '#1e3a5f' }}></div>
-                                    <span className="text-sm text-gray-600">Pre-Event ({daysWindow} days before)</span>
+                                    <span className="text-sm text-gray-600">{t('preEventLegend', { days: daysWindow })}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="w-4 h-4 rounded" style={{ backgroundColor: '#94a3b8' }}></div>
-                                    <span className="text-sm text-gray-600">Post-Event ({daysWindow} days after)</span>
+                                    <span className="text-sm text-gray-600">{t('postEventLegend', { days: daysWindow })}</span>
                                 </div>
                             </div>
                         </CardContent>

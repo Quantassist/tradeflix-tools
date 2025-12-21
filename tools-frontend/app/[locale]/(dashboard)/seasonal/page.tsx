@@ -642,62 +642,70 @@ export default function SeasonalTrendsPage() {
           </TabsContent>
 
           {/* Tab 2: Calendar Analysis */}
-          <TabsContent value="calendar" className="mt-6">
-            {visitedTabs.has("calendar") && (
-              <CalendarHeatmap
-                metal={analysisSettings.metal}
-                currency={analysisSettings.currency}
-                yearsBack={analysisSettings.yearsBack}
-              />
-            )}
+          <TabsContent value="calendar" className="mt-6" forceMount>
+            <div className="data-[state=inactive]:hidden" data-state={visitedTabs.has("calendar") ? "active" : "inactive"}>
+              {visitedTabs.has("calendar") && (
+                <CalendarHeatmap
+                  metal={analysisSettings.metal}
+                  currency={analysisSettings.currency}
+                  yearsBack={analysisSettings.yearsBack}
+                />
+              )}
+            </div>
           </TabsContent>
 
           {/* Tab 3: Event Deep Dive */}
-          <TabsContent value="events" className="mt-6 space-y-6">
-            {visitedTabs.has("events") && (
-              <>
-                <SeasonalAdvancedCharts
-                  metal={analysisSettings.metal}
-                  currency={analysisSettings.currency}
-                  yearsBack={analysisSettings.yearsBack}
-                  daysWindow={analysisSettings.daysWindow}
-                />
-                <EconomicEventsAnalysis
-                  metal={analysisSettings.metal}
-                  currency={analysisSettings.currency}
-                  yearsBack={analysisSettings.yearsBack}
-                />
-              </>
-            )}
+          <TabsContent value="events" className="mt-6 space-y-6" forceMount>
+            <div className="data-[state=inactive]:hidden" data-state={visitedTabs.has("events") ? "active" : "inactive"}>
+              {visitedTabs.has("events") && (
+                <>
+                  <SeasonalAdvancedCharts
+                    metal={analysisSettings.metal}
+                    currency={analysisSettings.currency}
+                    yearsBack={analysisSettings.yearsBack}
+                    daysWindow={analysisSettings.daysWindow}
+                  />
+                  <EconomicEventsAnalysis
+                    metal={analysisSettings.metal}
+                    currency={analysisSettings.currency}
+                    yearsBack={analysisSettings.yearsBack}
+                  />
+                </>
+              )}
+            </div>
           </TabsContent>
 
           {/* Tab 4: Market Conditions */}
-          <TabsContent value="market" className="mt-6">
-            {visitedTabs.has("market") && (
-              <RecessionIndicators
-                metal={analysisSettings.metal}
-                currency={analysisSettings.currency}
-              />
-            )}
+          <TabsContent value="market" className="mt-6" forceMount>
+            <div className="data-[state=inactive]:hidden" data-state={visitedTabs.has("market") ? "active" : "inactive"}>
+              {visitedTabs.has("market") && (
+                <RecessionIndicators
+                  metal={analysisSettings.metal}
+                  currency={analysisSettings.currency}
+                />
+              )}
+            </div>
           </TabsContent>
 
           {/* Tab 5: Event Management */}
-          <TabsContent value="manage" className="mt-6">
-            {visitedTabs.has("manage") && (
-              <EventsManagementSection
-                events={events}
-                filteredEvents={filteredEvents}
-                loading={loading}
-                selectedCommodity={selectedCommodity}
-                setSelectedCommodity={setSelectedCommodity}
-                selectedYear={selectedYear}
-                setSelectedYear={setSelectedYear}
-                availableYears={availableYears}
-                loadEvents={loadEvents}
-                handleEditClick={handleEditClick}
-                handleDeleteClick={handleDeleteClick}
-              />
-            )}
+          <TabsContent value="manage" className="mt-6" forceMount>
+            <div className="data-[state=inactive]:hidden" data-state={visitedTabs.has("manage") ? "active" : "inactive"}>
+              {visitedTabs.has("manage") && (
+                <EventsManagementSection
+                  events={events}
+                  filteredEvents={filteredEvents}
+                  loading={loading}
+                  selectedCommodity={selectedCommodity}
+                  setSelectedCommodity={setSelectedCommodity}
+                  selectedYear={selectedYear}
+                  setSelectedYear={setSelectedYear}
+                  availableYears={availableYears}
+                  loadEvents={loadEvents}
+                  handleEditClick={handleEditClick}
+                  handleDeleteClick={handleDeleteClick}
+                />
+              )}
+            </div>
           </TabsContent>
         </Tabs>
       </motion.div>

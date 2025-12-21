@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -51,6 +52,8 @@ export function AdvancedTab({
     volatilityData,
     mlRegimeData
 }: AdvancedTabProps) {
+    const t = useTranslations('cot')
+
     if (loadingAdvanced) {
         return (
             <div className="flex flex-col items-center justify-center py-16 gap-4">
@@ -60,8 +63,8 @@ export function AdvancedTab({
                     </div>
                 </div>
                 <div className="text-center">
-                    <p className="font-medium text-foreground">Loading Advanced Analytics</p>
-                    <p className="text-sm text-muted-foreground">Analyzing squeeze risk, flows & ML regimes...</p>
+                    <p className="font-medium text-foreground">{t('loadingAdvancedAnalytics')}</p>
+                    <p className="text-sm text-muted-foreground">{t('analyzingSqueezeRisk')}</p>
                 </div>
             </div>
         )
@@ -72,9 +75,9 @@ export function AdvancedTab({
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b">
                 <div>
-                    <h3 className="text-lg font-semibold text-foreground">Advanced Analytics</h3>
+                    <h3 className="text-lg font-semibold text-foreground">{t('advancedAnalytics')}</h3>
                     <p className="text-sm text-muted-foreground">
-                        Squeeze risk, flow decomposition, and ML regime analysis
+                        {t('squeezeRiskFlowML')}
                     </p>
                 </div>
                 <InterpretationGuideButton tabKey="advanced" />
@@ -93,7 +96,7 @@ export function AdvancedTab({
                             }`}>
                             <div className="flex items-center gap-2 mb-2">
                                 <Users className={`h-4 w-4 ${advancedSummary.crowding_score > 60 ? 'text-red-600' : advancedSummary.crowding_score > 40 ? 'text-amber-600' : 'text-emerald-600'}`} />
-                                <span className="text-xs font-medium text-muted-foreground">Crowding</span>
+                                <span className="text-xs font-medium text-muted-foreground">{t('crowding')}</span>
                             </div>
                             <div className="text-3xl font-bold">{advancedSummary.crowding_score.toFixed(0)}</div>
                             <div className="mt-2 h-1.5 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
@@ -103,7 +106,7 @@ export function AdvancedTab({
                                 />
                             </div>
                             <p className="text-xs text-muted-foreground mt-2">
-                                {advancedSummary.crowding_score > 60 ? 'High Risk' : advancedSummary.crowding_score > 40 ? 'Moderate' : 'Low Risk'}
+                                {advancedSummary.crowding_score > 60 ? t('highRisk') : advancedSummary.crowding_score > 40 ? t('moderate') : t('lowRisk')}
                             </p>
                         </div>
 
@@ -116,7 +119,7 @@ export function AdvancedTab({
                             }`}>
                             <div className="flex items-center gap-2 mb-2">
                                 <Zap className={`h-4 w-4 ${advancedSummary.squeeze_risk_score > 60 ? 'text-red-600' : advancedSummary.squeeze_risk_score > 40 ? 'text-amber-600' : 'text-emerald-600'}`} />
-                                <span className="text-xs font-medium text-muted-foreground">Squeeze Risk</span>
+                                <span className="text-xs font-medium text-muted-foreground">{t('squeezeRisk')}</span>
                             </div>
                             <div className="text-3xl font-bold">{advancedSummary.squeeze_risk_score.toFixed(0)}</div>
                             <div className="mt-2 h-1.5 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
@@ -126,7 +129,7 @@ export function AdvancedTab({
                                 />
                             </div>
                             <p className="text-xs text-muted-foreground mt-2">
-                                {advancedSummary.squeeze_risk_score > 60 ? 'Vulnerable' : advancedSummary.squeeze_risk_score > 40 ? 'Moderate' : 'Stable'}
+                                {advancedSummary.squeeze_risk_score > 60 ? t('vulnerable') : advancedSummary.squeeze_risk_score > 40 ? t('moderate') : t('stable')}
                             </p>
                         </div>
 
@@ -134,14 +137,14 @@ export function AdvancedTab({
                         <div className="relative overflow-hidden rounded-xl p-4 border bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-blue-200 dark:border-blue-800">
                             <div className="flex items-center gap-2 mb-2">
                                 <Activity className="h-4 w-4 text-blue-600" />
-                                <span className="text-xs font-medium text-muted-foreground">Flow Momentum</span>
+                                <span className="text-xs font-medium text-muted-foreground">{t('flowMomentum')}</span>
                             </div>
                             <div className="text-3xl font-bold">{advancedSummary.flow_momentum_score.toFixed(0)}</div>
                             <div className="mt-2 h-1.5 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
                                 <div className="h-full bg-blue-500 transition-all" style={{ width: `${advancedSummary.flow_momentum_score}%` }} />
                             </div>
                             <p className="text-xs text-muted-foreground mt-2">
-                                {advancedSummary.flow_momentum_score > 60 ? 'Strong' : advancedSummary.flow_momentum_score > 40 ? 'Moderate' : 'Weak'}
+                                {advancedSummary.flow_momentum_score > 60 ? t('strong') : advancedSummary.flow_momentum_score > 40 ? t('moderate') : t('weak')}
                             </p>
                         </div>
 
@@ -151,13 +154,13 @@ export function AdvancedTab({
                             <div className="relative">
                                 <div className="flex items-center gap-2 mb-2">
                                     <Brain className="h-4 w-4 text-violet-600" />
-                                    <span className="text-xs font-medium text-muted-foreground">Regime</span>
+                                    <span className="text-xs font-medium text-muted-foreground">{t('regime')}</span>
                                 </div>
                                 <div className="text-lg font-bold capitalize text-violet-700 dark:text-violet-300">
                                     {advancedSummary.current_regime.replace('_', ' ')}
                                 </div>
                                 <div className="flex items-center gap-1 mt-2">
-                                    <span className="text-xs text-muted-foreground">Confidence:</span>
+                                    <span className="text-xs text-muted-foreground">{t('confidence')}:</span>
                                     <span className="text-xs font-bold">{advancedSummary.regime_confidence.toFixed(0)}%</span>
                                 </div>
                             </div>
@@ -169,7 +172,7 @@ export function AdvancedTab({
                         <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 overflow-hidden">
                             <div className="px-4 py-3 bg-amber-100/50 dark:bg-amber-900/30 border-b border-amber-200 dark:border-amber-800 flex items-center gap-2">
                                 <AlertTriangle className="h-4 w-4 text-amber-600" />
-                                <span className="font-medium text-amber-800 dark:text-amber-300">Active Alerts ({advancedSummary.alerts.length})</span>
+                                <span className="font-medium text-amber-800 dark:text-amber-300">{t('activeAlerts')} ({advancedSummary.alerts.length})</span>
                             </div>
                             <div className="p-3 space-y-2">
                                 {advancedSummary.alerts.map((alert, i) => (
@@ -191,11 +194,11 @@ export function AdvancedTab({
                                 <div className="p-2 bg-white/20 rounded-lg">
                                     <Sparkles className="h-5 w-5" />
                                 </div>
-                                <span className="font-semibold">Primary Insight</span>
+                                <span className="font-semibold">{t('primaryInsight')}</span>
                             </div>
                             <p className="text-lg font-medium mb-4">{advancedSummary.primary_insight}</p>
                             <div className="p-3 bg-white/10 rounded-lg backdrop-blur-sm">
-                                <div className="text-xs opacity-80 mb-1">Suggested Action</div>
+                                <div className="text-xs opacity-80 mb-1">{t('suggestedAction')}</div>
                                 <p className="font-medium">{advancedSummary.suggested_action}</p>
                             </div>
                         </div>
@@ -213,8 +216,8 @@ export function AdvancedTab({
                                                 <TrendingDown className="h-5 w-5 text-red-600 dark:text-red-400" />
                                             </div>
                                             <div>
-                                                <CardTitle className="text-base">Long Squeeze Risk</CardTitle>
-                                                <CardDescription className="text-xs">Forced long liquidation risk</CardDescription>
+                                                <CardTitle className="text-base">{t('longSqueezeRisk')}</CardTitle>
+                                                <CardDescription className="text-xs">{t('forcedLongLiquidation')}</CardDescription>
                                             </div>
                                         </div>
                                         <HelpButton helpKey="squeezeRisk" />
@@ -240,11 +243,11 @@ export function AdvancedTab({
                                     </div>
                                     <div className="grid grid-cols-2 gap-2">
                                         <div className="p-2.5 rounded-lg bg-white/50 dark:bg-black/20">
-                                            <div className="text-xs text-muted-foreground">Spec Factor</div>
+                                            <div className="text-xs text-muted-foreground">{t('specFactor')}</div>
                                             <div className="text-sm font-semibold">{(squeezeData.long_squeeze_risk.spec_positioning_factor * 100).toFixed(0)}%</div>
                                         </div>
                                         <div className="p-2.5 rounded-lg bg-white/50 dark:bg-black/20">
-                                            <div className="text-xs text-muted-foreground">Concentration</div>
+                                            <div className="text-xs text-muted-foreground">{t('concentration')}</div>
                                             <div className="text-sm font-semibold">{(squeezeData.long_squeeze_risk.concentration_factor * 100).toFixed(0)}%</div>
                                         </div>
                                     </div>
@@ -261,8 +264,8 @@ export function AdvancedTab({
                                                 <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                                             </div>
                                             <div>
-                                                <CardTitle className="text-base">Short Squeeze Risk</CardTitle>
-                                                <CardDescription className="text-xs">Forced short covering risk</CardDescription>
+                                                <CardTitle className="text-base">{t('shortSqueezeRisk')}</CardTitle>
+                                                <CardDescription className="text-xs">{t('forcedShortCovering')}</CardDescription>
                                             </div>
                                         </div>
                                     </div>
@@ -287,11 +290,11 @@ export function AdvancedTab({
                                     </div>
                                     <div className="grid grid-cols-2 gap-2">
                                         <div className="p-2.5 rounded-lg bg-white/50 dark:bg-black/20">
-                                            <div className="text-xs text-muted-foreground">Spec Factor</div>
+                                            <div className="text-xs text-muted-foreground">{t('specFactor')}</div>
                                             <div className="text-sm font-semibold">{(squeezeData.short_squeeze_risk.spec_positioning_factor * 100).toFixed(0)}%</div>
                                         </div>
                                         <div className="p-2.5 rounded-lg bg-white/50 dark:bg-black/20">
-                                            <div className="text-xs text-muted-foreground">Concentration</div>
+                                            <div className="text-xs text-muted-foreground">{t('concentration')}</div>
                                             <div className="text-sm font-semibold">{(squeezeData.short_squeeze_risk.concentration_factor * 100).toFixed(0)}%</div>
                                         </div>
                                     </div>
@@ -308,7 +311,7 @@ export function AdvancedTab({
                                 <CardTitle className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <Activity className="h-5 w-5 text-blue-600" />
-                                        Flow Decomposition
+                                        {t('flowDecomposition')}
                                     </div>
                                     <HelpButton helpKey="flowDecomposition" />
                                 </CardTitle>
@@ -321,7 +324,7 @@ export function AdvancedTab({
                                         <div className="flex items-center justify-between mb-3">
                                             <div className="flex items-center gap-2">
                                                 <Target className="h-4 w-4 text-orange-600" />
-                                                <span className="font-medium">Managed Money</span>
+                                                <span className="font-medium">{t('managedMoney')}</span>
                                             </div>
                                             <Badge variant="outline" className="text-xs capitalize">
                                                 {flowData.current_week.managed_money.dominant_flow.replace('_', ' ')}
@@ -329,19 +332,19 @@ export function AdvancedTab({
                                         </div>
                                         <div className="grid grid-cols-2 gap-2">
                                             <div className="p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/30">
-                                                <div className="text-xs text-emerald-600 dark:text-emerald-400">New Longs</div>
+                                                <div className="text-xs text-emerald-600 dark:text-emerald-400">{t('newLongs')}</div>
                                                 <div className="font-bold text-emerald-700 dark:text-emerald-300">{formatNumber(flowData.current_week.managed_money.new_longs, 0)}</div>
                                             </div>
                                             <div className="p-2.5 rounded-lg bg-red-50 dark:bg-red-950/30">
-                                                <div className="text-xs text-red-600 dark:text-red-400">Long Liquidation</div>
+                                                <div className="text-xs text-red-600 dark:text-red-400">{t('longLiquidationLabel')}</div>
                                                 <div className="font-bold text-red-700 dark:text-red-300">{formatNumber(flowData.current_week.managed_money.long_liquidation, 0)}</div>
                                             </div>
                                             <div className="p-2.5 rounded-lg bg-red-50 dark:bg-red-950/30">
-                                                <div className="text-xs text-red-600 dark:text-red-400">New Shorts</div>
+                                                <div className="text-xs text-red-600 dark:text-red-400">{t('newShorts')}</div>
                                                 <div className="font-bold text-red-700 dark:text-red-300">{formatNumber(flowData.current_week.managed_money.new_shorts, 0)}</div>
                                             </div>
                                             <div className="p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/30">
-                                                <div className="text-xs text-emerald-600 dark:text-emerald-400">Short Covering</div>
+                                                <div className="text-xs text-emerald-600 dark:text-emerald-400">{t('shortCoveringLabel')}</div>
                                                 <div className="font-bold text-emerald-700 dark:text-emerald-300">{formatNumber(flowData.current_week.managed_money.short_covering, 0)}</div>
                                             </div>
                                         </div>
@@ -352,7 +355,7 @@ export function AdvancedTab({
                                         <div className="flex items-center justify-between mb-3">
                                             <div className="flex items-center gap-2">
                                                 <Building2 className="h-4 w-4 text-blue-600" />
-                                                <span className="font-medium">Commercials</span>
+                                                <span className="font-medium">{t('commercials')}</span>
                                             </div>
                                             <Badge variant="outline" className="text-xs capitalize">
                                                 {flowData.current_week.producer_merchant.dominant_flow.replace('_', ' ')}
@@ -360,19 +363,19 @@ export function AdvancedTab({
                                         </div>
                                         <div className="grid grid-cols-2 gap-2">
                                             <div className="p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/30">
-                                                <div className="text-xs text-emerald-600 dark:text-emerald-400">New Longs</div>
+                                                <div className="text-xs text-emerald-600 dark:text-emerald-400">{t('newLongs')}</div>
                                                 <div className="font-bold text-emerald-700 dark:text-emerald-300">{formatNumber(flowData.current_week.producer_merchant.new_longs, 0)}</div>
                                             </div>
                                             <div className="p-2.5 rounded-lg bg-red-50 dark:bg-red-950/30">
-                                                <div className="text-xs text-red-600 dark:text-red-400">Long Liquidation</div>
+                                                <div className="text-xs text-red-600 dark:text-red-400">{t('longLiquidationLabel')}</div>
                                                 <div className="font-bold text-red-700 dark:text-red-300">{formatNumber(flowData.current_week.producer_merchant.long_liquidation, 0)}</div>
                                             </div>
                                             <div className="p-2.5 rounded-lg bg-red-50 dark:bg-red-950/30">
-                                                <div className="text-xs text-red-600 dark:text-red-400">New Shorts</div>
+                                                <div className="text-xs text-red-600 dark:text-red-400">{t('newShorts')}</div>
                                                 <div className="font-bold text-red-700 dark:text-red-300">{formatNumber(flowData.current_week.producer_merchant.new_shorts, 0)}</div>
                                             </div>
                                             <div className="p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/30">
-                                                <div className="text-xs text-emerald-600 dark:text-emerald-400">Short Covering</div>
+                                                <div className="text-xs text-emerald-600 dark:text-emerald-400">{t('shortCoveringLabel')}</div>
                                                 <div className="font-bold text-emerald-700 dark:text-emerald-300">{formatNumber(flowData.current_week.producer_merchant.short_covering, 0)}</div>
                                             </div>
                                         </div>
@@ -389,7 +392,7 @@ export function AdvancedTab({
                                 <CardTitle className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <Users className="h-5 w-5 text-purple-600" />
-                                        Concentration Analysis
+                                        {t('concentrationAnalysis')}
                                     </div>
                                     <HelpButton helpKey="concentration" />
                                 </CardTitle>
@@ -398,43 +401,43 @@ export function AdvancedTab({
                             <CardContent>
                                 <div className="grid gap-4 md:grid-cols-2">
                                     <div className="p-4 rounded-lg border">
-                                        <div className="font-medium mb-2">Long Side Concentration</div>
+                                        <div className="font-medium mb-2">{t('longSideConcentration')}</div>
                                         <div className="space-y-2">
                                             <div className="flex justify-between text-sm">
-                                                <span>Top 4 Traders</span>
+                                                <span>{t('top4Traders')}</span>
                                                 <span className="font-mono">{concentrationData.long_concentration.top_4_gross.toFixed(1)}%</span>
                                             </div>
                                             <div className="flex justify-between text-sm">
-                                                <span>Top 8 Traders</span>
+                                                <span>{t('top8Traders')}</span>
                                                 <span className="font-mono">{concentrationData.long_concentration.top_8_gross.toFixed(1)}%</span>
                                             </div>
                                             <div className="flex justify-between text-sm">
-                                                <span>Concentration Ratio</span>
+                                                <span>{t('concentrationRatio')}</span>
                                                 <span className="font-mono">{concentrationData.long_concentration.concentration_ratio.toFixed(2)}</span>
                                             </div>
                                             {concentrationData.long_concentration.is_concentrated && (
-                                                <Badge variant="destructive" className="mt-2">Highly Concentrated</Badge>
+                                                <Badge variant="destructive" className="mt-2">{t('highlyConcentrated')}</Badge>
                                             )}
                                         </div>
                                     </div>
 
                                     <div className="p-4 rounded-lg border">
-                                        <div className="font-medium mb-2">Short Side Concentration</div>
+                                        <div className="font-medium mb-2">{t('shortSideConcentration')}</div>
                                         <div className="space-y-2">
                                             <div className="flex justify-between text-sm">
-                                                <span>Top 4 Traders</span>
+                                                <span>{t('top4Traders')}</span>
                                                 <span className="font-mono">{concentrationData.short_concentration.top_4_gross.toFixed(1)}%</span>
                                             </div>
                                             <div className="flex justify-between text-sm">
-                                                <span>Top 8 Traders</span>
+                                                <span>{t('top8Traders')}</span>
                                                 <span className="font-mono">{concentrationData.short_concentration.top_8_gross.toFixed(1)}%</span>
                                             </div>
                                             <div className="flex justify-between text-sm">
-                                                <span>Concentration Ratio</span>
+                                                <span>{t('concentrationRatio')}</span>
                                                 <span className="font-mono">{concentrationData.short_concentration.concentration_ratio.toFixed(2)}</span>
                                             </div>
                                             {concentrationData.short_concentration.is_concentrated && (
-                                                <Badge variant="destructive" className="mt-2">Highly Concentrated</Badge>
+                                                <Badge variant="destructive" className="mt-2">{t('highlyConcentrated')}</Badge>
                                             )}
                                         </div>
                                     </div>
@@ -451,7 +454,7 @@ export function AdvancedTab({
                                 <CardTitle className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <BarChart3 className="h-5 w-5 text-indigo-600" />
-                                        Curve Structure Analysis
+                                        {t('curveStructureAnalysis')}
                                     </div>
                                     <HelpButton helpKey="curveAnalysis" />
                                 </CardTitle>
@@ -460,17 +463,17 @@ export function AdvancedTab({
                             <CardContent>
                                 <div className="grid gap-4 md:grid-cols-3 mb-4">
                                     <div className="p-3 rounded-lg bg-indigo-50 border border-indigo-200">
-                                        <div className="text-xs text-indigo-600">Front Month OI</div>
+                                        <div className="text-xs text-indigo-600">{t('frontMonthOI')}</div>
                                         <div className="text-xl font-bold">{formatNumber(curveData.front_oi, 0)}</div>
-                                        <div className="text-sm text-indigo-700">{curveData.front_oi_pct.toFixed(1)}% of total</div>
+                                        <div className="text-sm text-indigo-700">{curveData.front_oi_pct.toFixed(1)}% {t('ofTotal')}</div>
                                     </div>
                                     <div className="p-3 rounded-lg bg-purple-50 border border-purple-200">
-                                        <div className="text-xs text-purple-600">Back Month OI</div>
+                                        <div className="text-xs text-purple-600">{t('backMonthOI')}</div>
                                         <div className="text-xl font-bold">{formatNumber(curveData.back_oi, 0)}</div>
                                         <div className="text-sm text-purple-700">{(100 - curveData.front_oi_pct).toFixed(1)}% of total</div>
                                     </div>
                                     <div className={`p-3 rounded-lg border ${curveData.roll_stress_level === 'critical' ? 'bg-red-50 border-red-200' : curveData.roll_stress_level === 'high' ? 'bg-orange-50 border-orange-200' : 'bg-green-50 border-green-200'}`}>
-                                        <div className="text-xs">Roll Stress</div>
+                                        <div className="text-xs">{t('rollStress')}</div>
                                         <div className="text-xl font-bold">{curveData.roll_stress_score.toFixed(0)}/100</div>
                                         <div className="text-sm capitalize">{curveData.roll_stress_level}</div>
                                     </div>
@@ -490,8 +493,8 @@ export function AdvancedTab({
                                                 </Badge>
                                             </div>
                                             <div className="grid grid-cols-2 gap-2 text-sm">
-                                                <div>Front Net: <span className={pos.front_net >= 0 ? 'text-green-600' : 'text-red-600'}>{formatNumber(pos.front_net, 0)}</span></div>
-                                                <div>Back Net: <span className={pos.back_net >= 0 ? 'text-green-600' : 'text-red-600'}>{formatNumber(pos.back_net, 0)}</span></div>
+                                                <div>{t('frontNet')}: <span className={pos.front_net >= 0 ? 'text-green-600' : 'text-red-600'}>{formatNumber(pos.front_net, 0)}</span></div>
+                                                <div>{t('backNet')}: <span className={pos.back_net >= 0 ? 'text-green-600' : 'text-red-600'}>{formatNumber(pos.back_net, 0)}</span></div>
                                             </div>
                                             <p className="text-xs text-muted-foreground mt-1">{pos.interpretation}</p>
                                         </div>
@@ -508,7 +511,7 @@ export function AdvancedTab({
                                 <CardTitle className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <Activity className="h-5 w-5 text-cyan-600" />
-                                        Spread vs Directional Exposure
+                                        {t('spreadVsDirectional')}
                                     </div>
                                     <HelpButton helpKey="spreadAnalysis" />
                                 </CardTitle>
@@ -517,25 +520,25 @@ export function AdvancedTab({
                             <CardContent>
                                 <div className="grid gap-4 md:grid-cols-3 mb-4">
                                     <div className="p-3 rounded-lg bg-cyan-50 border border-cyan-200">
-                                        <div className="text-xs text-cyan-600">Market Mode</div>
+                                        <div className="text-xs text-cyan-600">{t('marketMode')}</div>
                                         <div className="text-lg font-bold capitalize">{spreadData.market_mode.replace('_', ' ')}</div>
                                         <div className="text-sm text-cyan-700">{spreadData.mode_strength} strength</div>
                                     </div>
                                     <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
-                                        <div className="text-xs text-blue-600">Spread Ratio</div>
+                                        <div className="text-xs text-blue-600">{t('spreadRatio')}</div>
                                         <div className="text-xl font-bold">{spreadData.market_spread_ratio.toFixed(1)}%</div>
-                                        <div className="text-sm text-blue-700">of total positions</div>
+                                        <div className="text-sm text-blue-700">{t('ofTotalPositions')}</div>
                                     </div>
                                     <div className="p-3 rounded-lg bg-slate-50 border border-slate-200">
-                                        <div className="text-xs text-slate-600">WoW Change</div>
+                                        <div className="text-xs text-slate-600">{t('wowChange')}</div>
                                         <div className="text-sm">
                                             <span className={spreadData.spread_change_wow >= 0 ? 'text-green-600' : 'text-red-600'}>
-                                                Spread: {spreadData.spread_change_wow >= 0 ? '+' : ''}{formatNumber(spreadData.spread_change_wow, 0)}
+                                                {t('spread')}: {spreadData.spread_change_wow >= 0 ? '+' : ''}{formatNumber(spreadData.spread_change_wow, 0)}
                                             </span>
                                         </div>
                                         <div className="text-sm">
                                             <span className={spreadData.directional_change_wow >= 0 ? 'text-green-600' : 'text-red-600'}>
-                                                Dir: {spreadData.directional_change_wow >= 0 ? '+' : ''}{formatNumber(spreadData.directional_change_wow, 0)}
+                                                {t('directional')}: {spreadData.directional_change_wow >= 0 ? '+' : ''}{formatNumber(spreadData.directional_change_wow, 0)}
                                             </span>
                                         </div>
                                     </div>
@@ -569,7 +572,7 @@ export function AdvancedTab({
                                 <CardTitle className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <Users className="h-5 w-5 text-amber-600" />
-                                        Herding & Market Structure
+                                        {t('herdingMarketStructure')}
                                     </div>
                                     <HelpButton helpKey="herdingAnalysis" />
                                 </CardTitle>
@@ -583,16 +586,16 @@ export function AdvancedTab({
                                 )}
                                 <div className="grid gap-4 md:grid-cols-3 mb-4">
                                     <div className="p-3 rounded-lg bg-amber-50 border border-amber-200">
-                                        <div className="text-xs text-amber-600">Herding Score</div>
+                                        <div className="text-xs text-amber-600">{t('herdingScore')}</div>
                                         <div className="text-xl font-bold">{herdingData.overall_herding_score.toFixed(0)}/100</div>
                                         <Progress value={herdingData.overall_herding_score} className="h-2 mt-1" />
                                     </div>
                                     <div className="p-3 rounded-lg bg-purple-50 border border-purple-200">
-                                        <div className="text-xs text-purple-600">Market Structure</div>
+                                        <div className="text-xs text-purple-600">{t('marketStructure')}</div>
                                         <div className="text-lg font-bold capitalize">{herdingData.overall_herding_type.replace('_', ' ')}</div>
                                     </div>
                                     <div className={`p-3 rounded-lg border ${herdingData.divergence_detected ? 'bg-yellow-50 border-yellow-200' : 'bg-gray-50 border-gray-200'}`}>
-                                        <div className="text-xs">Smart Money vs Crowd</div>
+                                        <div className="text-xs">{t('smartMoneyVsCrowd')}</div>
                                         <div className="text-sm">
                                             <span className="capitalize">Smart: {herdingData.smart_money_direction}</span>
                                         </div>
@@ -638,7 +641,7 @@ export function AdvancedTab({
                                 <CardTitle className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <Brain className="h-5 w-5 text-violet-600" />
-                                        ML Regime Classification
+                                        {t('mlRegimeAnalysis')}
                                     </div>
                                     <HelpButton helpKey="mlRegime" />
                                 </CardTitle>
@@ -647,7 +650,7 @@ export function AdvancedTab({
                             <CardContent>
                                 <div className="grid gap-4 md:grid-cols-3 mb-4">
                                     <div className="p-4 rounded-lg bg-violet-50 border border-violet-200">
-                                        <div className="text-xs text-violet-600 mb-1">Current Regime</div>
+                                        <div className="text-xs text-violet-600 mb-1">{t('currentRegime')}</div>
                                         <div className="text-lg font-bold capitalize">{mlRegimeData.current_regime.primary_regime.replace('_', ' ')}</div>
                                         <div className="flex items-center gap-2 mt-1">
                                             <Progress value={mlRegimeData.current_regime.primary_confidence} className="h-2 flex-1" />
@@ -713,7 +716,7 @@ export function AdvancedTab({
                                 <CardTitle className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <Zap className="h-5 w-5 text-orange-600" />
-                                        COT-Implied Volatility Regime
+                                        {t('volatilityAnalysis')}
                                     </div>
                                     <HelpButton helpKey="volatilityRegime" />
                                 </CardTitle>
@@ -768,7 +771,7 @@ export function AdvancedTab({
                                 <CardTitle className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <Globe className="h-5 w-5 text-teal-600" />
-                                        Cross-Market Speculative Pressure
+                                        {t('crossMarketPressure')}
                                     </div>
                                     <HelpButton helpKey="crossMarket" />
                                 </CardTitle>
@@ -843,7 +846,7 @@ export function AdvancedTab({
                 <div className="flex h-40 items-center justify-center text-muted-foreground">
                     <div className="text-center">
                         <Gauge className="h-10 w-10 mx-auto mb-2 opacity-50" />
-                        <p>Run analysis to see advanced metrics</p>
+                        <p>{t('runAnalysisAdvanced')}</p>
                     </div>
                 </div>
             )}

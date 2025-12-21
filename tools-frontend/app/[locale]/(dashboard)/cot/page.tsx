@@ -198,7 +198,7 @@ export default function COTReportPage() {
             </div>
           </div>
           <p className="text-white/90 text-lg max-w-2xl">
-            Analyze institutional positioning across Producer/Merchant, Swap Dealers, Managed Money, and Other Reportables
+            {t('headerDescription')}
           </p>
         </div>
         <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
@@ -216,19 +216,19 @@ export default function COTReportPage() {
                   </div>
                   <div className="text-left">
                     <div className="font-semibold text-foreground flex items-center gap-2">
-                      Understanding Disaggregated COT Reports
+                      {t('understandingCOT')}
                       <Badge variant="outline" className="text-xs bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700">
-                        Guide
+                        {t('guide')}
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      Learn about the four trader categories and how to interpret their positions
+                      {t('learnCOT')}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-amber-600 dark:text-amber-400 group-hover:text-amber-700 dark:group-hover:text-amber-300 transition-colors">
-                    {guideOpen ? "Hide Guide" : "Show Guide"}
+                    {guideOpen ? t('hideGuide') : t('showGuide')}
                   </span>
                   <ChevronDown className={`h-5 w-5 text-amber-600 dark:text-amber-400 transition-transform duration-300 ${guideOpen ? "rotate-180" : ""}`} />
                 </div>
@@ -246,10 +246,10 @@ export default function COTReportPage() {
                     <div className="p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900/50">
                       <Building2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     </div>
-                    Producer/Merchant
+                    {t('producerMerchant')}
                   </div>
                   <p className="text-sm text-blue-700 dark:text-blue-400 leading-relaxed">
-                    Commercial hedgers (miners, refiners). <span className="font-medium">Contrarian indicator</span> - extreme shorts often mark tops.
+                    {t('producerMerchantDesc')}
                   </p>
                 </div>
               </div>
@@ -260,10 +260,10 @@ export default function COTReportPage() {
                     <div className="p-1.5 rounded-lg bg-purple-100 dark:bg-purple-900/50">
                       <Briefcase className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                     </div>
-                    Swap Dealers
+                    {t('swapDealers')}
                   </div>
                   <p className="text-sm text-purple-700 dark:text-purple-400 leading-relaxed">
-                    Banks facilitating OTC derivatives. Often neutral, hedging client exposures.
+                    {t('swapDealersDesc')}
                   </p>
                 </div>
               </div>
@@ -274,10 +274,10 @@ export default function COTReportPage() {
                     <div className="p-1.5 rounded-lg bg-orange-100 dark:bg-orange-900/50">
                       <Target className="h-4 w-4 text-orange-600 dark:text-orange-400" />
                     </div>
-                    Managed Money
+                    {t('managedMoney')}
                   </div>
                   <p className="text-sm text-orange-700 dark:text-orange-400 leading-relaxed">
-                    Hedge funds and CTAs. <span className="font-medium">Trend followers</span> - extreme longs often signal overcrowding.
+                    {t('managedMoneyDesc')}
                   </p>
                 </div>
               </div>
@@ -288,10 +288,10 @@ export default function COTReportPage() {
                     <div className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800">
                       <Users className="h-4 w-4 text-slate-600 dark:text-slate-400" />
                     </div>
-                    Other Reportables
+                    {t('otherReportables')}
                   </div>
                   <p className="text-sm text-slate-700 dark:text-slate-400 leading-relaxed">
-                    Remaining large traders including proprietary traders and family offices.
+                    {t('otherReportablesDesc')}
                   </p>
                 </div>
               </div>
@@ -311,8 +311,8 @@ export default function COTReportPage() {
                 <BarChart3 className="h-5 w-5" />
               </div>
               <div>
-                <span className="font-semibold">Analysis Parameters</span>
-                <p className="text-xs font-normal text-muted-foreground mt-0.5">Configure your COT analysis</p>
+                <span className="font-semibold">{t('analysisParameters')}</span>
+                <p className="text-xs font-normal text-muted-foreground mt-0.5">{t('configureAnalysis')}</p>
               </div>
             </CardTitle>
           </CardHeader>
@@ -321,11 +321,11 @@ export default function COTReportPage() {
               <div className="space-y-2">
                 <Label htmlFor="commodity" className="text-sm font-medium flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                  Commodity
+                  {t('commodity')}
                 </Label>
                 <Select value={commodity} onValueChange={setCommodity}>
                   <SelectTrigger id="commodity" className="h-11 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-orange-500/20 focus:border-orange-500">
-                    <SelectValue placeholder="Select commodity" />
+                    <SelectValue placeholder={t('selectCommodity')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="GOLD">Gold</SelectItem>
@@ -348,23 +348,23 @@ export default function COTReportPage() {
               <div className="space-y-2">
                 <Label htmlFor="weeks" className="text-sm font-medium flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                  Lookback Period
+                  {t('lookbackPeriod')}
                 </Label>
                 <Select value={weeks} onValueChange={setWeeks}>
                   <SelectTrigger id="weeks" className="h-11 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-orange-500/20 focus:border-orange-500">
-                    <SelectValue placeholder="Select period" />
+                    <SelectValue placeholder={t('selectPeriod')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="13">3 Months (13 weeks)</SelectItem>
-                    <SelectItem value="26">6 Months (26 weeks)</SelectItem>
-                    <SelectItem value="52">1 Year (52 weeks)</SelectItem>
-                    <SelectItem value="104">2 Years (104 weeks)</SelectItem>
-                    <SelectItem value="156">3 Years (156 weeks)</SelectItem>
-                    <SelectItem value="260">5 Years (260 weeks)</SelectItem>
+                    <SelectItem value="13">{t('months3')}</SelectItem>
+                    <SelectItem value="26">{t('months6')}</SelectItem>
+                    <SelectItem value="52">{t('year1')}</SelectItem>
+                    <SelectItem value="104">{t('years2')}</SelectItem>
+                    <SelectItem value="156">{t('years3')}</SelectItem>
+                    <SelectItem value="260">{t('years5')}</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Affects percentile rankings, sentiment analysis, and charts.
+                  {t('periodAffects')}
                 </p>
               </div>
 
@@ -376,11 +376,11 @@ export default function COTReportPage() {
                 {loading ? (
                   <span className="flex items-center gap-2">
                     <RefreshCw className="h-4 w-4 animate-spin" />
-                    Analyzing...
+                    {t('analyzing')}
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    Analyze COT Data
+                    {t('analyzeCOT')}
                     <ArrowRight className="h-4 w-4" />
                   </span>
                 )}
@@ -399,9 +399,9 @@ export default function COTReportPage() {
                   <Target className="h-5 w-5" />
                 </div>
                 <div>
-                  <span className="font-semibold">Trading Signal</span>
+                  <span className="font-semibold">{t('tradingSignal')}</span>
                   <p className="text-xs font-normal text-muted-foreground mt-0.5">
-                    {result ? `${result.commodity} • ${result.data_as_of_date}` : "Run analysis to see signals"}
+                    {result ? `${result.commodity} • ${result.data_as_of_date}` : t('runAnalysisSignals')}
                   </p>
                 </div>
               </CardTitle>
@@ -488,8 +488,8 @@ export default function COTReportPage() {
                   <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-linear-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 flex items-center justify-center">
                     <AlertCircle className="h-8 w-8 text-amber-500" />
                   </div>
-                  <p className="text-muted-foreground font-medium">Select parameters and analyze to see trading signals</p>
-                  <p className="text-xs text-muted-foreground mt-1">Choose a commodity and lookback period, then click Analyze</p>
+                  <p className="text-muted-foreground font-medium">{t('selectParamsAnalyze')}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t('chooseParams')}</p>
                 </div>
               </div>
             )}
@@ -507,7 +507,7 @@ export default function COTReportPage() {
             >
               <div className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
-                <span>Positions</span>
+                <span>{t('positions')}</span>
               </div>
             </TabsTrigger>
             <TabsTrigger
@@ -516,7 +516,7 @@ export default function COTReportPage() {
             >
               <div className="flex items-center gap-2">
                 <Activity className="h-4 w-4" />
-                <span>Sentiment</span>
+                <span>{t('sentiment')}</span>
               </div>
             </TabsTrigger>
             <TabsTrigger
@@ -525,7 +525,7 @@ export default function COTReportPage() {
             >
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4" />
-                <span>Charts</span>
+                <span>{t('charts')}</span>
               </div>
             </TabsTrigger>
             <TabsTrigger
@@ -534,7 +534,7 @@ export default function COTReportPage() {
             >
               <div className="flex items-center gap-2">
                 <Target className="h-4 w-4" />
-                <span>Analysis</span>
+                <span>{t('analysis')}</span>
               </div>
             </TabsTrigger>
             <TabsTrigger
@@ -543,7 +543,7 @@ export default function COTReportPage() {
             >
               <div className="flex items-center gap-2">
                 <Briefcase className="h-4 w-4" />
-                <span>Advanced</span>
+                <span>{t('advanced')}</span>
               </div>
             </TabsTrigger>
             <TabsTrigger
@@ -552,7 +552,7 @@ export default function COTReportPage() {
             >
               <div className="flex items-center gap-2">
                 <AlertCircle className="h-4 w-4" />
-                <span>Alerts</span>
+                <span>{t('alerts')}</span>
                 {alerts.length > 0 && (
                   <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300">
                     {alerts.length}

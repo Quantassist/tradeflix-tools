@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { AlertTriangle, Building2, Lightbulb, Target } from "lucide-react"
@@ -13,19 +14,16 @@ interface SentimentTabProps {
 }
 
 export function SentimentTab({ result }: SentimentTabProps) {
-    // PASTE TAB CONTENT HERE
-    // From page.tsx, search for: Sentiment Tab - Modernized
-    // Copy the content INSIDE TabsContent (lines ~1560-1760)
-    // After pasting, add any missing imports at the top
+    const t = useTranslations('cot')
 
     return (
         <div className="space-y-6">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b">
                 <div>
-                    <h3 className="text-lg font-semibold text-foreground">Market Sentiment</h3>
+                    <h3 className="text-lg font-semibold text-foreground">{t('marketSentiment')}</h3>
                     <p className="text-sm text-muted-foreground">
-                        Based on {result.weeks_analyzed} weeks of historical data
+                        {t('basedOnWeeks', { weeks: result.weeks_analyzed })}
                     </p>
                 </div>
                 <InterpretationGuideButton tabKey="sentiment" />
@@ -39,12 +37,12 @@ export function SentimentTab({ result }: SentimentTabProps) {
                     <div className="relative">
                         <div className="flex items-center gap-2 mb-2">
                             <Target className="h-5 w-5" />
-                            <span className="text-sm font-medium opacity-90">Speculators</span>
+                            <span className="text-sm font-medium opacity-90">{t('speculators')}</span>
                         </div>
                         <div className="text-4xl font-bold mb-1">
                             {result.managed_money_sentiment.percentile.toFixed(0)}%
                         </div>
-                        <div className="text-sm opacity-80 mb-3">Percentile Rank</div>
+                        <div className="text-sm opacity-80 mb-3">{t('percentileRank')}</div>
                         <Badge className="bg-white/20 text-white border-0 hover:bg-white/30">
                             {getSentimentLabel(result.managed_money_sentiment.sentiment)}
                         </Badge>
@@ -57,12 +55,12 @@ export function SentimentTab({ result }: SentimentTabProps) {
                     <div className="relative">
                         <div className="flex items-center gap-2 mb-2">
                             <Building2 className="h-5 w-5" />
-                            <span className="text-sm font-medium opacity-90">Commercials</span>
+                            <span className="text-sm font-medium opacity-90">{t('commercials')}</span>
                         </div>
                         <div className="text-4xl font-bold mb-1">
                             {result.producer_merchant_sentiment.percentile.toFixed(0)}%
                         </div>
-                        <div className="text-sm opacity-80 mb-3">Percentile Rank</div>
+                        <div className="text-sm opacity-80 mb-3">{t('percentileRank')}</div>
                         <Badge className="bg-white/20 text-white border-0 hover:bg-white/30">
                             {getSentimentLabel(result.producer_merchant_sentiment.sentiment)}
                         </Badge>
@@ -81,8 +79,8 @@ export function SentimentTab({ result }: SentimentTabProps) {
                                     <Target className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                                 </div>
                                 <div>
-                                    <CardTitle className="text-base">Managed Money</CardTitle>
-                                    <CardDescription className="text-xs">Hedge funds & speculators</CardDescription>
+                                    <CardTitle className="text-base">{t('managedMoney')}</CardTitle>
+                                    <CardDescription className="text-xs">{t('hedgeFundsSpeculatorsShort')}</CardDescription>
                                 </div>
                             </div>
                         </div>
@@ -91,9 +89,9 @@ export function SentimentTab({ result }: SentimentTabProps) {
                         {/* Modern Gauge */}
                         <div className="space-y-2">
                             <div className="flex justify-between text-xs text-muted-foreground">
-                                <span>Bearish</span>
-                                <span>Neutral</span>
-                                <span>Bullish</span>
+                                <span>{t('bearish')}</span>
+                                <span>{t('neutral')}</span>
+                                <span>{t('bullish')}</span>
                             </div>
                             <div className="relative h-3 bg-gradient-to-r from-emerald-400 via-slate-300 to-red-400 rounded-full">
                                 <div
@@ -109,19 +107,19 @@ export function SentimentTab({ result }: SentimentTabProps) {
                         {/* Stats Grid */}
                         <div className="grid grid-cols-3 gap-2">
                             <div className="text-center p-3 rounded-xl bg-white/50 dark:bg-black/20">
-                                <div className="text-xs text-muted-foreground mb-1">Net Position</div>
+                                <div className="text-xs text-muted-foreground mb-1">{t('netPosition')}</div>
                                 <div className={`text-sm font-semibold ${result.managed_money_sentiment.net_position >= 0 ? "text-emerald-600" : "text-red-600"}`}>
                                     {formatNumber(result.managed_money_sentiment.net_position, 0)}
                                 </div>
                             </div>
                             <div className="text-center p-3 rounded-xl bg-white/50 dark:bg-black/20">
-                                <div className="text-xs text-muted-foreground mb-1">4-Week Δ</div>
+                                <div className="text-xs text-muted-foreground mb-1">{t('fourWeekDelta')}</div>
                                 <div className={`text-sm font-semibold ${result.managed_money_sentiment.four_week_change >= 0 ? "text-emerald-600" : "text-red-600"}`}>
                                     {result.managed_money_sentiment.four_week_change >= 0 ? "+" : ""}{formatNumber(result.managed_money_sentiment.four_week_change, 0)}
                                 </div>
                             </div>
                             <div className="text-center p-3 rounded-xl bg-white/50 dark:bg-black/20">
-                                <div className="text-xs text-muted-foreground mb-1">Streak</div>
+                                <div className="text-xs text-muted-foreground mb-1">{t('streak')}</div>
                                 <div className="text-sm font-semibold">
                                     {Math.abs(result.managed_money_sentiment.consecutive_weeks_direction)}w {result.managed_money_sentiment.consecutive_weeks_direction > 0 ? "↑" : "↓"}
                                 </div>
@@ -132,7 +130,7 @@ export function SentimentTab({ result }: SentimentTabProps) {
                             <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
                                 <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
                                 <p className="text-xs text-amber-800 dark:text-amber-300">
-                                    <strong>Contrarian Alert:</strong> Extreme positioning often precedes reversals.
+                                    <strong>{t('contrarianAlert')}:</strong> {t('extremePositioningAlert')}
                                 </p>
                             </div>
                         )}
@@ -148,8 +146,8 @@ export function SentimentTab({ result }: SentimentTabProps) {
                                     <Building2 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                                 </div>
                                 <div>
-                                    <CardTitle className="text-base">Commercials</CardTitle>
-                                    <CardDescription className="text-xs">Producers & hedgers (Smart Money)</CardDescription>
+                                    <CardTitle className="text-base">{t('commercials')}</CardTitle>
+                                    <CardDescription className="text-xs">{t('producersHedgersSmartMoney')}</CardDescription>
                                 </div>
                             </div>
                         </div>
@@ -158,9 +156,9 @@ export function SentimentTab({ result }: SentimentTabProps) {
                         {/* Modern Gauge - Inverted for commercials */}
                         <div className="space-y-2">
                             <div className="flex justify-between text-xs text-muted-foreground">
-                                <span>Price Bullish</span>
-                                <span>Neutral</span>
-                                <span>Price Bearish</span>
+                                <span>{t('priceBullish')}</span>
+                                <span>{t('neutral')}</span>
+                                <span>{t('priceBearish')}</span>
                             </div>
                             <div className="relative h-3 bg-gradient-to-r from-red-400 via-slate-300 to-emerald-400 rounded-full">
                                 <div
@@ -176,19 +174,19 @@ export function SentimentTab({ result }: SentimentTabProps) {
                         {/* Stats Grid */}
                         <div className="grid grid-cols-3 gap-2">
                             <div className="text-center p-3 rounded-xl bg-white/50 dark:bg-black/20">
-                                <div className="text-xs text-muted-foreground mb-1">Net Position</div>
+                                <div className="text-xs text-muted-foreground mb-1">{t('netPosition')}</div>
                                 <div className={`text-sm font-semibold ${result.producer_merchant_sentiment.net_position >= 0 ? "text-emerald-600" : "text-red-600"}`}>
                                     {formatNumber(result.producer_merchant_sentiment.net_position, 0)}
                                 </div>
                             </div>
                             <div className="text-center p-3 rounded-xl bg-white/50 dark:bg-black/20">
-                                <div className="text-xs text-muted-foreground mb-1">4-Week Δ</div>
+                                <div className="text-xs text-muted-foreground mb-1">{t('fourWeekDelta')}</div>
                                 <div className={`text-sm font-semibold ${result.producer_merchant_sentiment.four_week_change >= 0 ? "text-emerald-600" : "text-red-600"}`}>
                                     {result.producer_merchant_sentiment.four_week_change >= 0 ? "+" : ""}{formatNumber(result.producer_merchant_sentiment.four_week_change, 0)}
                                 </div>
                             </div>
                             <div className="text-center p-3 rounded-xl bg-white/50 dark:bg-black/20">
-                                <div className="text-xs text-muted-foreground mb-1">Streak</div>
+                                <div className="text-xs text-muted-foreground mb-1">{t('streak')}</div>
                                 <div className="text-sm font-semibold">
                                     {Math.abs(result.producer_merchant_sentiment.consecutive_weeks_direction)}w {result.producer_merchant_sentiment.consecutive_weeks_direction > 0 ? "↑" : "↓"}
                                 </div>
@@ -198,7 +196,7 @@ export function SentimentTab({ result }: SentimentTabProps) {
                         <div className="flex items-start gap-2 p-3 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
                             <Lightbulb className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
                             <p className="text-xs text-blue-800 dark:text-blue-300">
-                                <strong>Smart Money:</strong> Commercials are contrarian. Heavy shorts = price tops, heavy longs = bottoms.
+                                <strong>{t('smartMoney')}:</strong> {t('smartMoneyNote')}
                             </p>
                         </div>
                     </CardContent>
@@ -210,8 +208,8 @@ export function SentimentTab({ result }: SentimentTabProps) {
                 <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
                         <div>
-                            <CardTitle className="text-base">All Categories</CardTitle>
-                            <CardDescription>Percentile rankings vs {result.weeks_analyzed}-week history</CardDescription>
+                            <CardTitle className="text-base">{t('allCategories')}</CardTitle>
+                            <CardDescription>{t('percentileRankingsVs', { weeks: result.weeks_analyzed })}</CardDescription>
                         </div>
                     </div>
                 </CardHeader>
@@ -219,11 +217,11 @@ export function SentimentTab({ result }: SentimentTabProps) {
                     <div className="space-y-4">
                         {/* Simplified percentile bars */}
                         {[
-                            { label: "Managed Money", percentile: result.managed_money_percentile?.percentile_1y ?? 50, isExtreme: result.managed_money_percentile?.is_extreme, color: "orange" },
-                            { label: "Commercials", percentile: result.producer_merchant_percentile?.percentile_1y ?? 50, isExtreme: result.producer_merchant_percentile?.is_extreme, color: "blue" },
-                            { label: "Swap Dealers", percentile: result.swap_dealer_percentile?.percentile_1y ?? 50, isExtreme: result.swap_dealer_percentile?.is_extreme, color: "purple" },
-                            { label: "Other Reportables", percentile: result.other_reportables_percentile?.percentile_1y ?? 50, isExtreme: result.other_reportables_percentile?.is_extreme, color: "slate" },
-                            { label: "Non-Reportables", percentile: result.non_reportables_percentile?.percentile_1y ?? 50, isExtreme: result.non_reportables_percentile?.is_extreme, color: "gray" },
+                            { label: t('managedMoney'), percentile: result.managed_money_percentile?.percentile_1y ?? 50, isExtreme: result.managed_money_percentile?.is_extreme, color: "orange" },
+                            { label: t('commercials'), percentile: result.producer_merchant_percentile?.percentile_1y ?? 50, isExtreme: result.producer_merchant_percentile?.is_extreme, color: "blue" },
+                            { label: t('swapDealers'), percentile: result.swap_dealer_percentile?.percentile_1y ?? 50, isExtreme: result.swap_dealer_percentile?.is_extreme, color: "purple" },
+                            { label: t('otherReportables'), percentile: result.other_reportables_percentile?.percentile_1y ?? 50, isExtreme: result.other_reportables_percentile?.is_extreme, color: "slate" },
+                            { label: t('nonReportables'), percentile: result.non_reportables_percentile?.percentile_1y ?? 50, isExtreme: result.non_reportables_percentile?.is_extreme, color: "gray" },
                         ].map((item) => (
                             <div key={item.label} className="space-y-1">
                                 <div className="flex justify-between text-sm">

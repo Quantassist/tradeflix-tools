@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { TrendingUp, TrendingDown, Activity, Gauge, Clock, Calendar, BookOpen, Target, Building2, Briefcase, Lightbulb } from "lucide-react"
@@ -15,6 +16,8 @@ interface AnalysisTabProps {
 }
 
 export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
+    const t = useTranslations('cot')
+
     // Calculate next COT release date (Friday 3:30 PM ET)
     const getNextCOTRelease = () => {
         const now = new Date()
@@ -37,15 +40,15 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
     // OI Signal calculation
     const oiChange = result.weekly_changes.change_open_interest
     const mmChange = result.weekly_changes.change_m_money_net
-    let oiSignal = { label: 'Neutral', color: 'slate', desc: 'No clear signal', icon: Activity }
+    let oiSignal = { label: t('neutral'), color: 'slate', desc: t('noClearSignal'), icon: Activity }
     if (oiChange > 0 && mmChange > 0) {
-        oiSignal = { label: 'Bullish Trend', color: 'emerald', desc: 'New longs entering', icon: TrendingUp }
+        oiSignal = { label: t('bullishTrend'), color: 'emerald', desc: t('newLongsEntering'), icon: TrendingUp }
     } else if (oiChange > 0 && mmChange < 0) {
-        oiSignal = { label: 'Bearish Trend', color: 'red', desc: 'New shorts entering', icon: TrendingDown }
+        oiSignal = { label: t('bearishTrend'), color: 'red', desc: t('newShortsEntering'), icon: TrendingDown }
     } else if (oiChange < 0 && mmChange > 0) {
-        oiSignal = { label: 'Short Covering', color: 'amber', desc: 'Rally may not sustain', icon: TrendingUp }
+        oiSignal = { label: t('shortCovering'), color: 'amber', desc: t('rallyMayNotSustain'), icon: TrendingUp }
     } else if (oiChange < 0 && mmChange < 0) {
-        oiSignal = { label: 'Long Liquidation', color: 'orange', desc: 'Bearish but exhausting', icon: TrendingDown }
+        oiSignal = { label: t('longLiquidation'), color: 'orange', desc: t('bearishButExhausting'), icon: TrendingDown }
     }
 
     return (
@@ -53,9 +56,9 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b">
                 <div>
-                    <h3 className="text-lg font-semibold text-foreground">Deep Analysis</h3>
+                    <h3 className="text-lg font-semibold text-foreground">{t('deepAnalysis')}</h3>
                     <p className="text-sm text-muted-foreground">
-                        COT Index, Open Interest signals, and historical patterns
+                        {t('cotIndexOISignals')}
                     </p>
                 </div>
                 <InterpretationGuideButton tabKey="analysis" />
@@ -66,31 +69,31 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
                 <div className="bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-950/30 dark:to-violet-950/30 rounded-xl p-4 border border-purple-100 dark:border-purple-900/50">
                     <div className="flex items-center gap-2 mb-1">
                         <div className="w-2 h-2 rounded-full bg-purple-500" />
-                        <span className="text-xs font-medium text-purple-700 dark:text-purple-400">MM COT Index</span>
+                        <span className="text-xs font-medium text-purple-700 dark:text-purple-400">{t('mmCotIndex')}</span>
                     </div>
                     <div className={`text-2xl font-bold ${mmIndex >= 80 ? 'text-red-600' : mmIndex <= 20 ? 'text-emerald-600' : 'text-foreground'}`}>
                         {mmIndex.toFixed(0)}%
                     </div>
                     <div className="text-xs text-muted-foreground mt-1">
-                        {mmIndex >= 80 ? 'Extreme Bullish' : mmIndex <= 20 ? 'Extreme Bearish' : 'Neutral Zone'}
+                        {mmIndex >= 80 ? t('extremeBullish') : mmIndex <= 20 ? t('extremeBearish') : t('neutralZone')}
                     </div>
                 </div>
                 <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-xl p-4 border border-blue-100 dark:border-blue-900/50">
                     <div className="flex items-center gap-2 mb-1">
                         <div className="w-2 h-2 rounded-full bg-blue-500" />
-                        <span className="text-xs font-medium text-blue-700 dark:text-blue-400">Comm COT Index</span>
+                        <span className="text-xs font-medium text-blue-700 dark:text-blue-400">{t('commCotIndex')}</span>
                     </div>
                     <div className={`text-2xl font-bold ${commIndex >= 80 ? 'text-red-600' : commIndex <= 20 ? 'text-emerald-600' : 'text-foreground'}`}>
                         {commIndex.toFixed(0)}%
                     </div>
                     <div className="text-xs text-muted-foreground mt-1">
-                        {commIndex >= 80 ? 'Extreme Bullish' : commIndex <= 20 ? 'Extreme Bearish' : 'Neutral Zone'}
+                        {commIndex >= 80 ? t('extremeBullish') : commIndex <= 20 ? t('extremeBearish') : t('neutralZone')}
                     </div>
                 </div>
                 <div className={`bg-gradient-to-br from-${oiSignal.color}-50 to-${oiSignal.color}-100/50 dark:from-${oiSignal.color}-950/30 dark:to-${oiSignal.color}-900/20 rounded-xl p-4 border border-${oiSignal.color}-100 dark:border-${oiSignal.color}-900/50`}>
                     <div className="flex items-center gap-2 mb-1">
                         <div className={`w-2 h-2 rounded-full bg-${oiSignal.color}-500`} />
-                        <span className={`text-xs font-medium text-${oiSignal.color}-700 dark:text-${oiSignal.color}-400`}>OI Signal</span>
+                        <span className={`text-xs font-medium text-${oiSignal.color}-700 dark:text-${oiSignal.color}-400`}>{t('oiSignal')}</span>
                     </div>
                     <div className="text-lg font-bold text-foreground">{oiSignal.label}</div>
                     <div className="text-xs text-muted-foreground mt-1">{oiSignal.desc}</div>
@@ -98,12 +101,12 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
                 <div className="bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-950/30 dark:to-gray-950/30 rounded-xl p-4 border border-slate-100 dark:border-slate-900/50">
                     <div className="flex items-center gap-2 mb-1">
                         <div className="w-2 h-2 rounded-full bg-slate-500" />
-                        <span className="text-xs font-medium text-slate-700 dark:text-slate-400">Next Report</span>
+                        <span className="text-xs font-medium text-slate-700 dark:text-slate-400">{t('nextReportLabel')}</span>
                     </div>
                     <div className="text-lg font-bold text-foreground">
-                        {daysUntilRelease === 0 ? "Today!" : daysUntilRelease === 1 ? "Tomorrow" : `${daysUntilRelease} days`}
+                        {daysUntilRelease === 0 ? t('today') : daysUntilRelease === 1 ? t('tomorrow') : `${daysUntilRelease} ${t('days')}`}
                     </div>
-                    <div className="text-xs text-muted-foreground mt-1">Friday 3:30 PM ET</div>
+                    <div className="text-xs text-muted-foreground mt-1">{t('fridayTime')}</div>
                 </div>
             </div>
 
@@ -118,8 +121,8 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
                                     <Gauge className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                                 </div>
                                 <div>
-                                    <CardTitle className="text-base">COT Index</CardTitle>
-                                    <CardDescription className="text-xs">Normalized positioning (0-100)</CardDescription>
+                                    <CardTitle className="text-base">{t('cotIndex')}</CardTitle>
+                                    <CardDescription className="text-xs">{t('normalizedPositioning')}</CardDescription>
                                 </div>
                             </div>
                             <HelpButton helpKey="cotIndex" />
@@ -133,11 +136,11 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <Target className="h-4 w-4 text-orange-500" />
-                                            <span className="text-sm font-medium">Managed Money</span>
+                                            <span className="text-sm font-medium">{t('managedMoney')}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Badge variant={mmIndex >= 80 ? "destructive" : mmIndex <= 20 ? "default" : "secondary"} className="text-xs">
-                                                {mmIndex >= 80 ? 'Sell Zone' : mmIndex <= 20 ? 'Buy Zone' : 'Neutral'}
+                                                {mmIndex >= 80 ? t('sellZone') : mmIndex <= 20 ? t('buyZone') : t('neutral')}
                                             </Badge>
                                             <span className="font-mono text-sm font-bold">{mmIndex.toFixed(1)}%</span>
                                         </div>
@@ -155,11 +158,11 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <Building2 className="h-4 w-4 text-blue-500" />
-                                            <span className="text-sm font-medium">Commercials</span>
+                                            <span className="text-sm font-medium">{t('commercials')}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Badge variant={commIndex >= 80 ? "destructive" : commIndex <= 20 ? "default" : "secondary"} className="text-xs">
-                                                {commIndex >= 80 ? 'Sell Zone' : commIndex <= 20 ? 'Buy Zone' : 'Neutral'}
+                                                {commIndex >= 80 ? t('sellZone') : commIndex <= 20 ? t('buyZone') : t('neutral')}
                                             </Badge>
                                             <span className="font-mono text-sm font-bold">{commIndex.toFixed(1)}%</span>
                                         </div>
@@ -177,11 +180,11 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <Briefcase className="h-4 w-4 text-violet-500" />
-                                            <span className="text-sm font-medium">Swap Dealers</span>
+                                            <span className="text-sm font-medium">{t('swapDealers')}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Badge variant={swapIndex >= 80 ? "destructive" : swapIndex <= 20 ? "default" : "secondary"} className="text-xs">
-                                                {swapIndex >= 80 ? 'Sell Zone' : swapIndex <= 20 ? 'Buy Zone' : 'Neutral'}
+                                                {swapIndex >= 80 ? t('sellZone') : swapIndex <= 20 ? t('buyZone') : t('neutral')}
                                             </Badge>
                                             <span className="font-mono text-sm font-bold">{swapIndex.toFixed(1)}%</span>
                                         </div>
@@ -196,9 +199,9 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
 
                                 {/* Legend */}
                                 <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
-                                    <span className="text-emerald-600 font-medium">← Buy Zone (0-20)</span>
-                                    <span>Neutral (20-80)</span>
-                                    <span className="text-red-600 font-medium">Sell Zone (80-100) →</span>
+                                    <span className="text-emerald-600 font-medium">← {t('buyZone')} (0-20)</span>
+                                    <span>{t('neutral')} (20-80)</span>
+                                    <span className="text-red-600 font-medium">{t('sellZone')} (80-100) →</span>
                                 </div>
                             </>
                         )}
@@ -214,8 +217,8 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
                                     <Activity className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                                 </div>
                                 <div>
-                                    <CardTitle className="text-base">Open Interest Analysis</CardTitle>
-                                    <CardDescription className="text-xs">Trend confirmation signals</CardDescription>
+                                    <CardTitle className="text-base">{t('openInterestAnalysis')}</CardTitle>
+                                    <CardDescription className="text-xs">{t('trendConfirmationSignals')}</CardDescription>
                                 </div>
                             </div>
                             <HelpButton helpKey="openInterest" />
@@ -225,14 +228,14 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
                         {/* OI Stats */}
                         <div className="grid grid-cols-2 gap-3">
                             <div className="text-center p-4 rounded-xl bg-white/50 dark:bg-black/20 border">
-                                <div className="text-xs text-muted-foreground mb-1">Current OI</div>
+                                <div className="text-xs text-muted-foreground mb-1">{t('currentOI')}</div>
                                 <div className="text-xl font-bold">{formatNumber(result.current_positions.open_interest, 0)}</div>
                                 <div className={`text-xs font-medium mt-1 ${oiChange >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                                    {oiChange >= 0 ? '↑' : '↓'} {formatNumber(Math.abs(oiChange), 0)} this week
+                                    {oiChange >= 0 ? '↑' : '↓'} {formatNumber(Math.abs(oiChange), 0)} {t('thisWeek')}
                                 </div>
                             </div>
                             <div className={`text-center p-4 rounded-xl border bg-${oiSignal.color}-50 dark:bg-${oiSignal.color}-950/30 border-${oiSignal.color}-200 dark:border-${oiSignal.color}-800`}>
-                                <div className="text-xs text-muted-foreground mb-1">Trend Signal</div>
+                                <div className="text-xs text-muted-foreground mb-1">{t('trendSignal')}</div>
                                 <div className={`text-lg font-bold text-${oiSignal.color}-700 dark:text-${oiSignal.color}-400`}>{oiSignal.label}</div>
                                 <div className="text-xs text-muted-foreground mt-1">{oiSignal.desc}</div>
                             </div>
@@ -240,23 +243,23 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
 
                         {/* OI Interpretation Guide */}
                         <div className="rounded-xl border overflow-hidden">
-                            <div className="bg-slate-100 dark:bg-slate-800 px-4 py-2 text-sm font-medium">How to Read OI + Price</div>
+                            <div className="bg-slate-100 dark:bg-slate-800 px-4 py-2 text-sm font-medium">{t('howToReadOIPrice')}</div>
                             <div className="divide-y dark:divide-slate-800">
                                 <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-900/50">
                                     <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                                    <span className="text-sm"><span className="font-medium text-emerald-600">↑ OI + ↑ Price</span> = New longs (bullish)</span>
+                                    <span className="text-sm"><span className="font-medium text-emerald-600">{t('oiUpPriceUp')}</span> = {t('newLongsBullish')}</span>
                                 </div>
                                 <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-900/50">
                                     <div className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
-                                    <span className="text-sm"><span className="font-medium text-red-600">↑ OI + ↓ Price</span> = New shorts (bearish)</span>
+                                    <span className="text-sm"><span className="font-medium text-red-600">{t('oiUpPriceDown')}</span> = {t('newShortsBearish')}</span>
                                 </div>
                                 <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-900/50">
                                     <div className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
-                                    <span className="text-sm"><span className="font-medium text-amber-600">↓ OI + ↑ Price</span> = Short covering</span>
+                                    <span className="text-sm"><span className="font-medium text-amber-600">{t('oiDownPriceUp')}</span> = {t('shortCovering')}</span>
                                 </div>
                                 <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-900/50">
                                     <div className="w-2 h-2 rounded-full bg-orange-500 shrink-0" />
-                                    <span className="text-sm"><span className="font-medium text-orange-600">↓ OI + ↓ Price</span> = Long liquidation</span>
+                                    <span className="text-sm"><span className="font-medium text-orange-600">{t('oiDownPriceDown')}</span> = {t('longLiquidation')}</span>
                                 </div>
                             </div>
                         </div>
@@ -274,8 +277,8 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
                                 <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                             </div>
                             <div>
-                                <CardTitle className="text-base">Report Calendar</CardTitle>
-                                <CardDescription className="text-xs">Weekly release schedule</CardDescription>
+                                <CardTitle className="text-base">{t('reportCalendar')}</CardTitle>
+                                <CardDescription className="text-xs">{t('weeklyReleaseSchedule')}</CardDescription>
                             </div>
                         </div>
                     </CardHeader>
@@ -286,13 +289,13 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
                             <div className="relative">
                                 <div className="flex items-center gap-2 mb-2">
                                     <Clock className="h-4 w-4" />
-                                    <span className="text-sm font-medium opacity-90">Next Release</span>
+                                    <span className="text-sm font-medium opacity-90">{t('nextRelease')}</span>
                                 </div>
                                 <div className="text-2xl font-bold mb-1">
                                     {nextRelease.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                                 </div>
                                 <Badge className="bg-white/20 text-white border-0 hover:bg-white/30">
-                                    {daysUntilRelease === 0 ? "Today!" : daysUntilRelease === 1 ? "Tomorrow" : `In ${daysUntilRelease} days`}
+                                    {daysUntilRelease === 0 ? t('today') : daysUntilRelease === 1 ? t('tomorrow') : t('inDays', { days: daysUntilRelease })}
                                 </Badge>
                             </div>
                         </div>
@@ -300,16 +303,16 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
                         {/* Data Info */}
                         <div className="space-y-2">
                             <div className="flex justify-between p-2.5 rounded-lg bg-white/50 dark:bg-black/20">
-                                <span className="text-sm text-muted-foreground">Data As Of</span>
+                                <span className="text-sm text-muted-foreground">{t('dataAsOf')}</span>
                                 <span className="text-sm font-medium">{result.data_as_of_date}</span>
                             </div>
                             <div className="flex justify-between p-2.5 rounded-lg bg-white/50 dark:bg-black/20">
-                                <span className="text-sm text-muted-foreground">Data Lag</span>
-                                <span className="text-sm font-medium">3 days</span>
+                                <span className="text-sm text-muted-foreground">{t('dataLag')}</span>
+                                <span className="text-sm font-medium">{t('threeDays')}</span>
                             </div>
                             <div className="flex justify-between p-2.5 rounded-lg bg-white/50 dark:bg-black/20">
-                                <span className="text-sm text-muted-foreground">Analysis Period</span>
-                                <span className="text-sm font-medium">{result.weeks_analyzed} weeks</span>
+                                <span className="text-sm text-muted-foreground">{t('analysisPeriod')}</span>
+                                <span className="text-sm font-medium">{result.weeks_analyzed} {t('weeks')}</span>
                             </div>
                         </div>
                     </CardContent>
@@ -323,8 +326,8 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
                                 <BookOpen className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                             </div>
                             <div>
-                                <CardTitle className="text-base">Historical Case Studies</CardTitle>
-                                <CardDescription className="text-xs">Learn from past extreme positioning events</CardDescription>
+                                <CardTitle className="text-base">{t('historicalCaseStudies')}</CardTitle>
+                                <CardDescription className="text-xs">{t('learnFromPast')}</CardDescription>
                             </div>
                         </div>
                     </CardHeader>
@@ -333,45 +336,45 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
                             <div className="p-4 rounded-xl bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20 border border-red-100 dark:border-red-900/50">
                                 <div className="flex items-center gap-2 mb-2">
                                     <div className="w-6 h-6 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center text-xs">🔴</div>
-                                    <span className="font-semibold text-red-800 dark:text-red-300">Classic Top</span>
+                                    <span className="font-semibold text-red-800 dark:text-red-300">{t('classicTop')}</span>
                                 </div>
                                 <p className="text-xs text-red-700 dark:text-red-400 mb-2">
-                                    MM 94th %ile long + Comm 91st %ile short → Gold peaked, fell 5% in 4 weeks
+                                    {t('classicTopDesc')}
                                 </p>
-                                <Badge variant="outline" className="text-xs border-red-200 text-red-600">Extreme Divergence</Badge>
+                                <Badge variant="outline" className="text-xs border-red-200 text-red-600">{t('extremeDivergence')}</Badge>
                             </div>
 
                             <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20 border border-emerald-100 dark:border-emerald-900/50">
                                 <div className="flex items-center gap-2 mb-2">
                                     <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-xs">🟢</div>
-                                    <span className="font-semibold text-emerald-800 dark:text-emerald-300">Classic Bottom</span>
+                                    <span className="font-semibold text-emerald-800 dark:text-emerald-300">{t('classicBottom')}</span>
                                 </div>
                                 <p className="text-xs text-emerald-700 dark:text-emerald-400 mb-2">
-                                    MM 12th %ile + rapid liquidation → Gold rallied 8% in 6 weeks
+                                    {t('classicBottomDesc')}
                                 </p>
-                                <Badge variant="outline" className="text-xs border-emerald-200 text-emerald-600">Capitulation Signal</Badge>
+                                <Badge variant="outline" className="text-xs border-emerald-200 text-emerald-600">{t('capitulationSignal')}</Badge>
                             </div>
 
                             <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-100 dark:border-blue-900/50">
                                 <div className="flex items-center gap-2 mb-2">
                                     <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-xs">📊</div>
-                                    <span className="font-semibold text-blue-800 dark:text-blue-300">Smart Money Align</span>
+                                    <span className="font-semibold text-blue-800 dark:text-blue-300">{t('smartMoneyAlign')}</span>
                                 </div>
                                 <p className="text-xs text-blue-700 dark:text-blue-400 mb-2">
-                                    Comm covering + MM adding longs = High conviction bullish (2-3x/year)
+                                    {t('smartMoneyAlignDesc')}
                                 </p>
-                                <Badge variant="outline" className="text-xs border-blue-200 text-blue-600">Rare Signal</Badge>
+                                <Badge variant="outline" className="text-xs border-blue-200 text-blue-600">{t('rareSignal')}</Badge>
                             </div>
 
                             <div className="p-4 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-100 dark:border-amber-900/50">
                                 <div className="flex items-center gap-2 mb-2">
                                     <div className="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center text-xs">⚠️</div>
-                                    <span className="font-semibold text-amber-800 dark:text-amber-300">Overcrowding</span>
+                                    <span className="font-semibold text-amber-800 dark:text-amber-300">{t('overcrowding')}</span>
                                 </div>
                                 <p className="text-xs text-amber-700 dark:text-amber-400 mb-2">
-                                    MM &gt;85th + Small Traders &gt;80th = Everyone bullish → 76% accuracy sell
+                                    {t('overcrowdingDesc')}
                                 </p>
-                                <Badge variant="outline" className="text-xs border-amber-200 text-amber-600">Contrarian Setup</Badge>
+                                <Badge variant="outline" className="text-xs border-amber-200 text-amber-600">{t('contrarianSetup')}</Badge>
                             </div>
                         </div>
                     </CardContent>
@@ -384,10 +387,9 @@ export function AnalysisTab({ result, chartData }: AnalysisTabProps) {
                     <Lightbulb className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                    <div className="font-medium text-sm text-indigo-800 dark:text-indigo-300">Pro Tip: Divergence Trading</div>
+                    <div className="font-medium text-sm text-indigo-800 dark:text-indigo-300">{t('proTipDivergenceTrading')}</div>
                     <p className="text-xs text-indigo-700 dark:text-indigo-400 mt-1">
-                        The most powerful COT signals occur when Managed Money and Commercials show opposite extremes (one &gt;80%, other &lt;20%).
-                        This divergence historically precedes significant price reversals within 2-4 weeks.
+                        {t('proTipDivergenceTradingDesc')}
                     </p>
                 </div>
             </div>

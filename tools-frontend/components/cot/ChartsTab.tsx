@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
     LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid,
@@ -20,10 +21,12 @@ interface ChartsTabProps {
 }
 
 export function ChartsTab({ chartData, weeksAnalyzed, prepareNetPositionChartData, prepareLongShortChartData, prepareOIChartData }: ChartsTabProps) {
+    const t = useTranslations('cot')
+
     if (!chartData) {
         return (
             <div className="text-center py-8 text-muted-foreground">
-                Run analysis to see charts
+                {t('runAnalysisCharts')}
             </div>
         )
     }
@@ -33,9 +36,9 @@ export function ChartsTab({ chartData, weeksAnalyzed, prepareNetPositionChartDat
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b">
                 <div>
-                    <h3 className="text-lg font-semibold text-foreground">Historical Charts</h3>
+                    <h3 className="text-lg font-semibold text-foreground">{t('historicalCharts')}</h3>
                     <p className="text-sm text-muted-foreground">
-                        {weeksAnalyzed} weeks of positioning data
+                        {t('weeksOfPositioningData', { weeks: weeksAnalyzed })}
                     </p>
                 </div>
                 <InterpretationGuideButton tabKey="charts" />
@@ -48,9 +51,9 @@ export function ChartsTab({ chartData, weeksAnalyzed, prepareNetPositionChartDat
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <TrendUp className="h-5 w-5 text-orange-600" />
-                                Net Position Comparison
+                                {t('netPositionComparison')}
                             </CardTitle>
-                            <CardDescription>Track divergence between key market participants</CardDescription>
+                            <CardDescription>{t('trackDivergence')}</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <ResponsiveContainer width="100%" height={320}>
@@ -78,8 +81,8 @@ export function ChartsTab({ chartData, weeksAnalyzed, prepareNetPositionChartDat
                                         <AlertTriangle className="h-4 w-4 text-amber-600" />
                                     </div>
                                     <div>
-                                        <div className="text-sm font-medium text-amber-800 dark:text-amber-300">Divergence</div>
-                                        <p className="text-xs text-amber-600 dark:text-amber-400">Opposite moves → Reversal signal</p>
+                                        <div className="text-sm font-medium text-amber-800 dark:text-amber-300">{t('divergence')}</div>
+                                        <p className="text-xs text-amber-600 dark:text-amber-400">{t('divergenceDesc')}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/50">
@@ -87,8 +90,8 @@ export function ChartsTab({ chartData, weeksAnalyzed, prepareNetPositionChartDat
                                         <TrendingUp className="h-4 w-4 text-emerald-600" />
                                     </div>
                                     <div>
-                                        <div className="text-sm font-medium text-emerald-800 dark:text-emerald-300">Convergence</div>
-                                        <p className="text-xs text-emerald-600 dark:text-emerald-400">All aligning → Trend confirmation</p>
+                                        <div className="text-sm font-medium text-emerald-800 dark:text-emerald-300">{t('convergence')}</div>
+                                        <p className="text-xs text-emerald-600 dark:text-emerald-400">{t('convergenceDesc')}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/50">
@@ -96,8 +99,8 @@ export function ChartsTab({ chartData, weeksAnalyzed, prepareNetPositionChartDat
                                         <Activity className="h-4 w-4 text-blue-600" />
                                     </div>
                                     <div>
-                                        <div className="text-sm font-medium text-blue-800 dark:text-blue-300">Crossover</div>
-                                        <p className="text-xs text-blue-600 dark:text-blue-400">MM crosses Comm → Trend change</p>
+                                        <div className="text-sm font-medium text-blue-800 dark:text-blue-300">{t('crossover')}</div>
+                                        <p className="text-xs text-blue-600 dark:text-blue-400">{t('crossoverDesc')}</p>
                                     </div>
                                 </div>
                             </div>
@@ -109,9 +112,9 @@ export function ChartsTab({ chartData, weeksAnalyzed, prepareNetPositionChartDat
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <BarChart3 className="h-5 w-5 text-blue-600" />
-                                Long vs Short Positions
+                                {t('longVsShortPositions')}
                             </CardTitle>
-                            <CardDescription>Position breakdown for key market participants</CardDescription>
+                            <CardDescription>{t('positionBreakdown')}</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <ResponsiveContainer width="100%" height={320}>
@@ -138,9 +141,9 @@ export function ChartsTab({ chartData, weeksAnalyzed, prepareNetPositionChartDat
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <Activity className="h-5 w-5 text-emerald-600" />
-                                Open Interest Analysis
+                                {t('openInterestAnalysis')}
                             </CardTitle>
-                            <CardDescription>OI vs Managed Money positioning</CardDescription>
+                            <CardDescription>{t('oiVsManagedMoney')}</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <ResponsiveContainer width="100%" height={320}>
@@ -161,23 +164,23 @@ export function ChartsTab({ chartData, weeksAnalyzed, prepareNetPositionChartDat
 
                             {/* OI Interpretation Guide */}
                             <div className="mt-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
-                                <div className="text-sm font-medium mb-2">How to Read Open Interest</div>
+                                <div className="text-sm font-medium mb-2">{t('howToReadOI')}</div>
                                 <div className="grid grid-cols-2 gap-3 text-xs">
                                     <div className="flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                        <span className="text-muted-foreground">OI ↑ + Price ↑ = New longs (bullish)</span>
+                                        <span className="text-muted-foreground">{t('oiUpPriceUpBullish')}</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-red-500" />
-                                        <span className="text-muted-foreground">OI ↓ + Price ↑ = Short covering</span>
+                                        <span className="text-muted-foreground">{t('oiDownPriceUpCovering')}</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-amber-500" />
-                                        <span className="text-muted-foreground">OI ↑ + Price ↓ = New shorts (bearish)</span>
+                                        <span className="text-muted-foreground">{t('oiUpPriceDownBearish')}</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-blue-500" />
-                                        <span className="text-muted-foreground">OI ↓ + Price ↓ = Long liquidation</span>
+                                        <span className="text-muted-foreground">{t('oiDownPriceDownLiquidation')}</span>
                                     </div>
                                 </div>
                             </div>

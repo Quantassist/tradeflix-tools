@@ -19,6 +19,7 @@ import {
     BookOpen
 } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { useTranslations } from 'next-intl'
 import {
     Tooltip,
     TooltipContent,
@@ -367,6 +368,7 @@ const getStrategyTypeBadgeColor = (type: string) => {
 }
 
 export function SeasonalStrategyPicker() {
+    const t = useTranslations('seasonal')
     const router = useRouter()
     const [hoveredStrategy, setHoveredStrategy] = useState<string | null>(null)
 
@@ -390,8 +392,8 @@ export function SeasonalStrategyPicker() {
         <StyledCard variant="indigo">
             <StyledCardHeader
                 icon={Play}
-                title="Seasonal Strategy Backtester"
-                description="Test pre-built seasonal trading strategies against historical data"
+                title={t('seasonalStrategyBacktester')}
+                description={t('prebuiltStrategies')}
                 variant="indigo"
                 action={
                     <div className="flex items-center gap-2">
@@ -399,7 +401,7 @@ export function SeasonalStrategyPicker() {
                             <DialogTrigger asChild>
                                 <Button className="bg-linear-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-md">
                                     <BookOpen className="h-4 w-4 mr-2" />
-                                    Learn How It Works
+                                    {t('learnHowItWorks')}
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-2xl">
@@ -408,27 +410,26 @@ export function SeasonalStrategyPicker() {
                                         <div className="p-2 bg-linear-to-br from-indigo-500 to-purple-600 rounded-lg text-white">
                                             <Play className="h-5 w-5" />
                                         </div>
-                                        Strategy Backtester Guide
+                                        {t('strategyBacktesterGuide')}
                                     </DialogTitle>
-                                    <DialogDescription>Test seasonal trading strategies with historical data</DialogDescription>
+                                    <DialogDescription>{t('testStrategies')}</DialogDescription>
                                 </DialogHeader>
                                 <div className="space-y-4 mt-4">
                                     <div className="p-4 rounded-xl bg-linear-to-br from-indigo-50 to-purple-50 border border-indigo-100">
                                         <h4 className="font-bold text-indigo-800 mb-2 flex items-center gap-2">
                                             <Info className="h-4 w-4" />
-                                            What is Strategy Backtesting?
+                                            {t('whatIsBacktesting')}
                                         </h4>
                                         <p className="text-sm text-indigo-700">
-                                            Backtesting allows you to test trading strategies against historical data to see
-                                            how they would have performed in the past.
+                                            {t('backtestingDesc')}
                                         </p>
                                     </div>
                                     <div className="p-4 rounded-xl bg-slate-50 border">
-                                        <h4 className="font-bold text-slate-800 mb-2">Pre-built Strategies</h4>
+                                        <h4 className="font-bold text-slate-800 mb-2">{t('prebuiltStrategiesTitle')}</h4>
                                         <ul className="text-sm text-slate-600 space-y-2">
-                                            <li>• <strong>Festival Strategies</strong>: Trade around Diwali, Akshaya Tritiya, etc.</li>
-                                            <li>• <strong>Monthly Strategies</strong>: Exploit monthly seasonal patterns</li>
-                                            <li>• <strong>Economic Strategies</strong>: Trade around budget, FOMC meetings</li>
+                                            <li>• <strong>{t('festivalStrategies')}</strong>: {t('festivalStrategiesDesc')}</li>
+                                            <li>• <strong>{t('monthlyStrategies')}</strong>: {t('monthlyStrategiesDesc')}</li>
+                                            <li>• <strong>{t('economicStrategies')}</strong>: {t('economicStrategiesDesc')}</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -440,7 +441,7 @@ export function SeasonalStrategyPicker() {
                             onClick={() => router.push("/backtest")}
                             className="text-xs"
                         >
-                            Open Full Backtester
+                            {t('openFullBacktester')}
                             <ArrowRight className="ml-1 h-3 w-3" />
                         </Button>
                     </div>
@@ -529,7 +530,7 @@ export function SeasonalStrategyPicker() {
                                 }}
                             >
                                 <Play className="h-3 w-3 mr-1" fill="currentColor" />
-                                Run Backtest
+                                {t('runBacktest')}
                             </Button>
                         </div>
                     ))}

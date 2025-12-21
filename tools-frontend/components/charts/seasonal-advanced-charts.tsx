@@ -25,6 +25,7 @@ import {
 
 // Note: MetalType and CurrencyType are used for prop types
 import { toast } from "sonner"
+import { useTranslations } from 'next-intl'
 
 interface SeasonalAdvancedChartsProps {
     metal?: MetalType
@@ -71,6 +72,7 @@ export function SeasonalAdvancedCharts({
     yearsBack = 10,
     daysWindow = 7
 }: SeasonalAdvancedChartsProps) {
+    const t = useTranslations('seasonal')
     const [loading, setLoading] = useState(true)
     const [alerts, setAlerts] = useState<UpcomingAlert[]>([])
     const [events, setEvents] = useState<SeasonalEventAnalysis[]>([])
@@ -98,7 +100,7 @@ export function SeasonalAdvancedCharts({
             }
         } catch (err) {
             console.error("Error loading advanced analysis:", err)
-            toast.error("Failed to load advanced analysis data")
+            toast.error(t('loadingAdvancedAnalysis'))
         } finally {
             setLoading(false)
         }
@@ -142,7 +144,7 @@ export function SeasonalAdvancedCharts({
             {loading && (
                 <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg border">
                     <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-                    <span className="ml-2 text-muted-foreground">Loading advanced analysis...</span>
+                    <span className="ml-2 text-muted-foreground">{t('loadingAdvancedAnalysis')}</span>
                 </div>
             )}
             {/* Upcoming Alerts Section - Compact Grid Layout */}
@@ -150,15 +152,15 @@ export function SeasonalAdvancedCharts({
                 <StyledCard variant="blue">
                     <StyledCardHeader
                         icon={Bell}
-                        title="Upcoming Event Alerts"
-                        description={`${alerts.length} events in next 60 days`}
+                        title={t('upcomingEventAlerts')}
+                        description={t('eventsInDays', { count: alerts.length, days: 60 })}
                         variant="blue"
                         action={
                             <Dialog>
                                 <DialogTrigger asChild>
                                     <Button className="bg-linear-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-md">
                                         <BookOpen className="h-4 w-4 mr-2" />
-                                        Learn How It Works
+                                        {t('learnHowItWorks')}
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent className="max-w-2xl">
@@ -167,26 +169,25 @@ export function SeasonalAdvancedCharts({
                                             <div className="p-2 bg-linear-to-br from-blue-500 to-indigo-600 rounded-lg text-white">
                                                 <Bell className="h-5 w-5" />
                                             </div>
-                                            Upcoming Alerts Guide
+                                            {t('upcomingAlertsGuide')}
                                         </DialogTitle>
-                                        <DialogDescription>Stay ahead with event-based trading alerts</DialogDescription>
+                                        <DialogDescription>{t('stayAhead')}</DialogDescription>
                                     </DialogHeader>
                                     <div className="space-y-4 mt-4">
                                         <div className="p-4 rounded-xl bg-linear-to-br from-blue-50 to-indigo-50 border border-blue-100">
                                             <h4 className="font-bold text-blue-800 mb-2 flex items-center gap-2">
                                                 <Info className="h-4 w-4" />
-                                                What are Event Alerts?
+                                                {t('whatAreEventAlerts')}
                                             </h4>
                                             <p className="text-sm text-blue-700">
-                                                Event alerts notify you of upcoming seasonal events that historically impact
-                                                precious metal prices, helping you prepare trading strategies in advance.
+                                                {t('eventAlertsDesc')}
                                             </p>
                                         </div>
                                         <div className="p-4 rounded-xl bg-slate-50 border">
-                                            <h4 className="font-bold text-slate-800 mb-2">Alert Types</h4>
+                                            <h4 className="font-bold text-slate-800 mb-2">{t('alertTypes')}</h4>
                                             <ul className="text-sm text-slate-600 space-y-2">
-                                                <li>• <strong className="text-green-600">Opportunity (Green)</strong>: Historically bullish events</li>
-                                                <li>• <strong className="text-amber-600">Caution (Amber)</strong>: Events with mixed or bearish history</li>
+                                                <li>• <strong className="text-green-600">{t('opportunityGreen')}</strong>: {t('opportunityDesc')}</li>
+                                                <li>• <strong className="text-amber-600">{t('cautionAmber')}</strong>: {t('cautionDesc')}</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -222,7 +223,7 @@ export function SeasonalAdvancedCharts({
                                             {alert.avg_change >= 0 ? '+' : ''}{alert.avg_change.toFixed(1)}%
                                         </span>
                                         <span className="text-muted-foreground">
-                                            {alert.win_rate.toFixed(0)}% win
+                                            {alert.win_rate.toFixed(0)}% {t('win')}
                                         </span>
                                     </div>
                                 </div>
@@ -236,8 +237,8 @@ export function SeasonalAdvancedCharts({
             <StyledCard variant="purple">
                 <StyledCardHeader
                     icon={Activity}
-                    title="Event-Relative Performance"
-                    description={`Cumulative returns from -${daysWindow} to +${daysWindow} days around event`}
+                    title={t('eventRelativePerformance')}
+                    description={t('cumulativeReturns', { days: daysWindow })}
                     variant="purple"
                     action={
                         <div className="flex items-center gap-2">
@@ -261,7 +262,7 @@ export function SeasonalAdvancedCharts({
                                 <DialogTrigger asChild>
                                     <Button className="bg-linear-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-md">
                                         <BookOpen className="h-4 w-4 mr-2" />
-                                        Learn How It Works
+                                        {t('learnHowItWorks')}
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent className="max-w-2xl">
@@ -270,19 +271,18 @@ export function SeasonalAdvancedCharts({
                                             <div className="p-2 bg-linear-to-br from-purple-500 to-pink-600 rounded-lg text-white">
                                                 <Activity className="h-5 w-5" />
                                             </div>
-                                            Event Trajectory Guide
+                                            {t('eventTrajectoryGuide')}
                                         </DialogTitle>
-                                        <DialogDescription>Understanding price movement patterns around events</DialogDescription>
+                                        <DialogDescription>{t('understandingPriceMovement')}</DialogDescription>
                                     </DialogHeader>
                                     <div className="space-y-4 mt-4">
                                         <div className="p-4 rounded-xl bg-linear-to-br from-purple-50 to-pink-50 border border-purple-100">
                                             <h4 className="font-bold text-purple-800 mb-2 flex items-center gap-2">
                                                 <Info className="h-4 w-4" />
-                                                What is Event Trajectory?
+                                                {t('whatIsEventTrajectory')}
                                             </h4>
                                             <p className="text-sm text-purple-700">
-                                                This chart shows the average cumulative price change from days before to days after
-                                                a specific event, with confidence bands showing historical variability.
+                                                {t('eventTrajectoryDesc')}
                                             </p>
                                         </div>
                                         <div className="p-4 rounded-xl bg-slate-50 border">
@@ -395,7 +395,7 @@ export function SeasonalAdvancedCharts({
                             <DialogTrigger asChild>
                                 <Button className="bg-linear-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white shadow-md">
                                     <BookOpen className="h-4 w-4 mr-2" />
-                                    Learn How It Works
+                                    {t('learnHowItWorks')}
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-2xl">

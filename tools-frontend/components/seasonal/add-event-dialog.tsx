@@ -19,6 +19,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { useTranslations } from 'next-intl'
 import { seasonalEventsApi, EventType, RecurrenceType, EventTypeInfo, SeasonalEventCreate } from "@/lib/api/seasonal-events"
 
 interface AddEventDialogProps {
@@ -55,6 +56,7 @@ const DEFAULT_EVENT_TYPES: EventTypeInfo[] = [
 ]
 
 export function AddEventDialog({ onEventCreated }: AddEventDialogProps) {
+    const t = useTranslations('seasonal')
     const [open, setOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const [loadingTypes, setLoadingTypes] = useState(false)

@@ -12,6 +12,7 @@ import { AdvancedEventDropdown } from "@/components/ui/advanced-event-dropdown"
 import { metalsPricesApi, MonthlySeasonality, SeasonalEventAnalysis, MetalType, CurrencyType } from "@/lib/api/metals-prices"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from "framer-motion"
+import { useTranslations } from 'next-intl'
 
 interface SeasonalAnalysisChartsProps {
     metal?: MetalType
@@ -139,6 +140,7 @@ export function SeasonalAnalysisCharts({
     daysWindow: propDaysWindow = 7,
     onSettingsChange
 }: SeasonalAnalysisChartsProps) {
+    const t = useTranslations('seasonal')
     const [loading, setLoading] = useState(true)
     const [monthlyData, setMonthlyData] = useState<MonthlySeasonality[]>([])
     const [eventsData, setEventsData] = useState<SeasonalEventAnalysis[]>([])
@@ -190,12 +192,12 @@ export function SeasonalAnalysisCharts({
             setEventsData(eventsResponse.events || [])
 
             if (monthlyResponse.monthly_data?.length > 0 || eventsResponse.events?.length > 0) {
-                toast.success("Seasonal analysis loaded successfully")
+                // toast.success(t('loadingSeasonalAnalysis'))
             }
         } catch (err) {
             console.error("Error loading seasonal analysis:", err)
-            setError("Failed to load seasonal analysis data. Please ensure the backend is running and has data.")
-            toast.error("Failed to load seasonal analysis")
+            setError(t('noHistoricalData'))
+            toast.error(t('noHistoricalData'))
         } finally {
             setLoading(false)
         }

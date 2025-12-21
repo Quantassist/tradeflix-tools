@@ -15,6 +15,7 @@ import { CalendarIcon, Loader2, Save } from "lucide-react"
 import { format, parseISO } from "date-fns"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { useTranslations } from 'next-intl'
 import { seasonalEventsApi, EventType, RecurrenceType, SeasonalEvent, SeasonalEventUpdate } from "@/lib/api/seasonal-events"
 
 interface EditEventDialogProps {
@@ -53,6 +54,7 @@ const EVENT_TYPE_OPTIONS = [
 ]
 
 export function EditEventDialog({ event, open, onOpenChange, onEventUpdated }: EditEventDialogProps) {
+    const t = useTranslations('seasonal')
     const [loading, setLoading] = useState(false)
     const [activeTab, setActiveTab] = useState("basic")
 

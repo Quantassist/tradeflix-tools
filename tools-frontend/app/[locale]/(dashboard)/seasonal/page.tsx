@@ -100,6 +100,7 @@ function EventsManagementSection({
   handleEditClick,
   handleDeleteClick,
 }: EventsManagementSectionProps) {
+  const t = useTranslations('seasonal')
   return (
     <Card className="border-2 border-emerald-200/60 shadow-lg overflow-hidden">
       <CardHeader className="bg-linear-to-r from-emerald-50 via-green-50 to-teal-50">
@@ -109,9 +110,9 @@ function EventsManagementSection({
               <Calendar className="h-5 w-5 text-emerald-600" />
             </div>
             <div>
-              <CardTitle className="text-lg font-semibold">Manage Seasonal Events</CardTitle>
+              <CardTitle className="text-lg font-semibold">{t('manageSeasonalEvents')}</CardTitle>
               <CardDescription className="flex items-center gap-2 mt-0.5">
-                <Badge variant="secondary" className="text-xs">{events.length} events</Badge>
+                <Badge variant="secondary" className="text-xs">{t('eventsCount', { count: events.length })}</Badge>
               </CardDescription>
             </div>
           </div>
@@ -126,18 +127,18 @@ function EventsManagementSection({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Commodities</SelectItem>
-              <SelectItem value="GOLD">Gold</SelectItem>
-              <SelectItem value="SILVER">Silver</SelectItem>
-              <SelectItem value="CRUDE">Crude Oil</SelectItem>
+              <SelectItem value="all">{t('allCommodities')}</SelectItem>
+              <SelectItem value="GOLD">{t('gold')}</SelectItem>
+              <SelectItem value="SILVER">{t('silver')}</SelectItem>
+              <SelectItem value="CRUDE">{t('crudeOil')}</SelectItem>
             </SelectContent>
           </Select>
           <Select value={selectedYear} onValueChange={setSelectedYear}>
             <SelectTrigger className="w-[130px] bg-white border-gray-200 hover:border-emerald-300 transition-colors">
-              <SelectValue placeholder="Select Year" />
+              <SelectValue placeholder={t('selectYear')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Years</SelectItem>
+              <SelectItem value="all">{t('allYears')}</SelectItem>
               {availableYears.map(year => (
                 <SelectItem key={year} value={year.toString()}>
                   {year}
@@ -154,12 +155,12 @@ function EventsManagementSection({
             {loading ? (
               <span className="flex items-center gap-2">
                 <RefreshCw className="h-4 w-4 animate-spin" />
-                Loading...
+                {t('loading')}
               </span>
             ) : (
               <span className="flex items-center gap-2">
                 <RefreshCw className="h-4 w-4" />
-                Refresh
+                {t('refresh')}
               </span>
             )}
           </Button>
@@ -196,19 +197,19 @@ function EventsManagementSection({
                     </CardHeader>
                     <CardContent className="space-y-3 pt-4 text-sm">
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground text-xs">Country</span>
+                        <span className="text-muted-foreground text-xs">{t('country')}</span>
                         <span className="font-medium text-sm">{event.country}</span>
                       </div>
                       {avgImpact !== 0 && (
                         <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground text-xs">Avg Impact</span>
+                          <span className="text-muted-foreground text-xs">{t('avgImpact')}</span>
                           <span className={`font-bold ${avgImpact > 0 ? "text-emerald-600" : "text-red-500"}`}>
                             {avgImpact > 0 ? '+' : ''}{formatPercent(avgImpact)}
                           </span>
                         </div>
                       )}
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground text-xs">Affects</span>
+                        <span className="text-muted-foreground text-xs">{t('affects')}</span>
                         <span className="flex gap-1">
                           {event.affects_gold && <span title="Gold" className="text-lg">🥇</span>}
                           {event.affects_silver && <span title="Silver" className="text-lg">🥈</span>}
@@ -225,11 +226,11 @@ function EventsManagementSection({
                             variant={event.is_active ? "default" : "secondary"}
                             className={`text-[10px] ${event.is_active ? 'bg-emerald-500' : ''}`}
                           >
-                            {event.is_active ? "Active" : "Inactive"}
+                            {event.is_active ? t('active') : t('inactive')}
                           </Badge>
                           {event.is_verified && (
                             <Badge variant="outline" className="text-emerald-600 border-emerald-300 text-[10px]">
-                              ✓ Verified
+                              ✓ {t('verified')}
                             </Badge>
                           )}
                         </div>
@@ -239,7 +240,7 @@ function EventsManagementSection({
                             size="icon"
                             className="h-8 w-8 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                             onClick={() => handleEditClick(event)}
-                            title="Edit event"
+                            title={t('editEvent')}
                           >
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
@@ -248,7 +249,7 @@ function EventsManagementSection({
                             size="icon"
                             className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                             onClick={() => handleDeleteClick(event)}
-                            title="Delete event"
+                            title={t('deleteEvent')}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
@@ -270,11 +271,11 @@ function EventsManagementSection({
               </div>
               <div className="text-center">
                 <p className="text-gray-600 font-medium">
-                  {loading ? "Loading events..." : selectedYear !== "all" ? `No events found for ${selectedYear}` : "No seasonal events found"}
+                  {loading ? t('loadingEvents') : selectedYear !== "all" ? t('noEventsForYear', { year: selectedYear }) : t('noSeasonalEvents')}
                 </p>
                 {!loading && selectedYear === "all" && (
                   <p className="text-sm text-gray-400 mt-1">
-                    Click &quot;Add Event&quot; to create your first seasonal event
+                    {t('clickAddEvent')}
                   </p>
                 )}
               </div>
@@ -400,7 +401,7 @@ export default function SeasonalTrendsPage() {
             </div>
           </div>
           <p className="text-white/90 text-lg max-w-2xl leading-relaxed">
-            Analyze seasonal patterns and event-based trading opportunities throughout the year
+            {t('headerDescription')}
           </p>
         </motion.div>
         <div className="absolute -right-20 -bottom-20 w-60 h-60 bg-white/10 rounded-full blur-3xl"></div>
@@ -421,19 +422,19 @@ export default function SeasonalTrendsPage() {
                     </div>
                     <div className="text-left">
                       <div className="font-semibold text-foreground flex items-center gap-2">
-                        Understanding Seasonal Trading
+                        {t('understandingSeasonalTrading')}
                         <Badge variant="outline" className="text-xs bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700">
-                          Guide
+                          {t('guide')}
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground mt-0.5">
-                        Learn how seasonal patterns and events affect commodity prices
+                        {t('learnSeasonalPatterns')}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400 group-hover:text-emerald-700 dark:group-hover:text-emerald-300 transition-colors">
-                      {guideOpen ? "Hide Guide" : "Show Guide"}
+                      {guideOpen ? t('hideGuide') : t('showGuide')}
                     </span>
                     <ChevronDown className={`h-5 w-5 text-emerald-600 dark:text-emerald-400 transition-transform duration-300 ${guideOpen ? "rotate-180" : ""}`} />
                   </div>
@@ -449,10 +450,10 @@ export default function SeasonalTrendsPage() {
                   <div className="relative">
                     <div className="font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-2 mb-2">
                       <span className="text-xl">🪔</span>
-                      Festival Demand
+                      {t('festivalDemand')}
                     </div>
                     <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
-                      Diwali and Dhanteras typically increase gold demand in India
+                      {t('festivalDemandDesc')}
                     </p>
                   </div>
                 </div>
@@ -461,10 +462,10 @@ export default function SeasonalTrendsPage() {
                   <div className="relative">
                     <div className="font-semibold text-pink-800 dark:text-pink-300 flex items-center gap-2 mb-2">
                       <span className="text-xl">💒</span>
-                      Wedding Season
+                      {t('weddingSeason')}
                     </div>
                     <p className="text-sm text-pink-700 dark:text-pink-400 leading-relaxed">
-                      Wedding season affects gold and silver prices significantly
+                      {t('weddingSeasonDesc')}
                     </p>
                   </div>
                 </div>
@@ -473,10 +474,10 @@ export default function SeasonalTrendsPage() {
                   <div className="relative">
                     <div className="font-semibold text-green-800 dark:text-green-300 flex items-center gap-2 mb-2">
                       <span className="text-xl">🌾</span>
-                      Harvest Cycles
+                      {t('harvestCycles')}
                     </div>
                     <p className="text-sm text-green-700 dark:text-green-400 leading-relaxed">
-                      Harvest cycles impact agricultural commodity prices
+                      {t('harvestCyclesDesc')}
                     </p>
                   </div>
                 </div>
@@ -485,10 +486,10 @@ export default function SeasonalTrendsPage() {
                   <div className="relative">
                     <div className="font-semibold text-blue-800 dark:text-blue-300 flex items-center gap-2 mb-2">
                       <span className="text-xl">📊</span>
-                      Tax Planning
+                      {t('taxPlanning')}
                     </div>
                     <p className="text-sm text-blue-700 dark:text-blue-400 leading-relaxed">
-                      Year-end tax planning affects precious metals demand
+                      {t('taxPlanningDesc')}
                     </p>
                   </div>
                 </div>
@@ -505,7 +506,7 @@ export default function SeasonalTrendsPage() {
             <div className="flex flex-wrap gap-4 items-center justify-between">
               <div className="flex flex-wrap gap-4 items-center">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-emerald-700">Metal:</span>
+                  <span className="text-sm font-semibold text-emerald-700">{t('metal')}:</span>
                   <Select
                     value={analysisSettings.metal}
                     onValueChange={(v) => setAnalysisSettings(prev => ({ ...prev, metal: v as MetalType }))}
@@ -514,15 +515,15 @@ export default function SeasonalTrendsPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="GOLD">🥇 Gold</SelectItem>
-                      <SelectItem value="SILVER">🥈 Silver</SelectItem>
-                      <SelectItem value="PLATINUM">💎 Platinum</SelectItem>
-                      <SelectItem value="PALLADIUM">⚪ Palladium</SelectItem>
+                      <SelectItem value="GOLD">🥇 {t('gold')}</SelectItem>
+                      <SelectItem value="SILVER">🥈 {t('silver')}</SelectItem>
+                      <SelectItem value="PLATINUM">💎 {t('platinum')}</SelectItem>
+                      <SelectItem value="PALLADIUM">⚪ {t('palladium')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-emerald-700">Currency:</span>
+                  <span className="text-sm font-semibold text-emerald-700">{t('currency')}:</span>
                   <Select
                     value={analysisSettings.currency}
                     onValueChange={(v) => setAnalysisSettings(prev => ({ ...prev, currency: v as CurrencyType }))}
@@ -537,7 +538,7 @@ export default function SeasonalTrendsPage() {
                   </Select>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-emerald-700">Period:</span>
+                  <span className="text-sm font-semibold text-emerald-700">{t('period')}:</span>
                   <Select
                     value={analysisSettings.yearsBack.toString()}
                     onValueChange={(v) => setAnalysisSettings(prev => ({ ...prev, yearsBack: parseFloat(v) }))}
@@ -546,19 +547,19 @@ export default function SeasonalTrendsPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="0.083">1 Month</SelectItem>
-                      <SelectItem value="0.25">3 Months</SelectItem>
-                      <SelectItem value="0.5">6 Months</SelectItem>
-                      <SelectItem value="1">1 Year</SelectItem>
-                      <SelectItem value="3">3 Years</SelectItem>
-                      <SelectItem value="5">5 Years</SelectItem>
-                      <SelectItem value="10">10 Years</SelectItem>
-                      <SelectItem value="15">15 Years</SelectItem>
+                      <SelectItem value="0.083">{t('oneMonth')}</SelectItem>
+                      <SelectItem value="0.25">{t('threeMonths')}</SelectItem>
+                      <SelectItem value="0.5">{t('sixMonths')}</SelectItem>
+                      <SelectItem value="1">{t('oneYear')}</SelectItem>
+                      <SelectItem value="3">{t('threeYears')}</SelectItem>
+                      <SelectItem value="5">{t('fiveYears')}</SelectItem>
+                      <SelectItem value="10">{t('tenYears')}</SelectItem>
+                      <SelectItem value="15">{t('fifteenYears')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-emerald-700">Window:</span>
+                  <span className="text-sm font-semibold text-emerald-700">{t('window')}:</span>
                   <Select
                     value={analysisSettings.daysWindow.toString()}
                     onValueChange={(v) => setAnalysisSettings(prev => ({ ...prev, daysWindow: parseInt(v) }))}
@@ -578,7 +579,7 @@ export default function SeasonalTrendsPage() {
                 </div>
               </div>
               <Badge variant="outline" className="bg-emerald-100 text-emerald-700 border-emerald-300 font-medium">
-                📊 Global Analysis Settings
+                📊 {t('globalAnalysisSettings')}
               </Badge>
             </div>
           </CardContent>
@@ -596,35 +597,35 @@ export default function SeasonalTrendsPage() {
               className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-md rounded-lg transition-all"
             >
               <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">Overview</span>
+              <span className="hidden sm:inline">{t('overview')}</span>
             </TabsTrigger>
             <TabsTrigger
               value="calendar"
               className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-md rounded-lg transition-all"
             >
               <CalendarDays className="h-4 w-4" />
-              <span className="hidden sm:inline">Calendar</span>
+              <span className="hidden sm:inline">{t('calendar')}</span>
             </TabsTrigger>
             <TabsTrigger
               value="events"
               className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-md rounded-lg transition-all"
             >
               <BarChart3 className="h-4 w-4" />
-              <span className="hidden sm:inline">Event Analysis</span>
+              <span className="hidden sm:inline">{t('eventAnalysis')}</span>
             </TabsTrigger>
             <TabsTrigger
               value="market"
               className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-md rounded-lg transition-all"
             >
               <Activity className="h-4 w-4" />
-              <span className="hidden sm:inline">Market</span>
+              <span className="hidden sm:inline">{t('market')}</span>
             </TabsTrigger>
             <TabsTrigger
               value="manage"
               className="flex items-center gap-2 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:shadow-md rounded-lg transition-all"
             >
               <Settings2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Manage</span>
+              <span className="hidden sm:inline">{t('manage')}</span>
             </TabsTrigger>
           </TabsList>
 

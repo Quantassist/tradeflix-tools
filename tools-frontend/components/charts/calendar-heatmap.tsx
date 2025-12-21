@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { metalsPricesApi, CalendarHeatmapDay, MetalType, CurrencyType } from "@/lib/api/metals-prices"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
+import { useTranslations } from 'next-intl'
 import {
     Tooltip,
     TooltipContent,
@@ -60,6 +61,7 @@ export function CalendarHeatmap({
     yearsBack: initialYearsBack = 10,
     onSettingsChange,
 }: CalendarHeatmapProps) {
+    const t = useTranslations('seasonal')
     const [loading, setLoading] = useState(false)
     const [heatmapData, setHeatmapData] = useState<CalendarHeatmapDay[]>([])
     const [metal, setMetal] = useState<MetalType>(initialMetal)
@@ -105,7 +107,7 @@ export function CalendarHeatmap({
             setHeatmapData(response.daily_data || [])
         } catch (error) {
             console.error("Error loading heatmap data:", error)
-            toast.error("Failed to load calendar heatmap data")
+            toast.error(t('noHeatmapData'))
             setHeatmapData([])
         } finally {
             setLoading(false)
@@ -133,15 +135,15 @@ export function CalendarHeatmap({
         <StyledCard variant="amber">
             <StyledCardHeader
                 icon={Calendar}
-                title="Interactive Calendar Heatmap"
-                description={`${heatmapData.length} days analyzed • Daily return patterns`}
+                title={t('interactiveCalendarHeatmap')}
+                description={t('daysAnalyzed', { count: heatmapData.length })}
                 variant="amber"
                 action={
                     <Dialog>
                         <DialogTrigger asChild>
                             <Button className="bg-linear-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-md">
                                 <BookOpen className="h-4 w-4 mr-2" />
-                                Learn How It Works
+                                {t('learnHowItWorks')}
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-2xl">
@@ -150,28 +152,27 @@ export function CalendarHeatmap({
                                     <div className="p-2 bg-linear-to-br from-amber-500 to-orange-600 rounded-lg text-white">
                                         <Calendar className="h-5 w-5" />
                                     </div>
-                                    Calendar Heatmap Guide
+                                    {t('calendarHeatmapGuide')}
                                 </DialogTitle>
-                                <DialogDescription>Understanding daily seasonal patterns</DialogDescription>
+                                <DialogDescription>{t('understandingDailyPatterns')}</DialogDescription>
                             </DialogHeader>
                             <div className="space-y-4 mt-4">
                                 <div className="p-4 rounded-xl bg-linear-to-br from-amber-50 to-orange-50 border border-amber-100">
                                     <h4 className="font-bold text-amber-800 mb-2 flex items-center gap-2">
                                         <Info className="h-4 w-4" />
-                                        What is the Calendar Heatmap?
+                                        {t('whatIsCalendarHeatmap')}
                                     </h4>
                                     <p className="text-sm text-amber-700">
-                                        This heatmap shows the average daily return for each calendar day based on historical data.
-                                        It helps identify which specific days of the year tend to be bullish or bearish.
+                                        {t('calendarHeatmapDesc')}
                                     </p>
                                 </div>
                                 <div className="p-4 rounded-xl bg-slate-50 border">
-                                    <h4 className="font-bold text-slate-800 mb-2">Color Legend</h4>
+                                    <h4 className="font-bold text-slate-800 mb-2">{t('colorLegend')}</h4>
                                     <ul className="text-sm text-slate-600 space-y-2">
-                                        <li>• <strong className="text-emerald-600">Green shades</strong>: Positive average returns</li>
-                                        <li>• <strong className="text-red-600">Red shades</strong>: Negative average returns</li>
-                                        <li>• Darker colors indicate stronger returns</li>
-                                        <li>• Click any day to see detailed statistics</li>
+                                        <li>• <strong className="text-emerald-600">{t('greenShades')}</strong>: {t('greenShadesDesc')}</li>
+                                        <li>• <strong className="text-red-600">{t('redShades')}</strong>: {t('redShadesDesc')}</li>
+                                        <li>• {t('darkerColors')}</li>
+                                        <li>• {t('clickAnyDay')}</li>
                                     </ul>
                                 </div>
                             </div>
@@ -187,10 +188,10 @@ export function CalendarHeatmap({
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="GOLD">Gold</SelectItem>
-                            <SelectItem value="SILVER">Silver</SelectItem>
-                            <SelectItem value="PLATINUM">Platinum</SelectItem>
-                            <SelectItem value="PALLADIUM">Palladium</SelectItem>
+                            <SelectItem value="GOLD">{t('gold')}</SelectItem>
+                            <SelectItem value="SILVER">{t('silver')}</SelectItem>
+                            <SelectItem value="PLATINUM">{t('platinum')}</SelectItem>
+                            <SelectItem value="PALLADIUM">{t('palladium')}</SelectItem>
                         </SelectContent>
                     </Select>
 
@@ -209,10 +210,10 @@ export function CalendarHeatmap({
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="5">5 Years</SelectItem>
-                            <SelectItem value="10">10 Years</SelectItem>
-                            <SelectItem value="15">15 Years</SelectItem>
-                            <SelectItem value="20">20 Years</SelectItem>
+                            <SelectItem value="5">{t('fiveYears')}</SelectItem>
+                            <SelectItem value="10">{t('tenYears')}</SelectItem>
+                            <SelectItem value="15">{t('fifteenYears')}</SelectItem>
+                            <SelectItem value="20">{t('twentyYears')}</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -223,7 +224,7 @@ export function CalendarHeatmap({
                 ) : heatmapData.length === 0 ? (
                     <div className="text-center py-16 text-gray-500">
                         <Calendar className="h-12 w-12 mx-auto mb-3 opacity-40" />
-                        <p>No heatmap data available</p>
+                        <p>{t('noHeatmapData')}</p>
                     </div>
                 ) : (
                     <div className="space-y-6">
@@ -235,7 +236,7 @@ export function CalendarHeatmap({
                                     animate={{ opacity: 1, y: 0 }}
                                     className="p-4 bg-linear-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200"
                                 >
-                                    <p className="text-xs text-amber-600 font-medium mb-1">Avg Daily Return</p>
+                                    <p className="text-xs text-amber-600 font-medium mb-1">{t('avgDailyReturn')}</p>
                                     <p className={`text-xl font-bold ${stats.avgReturn >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                                         {stats.avgReturn >= 0 ? '+' : ''}{stats.avgReturn.toFixed(3)}%
                                     </p>
@@ -247,7 +248,7 @@ export function CalendarHeatmap({
                                     transition={{ delay: 0.1 }}
                                     className="p-4 bg-linear-to-br from-emerald-50 to-green-50 rounded-xl border border-emerald-200"
                                 >
-                                    <p className="text-xs text-emerald-600 font-medium mb-1">Best Day</p>
+                                    <p className="text-xs text-emerald-600 font-medium mb-1">{t('bestDay')}</p>
                                     <p className="text-xl font-bold text-emerald-600">
                                         {formatDate(stats.bestDay.month, stats.bestDay.day)}
                                     </p>
@@ -260,7 +261,7 @@ export function CalendarHeatmap({
                                     transition={{ delay: 0.2 }}
                                     className="p-4 bg-linear-to-br from-red-50 to-rose-50 rounded-xl border border-red-200"
                                 >
-                                    <p className="text-xs text-red-600 font-medium mb-1">Worst Day</p>
+                                    <p className="text-xs text-red-600 font-medium mb-1">{t('worstDay')}</p>
                                     <p className="text-xl font-bold text-red-600">
                                         {formatDate(stats.worstDay.month, stats.worstDay.day)}
                                     </p>
@@ -273,7 +274,7 @@ export function CalendarHeatmap({
                                     transition={{ delay: 0.3 }}
                                     className="p-4 bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
                                 >
-                                    <p className="text-xs text-blue-600 font-medium mb-1">Positive Days</p>
+                                    <p className="text-xs text-blue-600 font-medium mb-1">{t('positiveDays')}</p>
                                     <p className="text-xl font-bold text-blue-600">
                                         {stats.positiveRate.toFixed(1)}%
                                     </p>
@@ -336,18 +337,18 @@ export function CalendarHeatmap({
                                                             <div className="space-y-2">
                                                                 <p className="font-semibold text-sm">{formatDate(month, day)}</p>
                                                                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                                                                    <span className="text-gray-500">Avg Return:</span>
+                                                                    <span className="text-gray-500">{t('avgReturn')}:</span>
                                                                     <span className={`font-medium ${dayData.avg_return >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                                                                         {dayData.avg_return >= 0 ? '+' : ''}{dayData.avg_return.toFixed(3)}%
                                                                     </span>
-                                                                    <span className="text-gray-500">Win Rate:</span>
+                                                                    <span className="text-gray-500">{t('winRate')}:</span>
                                                                     <span className="font-medium">{dayData.win_rate.toFixed(1)}%</span>
-                                                                    <span className="text-gray-500">Best:</span>
+                                                                    <span className="text-gray-500">{t('best')}:</span>
                                                                     <span className="text-emerald-600">+{dayData.best_return.toFixed(2)}%</span>
-                                                                    <span className="text-gray-500">Worst:</span>
+                                                                    <span className="text-gray-500">{t('worst')}:</span>
                                                                     <span className="text-red-600">{dayData.worst_return.toFixed(2)}%</span>
-                                                                    <span className="text-gray-500">Samples:</span>
-                                                                    <span>{dayData.occurrences} years</span>
+                                                                    <span className="text-gray-500">{t('samples')}:</span>
+                                                                    <span>{dayData.occurrences} {t('years')}</span>
                                                                 </div>
                                                             </div>
                                                         </TooltipContent>
@@ -369,11 +370,11 @@ export function CalendarHeatmap({
                                     <div className="w-4 h-4 rounded bg-red-400" />
                                     <div className="w-4 h-4 rounded bg-red-200" />
                                 </div>
-                                <span className="text-xs text-gray-500">Negative</span>
+                                <span className="text-xs text-gray-500">{t('negative')}</span>
                             </div>
                             <div className="w-4 h-4 rounded bg-gray-100 border" />
                             <div className="flex items-center gap-2">
-                                <span className="text-xs text-gray-500">Positive</span>
+                                <span className="text-xs text-gray-500">{t('positive')}</span>
                                 <div className="flex gap-1">
                                     <div className="w-4 h-4 rounded bg-emerald-200" />
                                     <div className="w-4 h-4 rounded bg-emerald-400" />
@@ -393,10 +394,10 @@ export function CalendarHeatmap({
                                 <div className="flex items-start justify-between">
                                     <div>
                                         <h4 className="font-semibold text-lg text-gray-800">
-                                            {formatDate(selectedDay.month, selectedDay.day)} - Detailed Analysis
+                                            {formatDate(selectedDay.month, selectedDay.day)} - {t('detailedAnalysis')}
                                         </h4>
                                         <p className="text-sm text-gray-600 mt-1">
-                                            Based on {selectedDay.occurrences} years of historical data
+                                            {t('basedOnHistoricalData', { years: selectedDay.occurrences })}
                                         </p>
                                     </div>
                                     <button
@@ -408,25 +409,25 @@ export function CalendarHeatmap({
                                 </div>
                                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4">
                                     <div>
-                                        <p className="text-xs text-gray-500">Avg Return</p>
+                                        <p className="text-xs text-gray-500">{t('avgReturn')}</p>
                                         <p className={`text-lg font-bold ${selectedDay.avg_return >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                                             {selectedDay.avg_return >= 0 ? '+' : ''}{selectedDay.avg_return.toFixed(3)}%
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="text-xs text-gray-500">Win Rate</p>
+                                        <p className="text-xs text-gray-500">{t('winRate')}</p>
                                         <p className="text-lg font-bold text-blue-600">{selectedDay.win_rate.toFixed(1)}%</p>
                                     </div>
                                     <div>
-                                        <p className="text-xs text-gray-500">Best Return</p>
+                                        <p className="text-xs text-gray-500">{t('bestReturn')}</p>
                                         <p className="text-lg font-bold text-emerald-600">+{selectedDay.best_return.toFixed(2)}%</p>
                                     </div>
                                     <div>
-                                        <p className="text-xs text-gray-500">Worst Return</p>
+                                        <p className="text-xs text-gray-500">{t('worstReturn')}</p>
                                         <p className="text-lg font-bold text-red-600">{selectedDay.worst_return.toFixed(2)}%</p>
                                     </div>
                                     <div>
-                                        <p className="text-xs text-gray-500">Data Points</p>
+                                        <p className="text-xs text-gray-500">{t('samples')}</p>
                                         <p className="text-lg font-bold text-gray-700">{selectedDay.occurrences}</p>
                                     </div>
                                 </div>

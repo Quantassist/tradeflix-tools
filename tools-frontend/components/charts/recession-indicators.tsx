@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { metalsPricesApi, RecessionIndicatorsResponse, MetalType, CurrencyType } from "@/lib/api/metals-prices"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
+import { useTranslations } from 'next-intl'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from "recharts"
 
 interface RecessionIndicatorsProps {
@@ -43,6 +44,7 @@ export function RecessionIndicators({
     currency: initialCurrency = "INR",
     onSettingsChange,
 }: RecessionIndicatorsProps) {
+    const t = useTranslations('seasonal')
     const [loading, setLoading] = useState(false)
     const [data, setData] = useState<RecessionIndicatorsResponse | null>(null)
     const [metal, setMetal] = useState<MetalType>(initialMetal)
@@ -55,7 +57,7 @@ export function RecessionIndicators({
             setData(response)
         } catch (error) {
             console.error("Error loading recession indicators:", error)
-            toast.error("Failed to load recession indicators")
+            toast.error(t('noRecessionData'))
             setData(null)
         } finally {
             setLoading(false)
@@ -85,8 +87,8 @@ export function RecessionIndicators({
         <StyledCard variant="pink">
             <StyledCardHeader
                 icon={AlertTriangle}
-                title="Recession & Crisis Indicators"
-                description={`${data?.summary.periods_with_data || 0} periods analyzed • Historical crisis performance`}
+                title={t('recessionCrisisIndicators')}
+                description={t('periodsAnalyzed', { count: data?.summary.periods_with_data || 0 })}
                 variant="pink"
                 action={
                     <div className="flex items-center gap-2 flex-wrap">
@@ -94,7 +96,7 @@ export function RecessionIndicators({
                             <DialogTrigger asChild>
                                 <Button className="bg-linear-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white shadow-md">
                                     <BookOpen className="h-4 w-4 mr-2" />
-                                    Learn How It Works
+                                    {t('learnHowItWorks')}
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-2xl">
@@ -103,28 +105,27 @@ export function RecessionIndicators({
                                         <div className="p-2 bg-linear-to-br from-rose-500 to-pink-600 rounded-lg text-white">
                                             <AlertTriangle className="h-5 w-5" />
                                         </div>
-                                        Recession & Crisis Guide
+                                        {t('recessionCrisisGuide')}
                                     </DialogTitle>
-                                    <DialogDescription>Understanding how precious metals perform during economic crises</DialogDescription>
+                                    <DialogDescription>{t('understandingCrisisPerformance')}</DialogDescription>
                                 </DialogHeader>
                                 <div className="space-y-4 mt-4">
                                     <div className="p-4 rounded-xl bg-linear-to-br from-rose-50 to-pink-50 border border-rose-100">
                                         <h4 className="font-bold text-rose-800 mb-2 flex items-center gap-2">
                                             <Shield className="h-4 w-4" />
-                                            Gold as a Safe Haven
+                                            {t('goldSafeHaven')}
                                         </h4>
                                         <p className="text-sm text-rose-700">
-                                            During economic crises and recessions, gold historically acts as a safe haven asset,
-                                            often appreciating when other assets decline.
+                                            {t('goldSafeHavenDesc')}
                                         </p>
                                     </div>
                                     <div className="p-4 rounded-xl bg-slate-50 border">
-                                        <h4 className="font-bold text-slate-800 mb-2">Crisis Types Analyzed</h4>
+                                        <h4 className="font-bold text-slate-800 mb-2">{t('crisisTypesAnalyzed')}</h4>
                                         <ul className="text-sm text-slate-600 space-y-2">
-                                            <li>• <strong>Global Crisis</strong>: Worldwide economic downturns (2008, 2020)</li>
-                                            <li>• <strong>US Recession</strong>: US-specific economic contractions</li>
-                                            <li>• <strong>Financial Crisis</strong>: Banking and market crashes</li>
-                                            <li>• <strong>Trade Wars</strong>: International trade conflicts</li>
+                                            <li>• <strong>{t('globalCrisis')}</strong>: {t('globalCrisisDesc')}</li>
+                                            <li>• <strong>{t('usRecession')}</strong>: {t('usRecessionDesc')}</li>
+                                            <li>• <strong>{t('financialCrisis')}</strong>: {t('financialCrisisDesc')}</li>
+                                            <li>• <strong>{t('tradeWars')}</strong>: {t('tradeWarsDesc')}</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -140,10 +141,10 @@ export function RecessionIndicators({
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="GOLD">Gold</SelectItem>
-                            <SelectItem value="SILVER">Silver</SelectItem>
-                            <SelectItem value="PLATINUM">Platinum</SelectItem>
-                            <SelectItem value="PALLADIUM">Palladium</SelectItem>
+                            <SelectItem value="GOLD">{t('gold')}</SelectItem>
+                            <SelectItem value="SILVER">{t('silver')}</SelectItem>
+                            <SelectItem value="PLATINUM">{t('platinum')}</SelectItem>
+                            <SelectItem value="PALLADIUM">{t('palladium')}</SelectItem>
                         </SelectContent>
                     </Select>
 
@@ -164,7 +165,7 @@ export function RecessionIndicators({
                 ) : !data ? (
                     <div className="text-center py-16 text-gray-500">
                         <AlertTriangle className="h-12 w-12 mx-auto mb-3 opacity-40" />
-                        <p>No recession data available</p>
+                        <p>{t('noRecessionData')}</p>
                     </div>
                 ) : (
                     <div className="space-y-6">
@@ -177,7 +178,7 @@ export function RecessionIndicators({
                             >
                                 <div className="flex items-center gap-2 mb-1">
                                     <Shield className="h-4 w-4 text-rose-600" />
-                                    <p className="text-xs text-rose-600 font-medium">Safe Haven Rate</p>
+                                    <p className="text-xs text-rose-600 font-medium">{t('safeHavenRate')}</p>
                                 </div>
                                 <p className="text-2xl font-bold text-rose-700">
                                     {data.summary.positive_rate}%
@@ -195,12 +196,12 @@ export function RecessionIndicators({
                             >
                                 <div className="flex items-center gap-2 mb-1">
                                     <BarChart3 className="h-4 w-4 text-blue-600" />
-                                    <p className="text-xs text-blue-600 font-medium">Avg Return</p>
+                                    <p className="text-xs text-blue-600 font-medium">{t('avgReturn')}</p>
                                 </div>
                                 <p className={`text-2xl font-bold ${data.summary.avg_price_change >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                                     {data.summary.avg_price_change >= 0 ? '+' : ''}{data.summary.avg_price_change}%
                                 </p>
-                                <p className="text-xs text-blue-500 mt-1">During crisis periods</p>
+                                <p className="text-xs text-blue-500 mt-1">{t('duringCrisisPeriods')}</p>
                             </motion.div>
 
                             <motion.div
@@ -211,7 +212,7 @@ export function RecessionIndicators({
                             >
                                 <div className="flex items-center gap-2 mb-1">
                                     <TrendingUp className="h-4 w-4 text-emerald-600" />
-                                    <p className="text-xs text-emerald-600 font-medium">Best Performance</p>
+                                    <p className="text-xs text-emerald-600 font-medium">{t('bestPerformance')}</p>
                                 </div>
                                 <p className="text-lg font-bold text-emerald-600 truncate">
                                     {data.summary.best_period || "N/A"}
@@ -229,7 +230,7 @@ export function RecessionIndicators({
                             >
                                 <div className="flex items-center gap-2 mb-1">
                                     <TrendingDown className="h-4 w-4 text-red-600" />
-                                    <p className="text-xs text-red-600 font-medium">Worst Performance</p>
+                                    <p className="text-xs text-red-600 font-medium">{t('worstPerformance')}</p>
                                 </div>
                                 <p className="text-lg font-bold text-red-600 truncate">
                                     {data.summary.worst_period || "N/A"}
@@ -282,18 +283,18 @@ export function RecessionIndicators({
 
                         {/* Recession Periods Table */}
                         <div className="space-y-3">
-                            <h4 className="font-semibold text-sm text-gray-700">Crisis Period Details</h4>
+                            <h4 className="font-semibold text-sm text-gray-700">{t('crisisPeriodDetails')}</h4>
                             <div className="overflow-x-auto rounded-lg border">
                                 <table className="w-full text-sm">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th className="text-left p-3 font-semibold text-gray-700">Crisis Period</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Type</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Duration</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Return</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Max Gain</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Max DD</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Volatility</th>
+                                            <th className="text-left p-3 font-semibold text-gray-700">{t('crisisPeriod')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('type')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('duration')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('return')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('maxGain')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('maxDD')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('volatility')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -319,7 +320,7 @@ export function RecessionIndicators({
                                                             {period.price_change_pct && period.price_change_pct >= 0 ? '+' : ''}{period.price_change_pct?.toFixed(1)}%
                                                         </span>
                                                     ) : (
-                                                        <span className="text-gray-400">No Data</span>
+                                                        <span className="text-gray-400">{t('noData')}</span>
                                                     )}
                                                 </td>
                                                 <td className="p-3 text-center">

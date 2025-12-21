@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslations } from 'next-intl'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -23,6 +24,7 @@ interface DeleteEventDialogProps {
 }
 
 export function DeleteEventDialog({ event, open, onOpenChange, onEventDeleted }: DeleteEventDialogProps) {
+    const t = useTranslations('seasonal')
     const [loading, setLoading] = useState(false)
 
     const handleDelete = async () => {
@@ -31,7 +33,7 @@ export function DeleteEventDialog({ event, open, onOpenChange, onEventDeleted }:
         setLoading(true)
         try {
             await seasonalEventsApi.deleteEvent(event.id)
-            toast.success(`Event "${event.name}" deleted successfully!`)
+            toast.success(t('eventDeletedSuccess'))
             onOpenChange(false)
             onEventDeleted?.()
         } catch (error: unknown) {
@@ -55,14 +57,13 @@ export function DeleteEventDialog({ event, open, onOpenChange, onEventDeleted }:
         <AlertDialog open={open} onOpenChange={onOpenChange}>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Event</AlertDialogTitle>
+                    <AlertDialogTitle>{t('deleteSeasonalEvent')}</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Are you sure you want to delete <strong>&quot;{event.name}&quot;</strong>?
-                        This action cannot be undone.
+                        {t('deleteConfirmation', { name: event.name })}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel disabled={loading}>{t('cancel')}</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={handleDelete}
                         disabled={loading}
@@ -71,10 +72,10 @@ export function DeleteEventDialog({ event, open, onOpenChange, onEventDeleted }:
                         {loading ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Deleting...
+                                {t('deleting')}
                             </>
                         ) : (
-                            "Delete"
+                            t('delete')
                         )}
                     </AlertDialogAction>
                 </AlertDialogFooter>

@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { metalsPricesApi, SeasonalEventAnalysis, MetalType, CurrencyType } from "@/lib/api/metals-prices"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
+import { useTranslations } from 'next-intl'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from "recharts"
 
 interface EconomicEventsAnalysisProps {
@@ -41,6 +42,7 @@ export function EconomicEventsAnalysis({
     currency: initialCurrency = "INR",
     yearsBack: initialYearsBack = 10,
 }: EconomicEventsAnalysisProps) {
+    const t = useTranslations('seasonal')
     const [loading, setLoading] = useState(false)
     const [events, setEvents] = useState<SeasonalEventAnalysis[]>([])
     const [metal, setMetal] = useState<MetalType>(initialMetal)
@@ -55,7 +57,7 @@ export function EconomicEventsAnalysis({
             setEvents(response.events || [])
         } catch (error) {
             console.error("Error loading economic events:", error)
-            toast.error("Failed to load economic events analysis")
+            toast.error(t('noEconomicEventsData'))
             setEvents([])
         } finally {
             setLoading(false)
@@ -133,8 +135,8 @@ export function EconomicEventsAnalysis({
         <StyledCard variant="indigo">
             <StyledCardHeader
                 icon={Building2}
-                title="Economic Events Deep Analysis"
-                description={`${economicEvents.length} economic events • FOMC, Budget, Policy impacts`}
+                title={t('economicEventsDeepAnalysis')}
+                description={t('economicEventsCount', { count: economicEvents.length })}
                 variant="indigo"
                 action={
                     <div className="flex items-center gap-2 flex-wrap">
@@ -142,7 +144,7 @@ export function EconomicEventsAnalysis({
                             <DialogTrigger asChild>
                                 <Button className="bg-linear-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white shadow-md">
                                     <BookOpen className="h-4 w-4 mr-2" />
-                                    Learn How It Works
+                                    {t('learnHowItWorks')}
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-2xl">
@@ -151,28 +153,27 @@ export function EconomicEventsAnalysis({
                                         <div className="p-2 bg-linear-to-br from-indigo-500 to-violet-600 rounded-lg text-white">
                                             <Building2 className="h-5 w-5" />
                                         </div>
-                                        Economic Events Guide
+                                        {t('economicEventsGuide')}
                                     </DialogTitle>
-                                    <DialogDescription>Understanding how economic events affect precious metals</DialogDescription>
+                                    <DialogDescription>{t('understandingEconomicEvents')}</DialogDescription>
                                 </DialogHeader>
                                 <div className="space-y-4 mt-4">
                                     <div className="p-4 rounded-xl bg-linear-to-br from-indigo-50 to-violet-50 border border-indigo-100">
                                         <h4 className="font-bold text-indigo-800 mb-2 flex items-center gap-2">
                                             <Info className="h-4 w-4" />
-                                            What are Economic Events?
+                                            {t('whatAreEconomicEvents')}
                                         </h4>
                                         <p className="text-sm text-indigo-700">
-                                            Economic events include FOMC meetings, budget announcements, policy changes, and macro releases
-                                            that can significantly impact precious metal prices.
+                                            {t('economicEventsDesc')}
                                         </p>
                                     </div>
                                     <div className="p-4 rounded-xl bg-slate-50 border">
-                                        <h4 className="font-bold text-slate-800 mb-2">Event Categories</h4>
+                                        <h4 className="font-bold text-slate-800 mb-2">{t('eventCategories')}</h4>
                                         <ul className="text-sm text-slate-600 space-y-2">
-                                            <li>• <strong>FOMC Meetings</strong>: Federal Reserve interest rate decisions</li>
-                                            <li>• <strong>Budget Events</strong>: Government budget announcements</li>
-                                            <li>• <strong>Policy Events</strong>: Major policy changes affecting markets</li>
-                                            <li>• <strong>Macro Releases</strong>: GDP, inflation, employment data</li>
+                                            <li>• <strong>{t('fomcMeetings')}</strong>: {t('fomcMeetingsDesc')}</li>
+                                            <li>• <strong>{t('budgetEvents')}</strong>: {t('budgetEventsDesc')}</li>
+                                            <li>• <strong>{t('policyEvents')}</strong>: {t('policyEventsDesc')}</li>
+                                            <li>• <strong>{t('macroReleases')}</strong>: {t('macroReleasesDesc')}</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -188,10 +189,10 @@ export function EconomicEventsAnalysis({
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="GOLD">Gold</SelectItem>
-                            <SelectItem value="SILVER">Silver</SelectItem>
-                            <SelectItem value="PLATINUM">Platinum</SelectItem>
-                            <SelectItem value="PALLADIUM">Palladium</SelectItem>
+                            <SelectItem value="GOLD">{t('gold')}</SelectItem>
+                            <SelectItem value="SILVER">{t('silver')}</SelectItem>
+                            <SelectItem value="PLATINUM">{t('platinum')}</SelectItem>
+                            <SelectItem value="PALLADIUM">{t('palladium')}</SelectItem>
                         </SelectContent>
                     </Select>
 
@@ -210,9 +211,9 @@ export function EconomicEventsAnalysis({
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="5">5 Years</SelectItem>
-                            <SelectItem value="10">10 Years</SelectItem>
-                            <SelectItem value="15">15 Years</SelectItem>
+                            <SelectItem value="5">{t('fiveYears')}</SelectItem>
+                            <SelectItem value="10">{t('tenYears')}</SelectItem>
+                            <SelectItem value="15">{t('fifteenYears')}</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -223,7 +224,7 @@ export function EconomicEventsAnalysis({
                 ) : economicEvents.length === 0 ? (
                     <div className="text-center py-16 text-gray-500">
                         <Building2 className="h-12 w-12 mx-auto mb-3 opacity-40" />
-                        <p>No economic events data available</p>
+                        <p>{t('noEconomicEventsData')}</p>
                     </div>
                 ) : (
                     <div className="space-y-6">
@@ -264,11 +265,11 @@ export function EconomicEventsAnalysis({
                         {/* Category Filter Tabs */}
                         <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
                             <TabsList className="grid w-full grid-cols-5">
-                                <TabsTrigger value="all">All Events</TabsTrigger>
-                                <TabsTrigger value="fomc">FOMC</TabsTrigger>
-                                <TabsTrigger value="budget">Budget</TabsTrigger>
-                                <TabsTrigger value="policy">Policy</TabsTrigger>
-                                <TabsTrigger value="macro">Macro</TabsTrigger>
+                                <TabsTrigger value="all">{t('allEvents')}</TabsTrigger>
+                                <TabsTrigger value="fomc">{t('fomc')}</TabsTrigger>
+                                <TabsTrigger value="budget">{t('budget')}</TabsTrigger>
+                                <TabsTrigger value="policy">{t('policy')}</TabsTrigger>
+                                <TabsTrigger value="macro">{t('macro')}</TabsTrigger>
                             </TabsList>
                         </Tabs>
 
@@ -317,20 +318,20 @@ export function EconomicEventsAnalysis({
                         {/* Detailed Event Table */}
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                                <h4 className="font-semibold text-sm text-gray-700">Event Details ({filteredEvents.length} events)</h4>
+                                <h4 className="font-semibold text-sm text-gray-700">{t('eventDetails')} ({filteredEvents.length})</h4>
                             </div>
                             <div className="overflow-x-auto rounded-lg border">
                                 <table className="w-full text-sm">
                                     <thead className="bg-gray-50">
                                         <tr>
-                                            <th className="text-left p-3 font-semibold text-gray-700">Event</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Type</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Date</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Avg Return</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Win Rate</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Best</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Worst</th>
-                                            <th className="text-center p-3 font-semibold text-gray-700">Years</th>
+                                            <th className="text-left p-3 font-semibold text-gray-700">{t('event')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('type')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('date')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('avgReturn')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('winRate')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('best')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('worst')}</th>
+                                            <th className="text-center p-3 font-semibold text-gray-700">{t('years')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
